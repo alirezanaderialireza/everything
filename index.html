@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آیدا شیرازی - نقشه راه جامع مالی و مالیاتی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --gold: #F7C851;
+            --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: white;
+            color: var(--slate-600);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .font-display {
+            font-family: var(--font-display);
+            color: var(--slate-800);
+        }
+
+        .main-header {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-link {
+            transition: color 0.3s ease;
+            color: var(--slate-800);
+            font-weight: 500;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            right: 0;
+            background-color: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-link:hover {
+            color: var(--navy);
+        }
+
+        .btn {
+            padding: 0.75rem 1.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: var(--navy);
+        }
+
+        .btn-gold:hover {
+            background-color: #f8d270;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(247, 200, 81, 0.25);
+        }
+    </style>
+</head>
+
+<body class="bg-white">
+
+    <div id="landing-page">
+        <header class="main-header sticky top-0 z-50">
+            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو"
+                        class="w-10 h-10 rounded-full">
+                    <a href="#" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+                    <a href="#roadmap" class="nav-link">نقشه راه</a>
+                    <a href="#updates" class="nav-link">آخرین تغییرات</a>
+                    <a href="#about" class="nav-link">درباره من</a>
+                </div>
+                <div id="profile-section" class="relative">
+                    <a href="#" id="login-btn" class="btn btn-gold flex">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>ورود / ثبت‌نام</span>
+                    </a>
+                    <div id="user-menu" class="hidden">
+                        <button id="profile-toggle-btn"
+                            class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
+                            <i class="fa-solid fa-user text-slate-600"></i>
+                        </button>
+                        <div id="dropdown-menu"
+                            class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
+                            <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <section class="text-center" style="background-color: var(--navy);">
+                <div class="container mx-auto px-6 py-32 md:py-40">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-4 font-display text-white">
+                        متخصص امور مالیاتی <span style="color: var(--gold);">کسب‌وکار خود</span> شوید
+                    </h1>
+                    <p class="text-lg max-w-2xl mx-auto mb-8 text-slate-300 leading-relaxed">
+                        با نقشه راه جامع و آموزش‌های ویدیویی ما، یک بار برای همیشه تمام پیچیدگی‌های مالیات و حسابداری را به زبان ساده بیاموزید.
+                    </p>
+                    <div>
+                        <a href="#roadmap" class="btn btn-gold">
+                            <i class="fa-solid fa-map-signs"></i>
+                            <span>مشاهده نقشه راه</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <section id="roadmap" class="py-24 sm:py-32 overflow-hidden">
+                <div class="container mx-auto px-6">
+                    <div class="text-center max-w-3xl mx-auto">
+                        <h2 class="text-4xl md:text-5xl font-display">نقشه راه جامع مالیاتی شما</h2>
+                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                            این مسیر آموزشی، شما را قدم به قدم از سطح مبتدی به یک متخصص توانمند تبدیل می‌کند. هر مرحله یک دوره کامل برای تسلط بر یکی از جنبه‌های کلیدی امور مالی است.
+                        </p>
+                    </div>
+                    
+                    <div class="relative mt-24">
+                        <div class="absolute left-1/2 top-2 h-full w-0.5 bg-slate-200 -translate-x-1/2" aria-hidden="true"></div>
+                        <div class="space-y-20 md:space-y-28">
+                            <div class="relative flex items-center">
+                                <div class="w-full md:w-1/2 md:pr-12">
+                                    <div class="group relative bg-white p-8 rounded-xl border border-slate-200 shadow-lg transition-shadow duration-300 hover:shadow-2xl">
+                                        <span class="absolute top-4 -right-10 font-display text-8xl font-bold text-slate-100/80 -z-10">01</span>
+                                        <div class="mb-4 text-right">
+                                            <i class="fa-solid fa-percent text-4xl text-[var(--gold)]"></i>
+                                        </div>
+                                        <h3 class="text-2xl font-display mb-3 text-slate-800">دوره ارزش افزوده</h3>
+                                        <p class="text-slate-600 leading-relaxed mb-6">از ثبت‌نام تا ارسال اظهارنامه و دریافت اعتبار مالیاتی، تمام مراحل را به صورت عملی بیاموزید.</p>
+                                        <a href="#" class="font-semibold text-[var(--navy)] group-hover:text-[var(--gold)] transition-colors duration-300 flex items-center">
+                                            <i class="fa-solid fa-arrow-left ml-3 transition-transform duration-300 group-hover:translate-x-1.5"></i>
+                                            <span>مشاهده جزئیات دوره</span>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--gold)] border-4 border-white shadow-md"></div>
+                            </div>
+                            <div class="relative flex items-center md:flex-row-reverse">
+                                <div class="w-full md:w-1/2 md:pl-12">
+                                    <div class="group relative bg-white p-8 rounded-xl border border-slate-200 shadow-lg transition-shadow duration-300 hover:shadow-2xl text-right">
+                                        <span class="absolute top-4 -left-10 font-display text-8xl font-bold text-slate-100/80 -z-10">02</span>
+                                        <div class="mb-4">
+                                            <i class="fa-solid fa-file-invoice-dollar text-4xl text-[var(--gold)]"></i>
+                                        </div>
+                                        <h3 class="text-2xl font-display mb-3 text-slate-800">دوره اظهارنامه عملکرد</h3>
+                                        <p class="text-slate-600 leading-relaxed mb-6">یاد بگیرید چگونه اظهارنامه سالانه خود را بدون نقص و با استفاده از تمام ظرفیت‌های قانونی تکمیل کنید.</p>
+                                        <a href="#" class="font-semibold text-[var(--navy)] group-hover:text-[var(--gold)] transition-colors duration-300 flex items-center justify-end">
+                                            <span>مشاهده جزئیات دوره</span>
+                                            <i class="fa-solid fa-arrow-left mr-3 transition-transform duration-300 group-hover:-translate-x-1.5"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--gold)] border-4 border-white shadow-md"></div>
+                            </div>
+                            </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="updates" class="py-24 sm:py-32" style="background-color: var(--slate-100);">
+                <div class="container mx-auto px-6">
+                    <div class="text-center max-w-2xl mx-auto">
+                        <h2 class="text-4xl md:text-5xl font-display">آخرین تغییرات و اخبار</h2>
+                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                            در این بخش می‌توانید از آخرین تغییرات در قوانین مالیاتی، حسابداری و تامین اجتماعی مطلع شوید.
+                        </p>
+                    </div>
+                    <div class="max-w-3xl mx-auto mt-16 space-y-8">
+                        <div class="flex items-center gap-6">
+                            <div class="bg-[var(--navy)] text-center rounded-lg p-4 min-w-[80px]">
+                                <span class="block text-3xl font-bold text-white font-sans">25</span>
+                                <span class="block text-sm text-[var(--gold)]">شهریور</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-display mb-1">تغییرات جدید در نرخ مالیات بر ارزش افزوده</h3>
+                                <p class="text-slate-600">طبق بخشنامه جدید سازمان امور مالیاتی، نرخ مالیات بر ارزش افزوده برای برخی کالاها و خدمات تغییر کرده است. برای اطلاعات بیشتر کلیک کنید.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="about" class="py-24 sm:py-32">
+                <div class="container mx-auto px-6 text-center">
+                    <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="آیدا شیرازی"
+                        class="w-32 h-32 rounded-full mx-auto mb-6 border-4 shadow-lg"
+                        style="border-color: var(--gold);">
+                    <h2 class="text-4xl md:text-5xl font-display">با آیدا شیرازی آشنا شوید</h2>
+                    <p class="max-w-3xl mx-auto text-slate-700 text-lg mt-6 leading-loose">
+                        من آیدا شیرازی، مشاور و مدرس امور مالیاتی، با سال‌ها تجربه در زمینه حسابرسی و ارائه مشاوره به کسب‌وکارهای مختلف، تصمیم گرفتم تا دانش خود را در قالب یک نقشه راه جامع و کاربردی در اختیار شما قرار دهم. هدف من، توانمندسازی مدیران و صاحبان کسب‌وکار برای مدیریت هوشمندانه و مستقلانه امور مالی‌شان است.
+                    </p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="py-8" style="background-color: var(--navy); color: white;">
+            <div class="container mx-auto px-6 text-center">
+                <p class="text-slate-300">&copy; 2025 - تمامی حقوق برای وب‌سایت آموزشی آیدا شیرازی محفوظ است.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // DOM Elements
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const profileToggleBtn = document.getElementById('profile-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // Check user auth state on page load
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // Toggle dropdown menu
+        profileToggleBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Close dropdown if clicked outside
+        window.addEventListener('click', () => {
+            if (!dropdownMenu.classList.contains('hidden')) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // Handle logout
+        logoutBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+            await _supabase.auth.signOut();
+        });
+        
+        // Handle login/signup button click
+        loginBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            // You should create a separate page or a modal for login/signup forms.
+            // This button can redirect to that page, e.g., window.location.href = '/login.html'; 
+            alert('صفحه ورود و ثبت‌نام را اینجا پیاده‌سازی کنید!');
+        });
+    </script>
+</body>
+</html>

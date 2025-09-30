@@ -366,7 +366,7 @@
             let selectedDate = null;
 
             async function fetchEvents(year) {
-                const apiUrl = `http://127.0.0.1:5000/api/events/${year}`;
+                const apiUrl = `https://yourusername.pythonanywhere.com/api/events/${currentShamsiYear}`;
                 try {
                     const response = await fetch(apiUrl);
                     if (!response.ok) throw new Error('Network response was not ok');

@@ -77,32 +77,74 @@
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
         const usernameForm = document.getElementById('username-form');
+        const usernameInput = document.getElementById('username');
         const passwordForm = document.getElementById('password-form');
         let currentUser = null;
+        let currentProfile = null; // To store the user's profile data
 
+        // START: Logic Update - Fetch current user data on page load
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { user } } = await _supabase.auth.getUser();
             if (!user) {
                 window.location.href = 'login.html';
             } else {
                 currentUser = user;
-            }
-        });
-
-        usernameForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newUsername = e.target.username.value;
-            if (currentUser) {
-                const { error } = await _supabase.from('profiles').update({ username: newUsername }).eq('id', currentUser.id);
-                if (error) {
-                    if (error.code === '23505') { alert('خطا: این نام کاربری قبلاً استفاده شده است.'); } 
-                    else { alert('خطا در به‌روزرسانی نام کاربری: ' + error.message); }
-                } else {
-                    alert('نام کاربری شما با موفقیت تغییر کرد.');
-                    e.target.username.value = '';
+                // Fetch the user's profile from the 'profiles' table
+                const { data: profile, error } = await _supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (profile) {
+                    currentProfile = profile;
+                    // Set the current username as a placeholder in the input field
+                    usernameInput.placeholder = `نام کاربری فعلی: ${profile.username}`;
                 }
             }
         });
+        // END: Logic Update
+
+        // START: Logic Update - Check username before updating
+        usernameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newUsername = usernameInput.value.trim();
+
+            // Check if a new username has been entered
+            if (!newUsername) {
+                alert('لطفاً نام کاربری جدید را وارد کنید.');
+                return;
+            }
+
+            // Check if the new username is the same as the current one
+            if (currentProfile && newUsername === currentProfile.username) {
+                alert('این نام کاربری در حال حاضر نام کاربری شماست. لطفاً یک نام جدید انتخاب کنید.');
+                return;
+            }
+
+            if (currentUser) {
+                const { data, error } = await _supabase
+                    .from('profiles')
+                    .update({ username: newUsername })
+                    .eq('id', currentUser.id)
+                    .select() // Use select() to get the updated data back
+                    .single();
+
+                if (error) {
+                    if (error.code === '23505') { 
+                        alert('خطا: این نام کاربری قبلاً استفاده شده است.'); 
+                    } else { 
+                        alert('خطا در به‌روزرسانی نام کاربری: ' + error.message); 
+                    }
+                } else {
+                    alert('نام کاربری شما با موفقیت تغییر کرد.');
+                    currentProfile = data; // Update local profile data
+                    usernameInput.value = ''; // Clear the input field
+                    usernameInput.placeholder = `نام کاربری فعلی: ${data.username}`; // Update placeholder
+                }
+            }
+        });
+        // END: Logic Update
         
         passwordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -117,7 +159,7 @@
 
             const hasUpperCase = /[A-Z]/.test(newPassword);
             const hasLowerCase = /[a-z]/.test(newPassword);
-            const hasNumber = /\d]/.test(newPassword);
+            const hasNumber = /\d/.test(newPassword);
             const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
             if (newPassword.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
                 alert('رمز عبور جدید باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');

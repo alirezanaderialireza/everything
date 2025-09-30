@@ -17,89 +17,39 @@
             --slate-800: #1e293b;
             --slate-600: #475569;
             --slate-100: #f1f5f9;
-            --gold: #c29523;
+            --gold: #c49827;
             --light-gold: #FBEFCE;
             --font-display: 'Lalezar', cursive;
             --font-body: 'Vazirmatn', sans-serif;
         }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
+        html { scroll-behavior: smooth; }
         body {
-            font-family: var(--font-body);
-            background-color: white;
-            color: var(--slate-600);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family: var(--font-body); background-color: white; color: var(--slate-600);
+            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
         }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        .font-display {
-            font-family: var(--font-display);
-            color: var(--slate-800);
-        }
-
+        h1, h2, h3, h4, .font-display { font-family: var(--font-display); color: var(--slate-800); }
         .main-header {
-            background-color: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e2e8f0;
+            background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0;
         }
-
         .nav-link {
-            transition: color 0.3s ease;
-            color: var(--slate-800);
-            font-weight: 500;
-            position: relative;
-            padding-bottom: 4px;
+            transition: color 0.3s ease; color: var(--slate-800); font-weight: 500;
+            position: relative; padding-bottom: 4px;
         }
-
         .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            right: 0;
-            background-color: var(--gold);
-            transition: width 0.3s ease;
+            content: ''; position: absolute; width: 0; height: 2px;
+            bottom: 0; right: 0; background-color: var(--gold); transition: width 0.3s ease;
         }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .nav-link:hover {
-            color: var(--navy);
-        }
-
+        .nav-link:hover::after { width: 100%; }
+        .nav-link:hover { color: var(--navy); }
         .btn {
-            padding: 0.75rem 1.75rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            padding: 0.75rem 1.75rem; border-radius: 0.5rem; font-weight: 600; font-size: 0.95rem;
+            cursor: pointer; transition: all 0.2s ease-in-out; border: none; display: inline-flex;
+            align-items: center; justify-content: center; gap: 0.5rem;
         }
-
-        .btn-gold {
-            background-color: var(--gold);
-            color: var(--navy);
-        }
-
+        .btn-gold { background-color: var(--gold); color: var(--navy); }
         .btn-gold:hover {
-            background-color: #f8d270;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(247, 200, 81, 0.25);
+            background-color: #b98d1e; transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(196, 152, 39, 0.25);
         }
     </style>
 </head>
@@ -110,9 +60,8 @@
         <header class="main-header sticky top-0 z-50">
             <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو"
-                        class="w-10 h-10 rounded-full">
-                    <a href="#" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+                    <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو" class="w-10 h-10 rounded-full">
+                    <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
                 </div>
                 <div class="hidden md:flex items-center space-x-10 space-x-reverse">
                     <a href="#roadmap" class="nav-link">نقشه راه</a>
@@ -120,7 +69,7 @@
                     <a href="#about" class="nav-link">درباره من</a>
                 </div>
                 <div id="profile-section" class="relative">
-                    <a href="#" id="login-btn" class="btn btn-gold flex">
+                    <a href="login.html" id="login-btn" class="btn btn-gold flex">
                         <i class="fa-solid fa-right-to-bracket"></i>
                         <span>ورود / ثبت‌نام</span>
                     </a>
@@ -203,7 +152,7 @@
                                 </div>
                                 <div class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--gold)] border-4 border-white shadow-md"></div>
                             </div>
-                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -252,22 +201,23 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <script>
         const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
-
+        
         const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                storage: window.sessionStorage, // Use session storage to log out on browser close
+            },
+        });
 
-        // DOM Elements
         const loginBtn = document.getElementById('login-btn');
         const userMenu = document.getElementById('user-menu');
         const profileToggleBtn = document.getElementById('profile-toggle-btn');
         const dropdownMenu = document.getElementById('dropdown-menu');
         const logoutBtn = document.getElementById('logout-btn');
 
-        // Check user auth state on page load
         _supabase.auth.onAuthStateChange((event, session) => {
             if (session && session.user) {
                 loginBtn.classList.add('hidden');
@@ -275,35 +225,24 @@
             } else {
                 loginBtn.classList.remove('hidden');
                 userMenu.classList.add('hidden');
-                dropdownMenu.classList.add('hidden');
             }
         });
 
-        // Toggle dropdown menu
-        profileToggleBtn.addEventListener('click', (event) => {
-            event.stopPropagation();
+        profileToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             dropdownMenu.classList.toggle('hidden');
         });
 
-        // Close dropdown if clicked outside
         window.addEventListener('click', () => {
-            if (!dropdownMenu.classList.contains('hidden')) {
+            if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
                 dropdownMenu.classList.add('hidden');
             }
         });
 
-        // Handle logout
-        logoutBtn.addEventListener('click', async (event) => {
-            event.preventDefault();
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
             await _supabase.auth.signOut();
-        });
-        
-        // Handle login/signup button click
-        loginBtn.addEventListener('click', (event) => {
-            event.preventDefault();
-            // You should create a separate page or a modal for login/signup forms.
-            // This button can redirect to that page, e.g., window.location.href = '/login.html'; 
-            alert('صفحه ورود و ثبت‌نام را اینجا پیاده‌سازی کنید!');
+            // The onAuthStateChange listener will handle the UI update automatically
         });
     </script>
 </body>

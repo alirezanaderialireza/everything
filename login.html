@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود و ثبت‌نام - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
+            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+        }
+        body { font-family: var(--font-body); background-color: var(--slate-100); }
+        h1, h2, .font-display { font-family: var(--font-display); }
+        .form-container { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
+        .hidden-form { opacity: 0; transform: scale(0.95); display: none; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
+        
+        <div id="login-form" class="form-container">
+            <h1 class="text-3xl font-display text-center text-[var(--navy)]">ورود به حساب</h1>
+            <p class="text-center text-slate-500 mt-2">خوشحالیم که دوباره شما را می‌بینیم!</p>
+            <form id="login-form-element" class="mt-8 space-y-6">
+                <div>
+                    <label for="login-email" class="text-sm font-medium text-slate-700">ایمیل</label>
+                    <input id="login-email" name="email" type="email" required autocomplete="email" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                </div>
+                <div>
+                    <label for="login-password" class="text-sm font-medium text-slate-700">رمز عبور</label>
+                    <input id="login-password" name="password" type="password" required autocomplete="current-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                </div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)] transition-colors">ورود</button>
+            </form>
+            <p class="mt-4 text-center text-sm">حساب کاربری ندارید؟ <a href="#" id="show-register" class="font-medium text-[var(--gold)] hover:underline">ثبت‌نام کنید</a></p>
+        </div>
+
+        <div id="register-form" class="form-container hidden-form">
+            <h1 class="text-3xl font-display text-center text-[var(--navy)]">ایجاد حساب جدید</h1>
+            <p class="text-center text-slate-500 mt-2">به جمع ما بپیوندید!</p>
+            <form id="register-form-element" class="mt-8 space-y-6">
+                <div>
+                    <label for="register-username" class="text-sm font-medium text-slate-700">نام کاربری</label>
+                    <input id="register-username" name="username" type="text" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                </div>
+                <div>
+                    <label for="register-email" class="text-sm font-medium text-slate-700">ایمیل</label>
+                    <input id="register-email" name="email" type="email" required autocomplete="email" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                </div>
+                <div>
+                    <label for="register-password" class="text-sm font-medium text-slate-700">رمز عبور</label>
+                    <input id="register-password" name="password" type="password" required autocomplete="new-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                    <p class="mt-2 text-xs text-slate-500">حداقل ۸ کاراکتر، شامل حروف بزرگ و کوچک، عدد و علائم خاص.</p>
+                </div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)] transition-colors">ثبت‌نام</button>
+            </form>
+            <p class="mt-4 text-center text-sm">قبلاً ثبت‌نام کرده‌اید؟ <a href="#" id="show-login" class="font-medium text-[var(--gold)] hover:underline">وارد شوید</a></p>
+        </div>
+
+        <div id="verification-msg" class="hidden-form text-center">
+             <h1 class="text-3xl font-display text-center text-[var(--navy)]">ثبت‌نام موفقیت‌آمیز بود!</h1>
+             <p class="mt-4 text-slate-600">یک ایمیل حاوی لینک فعال‌سازی برای شما ارسال شد. لطفاً برای تکمیل ثبت‌نام، ایمیل خود را چک کرده و روی لینک کلیک کنید.</p>
+             <a href="index.html" class="mt-6 inline-block font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه اصلی</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                storage: window.sessionStorage, // Use session storage to log out on browser close
+            },
+        });
+
+        const loginFormDiv = document.getElementById('login-form');
+        const registerFormDiv = document.getElementById('register-form');
+        const verificationMsgDiv = document.getElementById('verification-msg');
+        const loginForm = document.getElementById('login-form-element');
+        const registerForm = document.getElementById('register-form-element');
+        const showRegisterLink = document.getElementById('show-register');
+        const showLoginLink = document.getElementById('show-login');
+
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginFormDiv.classList.add('hidden-form');
+            registerFormDiv.classList.remove('hidden-form');
+        });
+
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerFormDiv.classList.add('hidden-form');
+            loginFormDiv.classList.remove('hidden-form');
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = e.target.email.value;
+            const password = e.target.password.value;
+            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                alert('خطا در ورود: ' + error.message);
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const email = e.target.email.value;
+            const password = e.target.password.value;
+            
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+            if (password.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+                alert('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
+                return;
+            }
+            
+            const { data, error } = await _supabase.auth.signUp({
+                email,
+                password,
+                options: { data: { username: username } }
+            });
+
+            if (error) {
+                alert('خطا در ثبت‌نام: ' + error.message);
+            } else {
+                loginFormDiv.classList.add('hidden-form');
+                registerFormDiv.classList.add('hidden-form');
+                verificationMsgDiv.classList.remove('hidden-form');
+            }
+        });
+    </script>
+</body>
+</html>

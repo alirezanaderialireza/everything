@@ -213,7 +213,7 @@
             padding: 2rem;
             min-height: 100px;
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         #day-details-container h3 {
@@ -239,7 +239,8 @@
                 <div class="flex items-center gap-3">
                     <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو"
                         class="w-10 h-10 rounded-full">
-                    <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+                    <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا
+                        شیرازی</a>
                 </div>
                 <div id="live-clock-display" class="hidden md:block">--:--:--</div>
             </div>
@@ -250,7 +251,8 @@
                 <a href="index.html#about" class="nav-link">درباره من</a>
             </div>
             <div id="profile-section" class="relative">
-                <a href="login.html" id="login-btn" class="btn btn-gold flex items-center justify-center gap-2 px-6 py-2">
+                <a href="login.html" id="login-btn"
+                    class="btn btn-gold flex items-center justify-center gap-2 px-6 py-2">
                     <i class="fa-solid fa-right-to-bracket"></i>
                     <span>ورود / ثبت‌نام</span>
                 </a>
@@ -262,7 +264,8 @@
                     <div id="dropdown-menu"
                         class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
-                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج
+                            از حساب</a>
                     </div>
                 </div>
             </div>
@@ -299,7 +302,7 @@
             </ul>
         </div>
     </main>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // اسکریپت کامل لاگین
@@ -339,11 +342,12 @@
 
         // اسکریپت کامل تقویم
         document.addEventListener('DOMContentLoaded', function () {
-            // منطق ساعت زنده در هدر
+
+            // این بخش را در ابتدای addEventListener اضافه کنید
             const clockEl = document.getElementById('live-clock-display');
             function updateClock() {
                 const now = new Date();
-                if(clockEl) clockEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (clockEl) clockEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }
             updateClock();
             setInterval(updateClock, 1000);
@@ -354,8 +358,24 @@
             const monthDisplay = document.getElementById('month-display');
             const daysGrid = document.getElementById('calendar-days-grid');
             const detailsList = document.getElementById('details-list');
-            const prevMonthBtn = document.getElementById('prev-month-btn');
-            const nextMonthBtn = document.getElementById('next-month-btn');
+            prevMonthBtn.addEventListener('click', () => {
+                const currentYear = currentMoment.jYear();
+                currentMoment.subtract(1, 'jMonth');
+                if (currentMoment.jYear() !== currentYear) {
+                    fetchEvents(currentMoment.jYear()); // رویدادهای سال جدید را دریافت می‌کند
+                } else {
+                    renderCalendar();
+                }
+            });
+            nextMonthBtn.addEventListener('click', () => {
+                const currentYear = currentMoment.jYear();
+                currentMoment.add(1, 'jMonth');
+                if (currentMoment.jYear() !== currentYear) {
+                    fetchEvents(currentMoment.jYear()); // رویدادهای سال جدید را دریافت می‌کند
+                } else {
+                    renderCalendar();
+                }
+            });
 
             let currentMoment = moment();
             let allEvents = [];
@@ -454,4 +474,5 @@
         });
     </script>
 </body>
+
 </html>

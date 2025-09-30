@@ -444,7 +444,7 @@
             const gregorianDateEl = document.getElementById('widget-gregorian-date');
             function updateTimeAndDate() {
                 const now = new Date();
-                if(timeEl) timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+                if(timeEl) timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 if(shamsiDateEl) shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long' }).format(now);
                 if(gregorianDateEl) gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(now);
                 if(qamariDateEl) try { qamariDateEl.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', { day: 'numeric', month: 'long' }).format(now); } catch(e) { qamariDateEl.textContent = 'ناموجود'; }

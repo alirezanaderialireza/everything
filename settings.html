@@ -51,22 +51,31 @@
                     <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">تغییر رمز عبور</h2>
                     <form id="password-form" class="space-y-4">
                         <div>
+                            <label for="current-password" class="text-sm font-medium text-slate-700">رمز عبور فعلی</label>
+                            <input id="current-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                        </div>
+                        <hr/>
+                        <div>
                             <label for="new-password" class="text-sm font-medium text-slate-700">رمز عبور جدید</label>
-                            <input id="new-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                            <input id="new-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                              <p class="mt-2 text-xs text-slate-500">حداقل ۸ کاراکتر، شامل حروف بزرگ و کوچک، عدد و علائم خاص.</p>
+                        </div>
+                         <div>
+                            <label for="confirm-password" class="text-sm font-medium text-slate-700">تکرار رمز عبور جدید</label>
+                            <input id="confirm-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                         </div>
                         <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ذخیره رمز عبور</button>
                     </form>
-                </div>
+                    </div>
             </div>
 
             <div class="bg-white p-6 rounded-lg shadow-md">
                 <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">فراموشی رمز عبور</h2>
-                <p class="text-slate-600 mb-4">اگر رمز عبور خود را فراموش کرده‌اید، ایمیل خود را وارد کنید تا لینک بازیابی برایتان ارسال شود.</p>
+                <p class="text-slate-600 mb-4">اگر رمز عبور فعلی خود را به یاد نمی‌آورید، از این بخش برای ارسال لینک بازیابی استفاده کنید.</p>
                 <form id="reset-password-form" class="space-y-4">
                     <div>
                         <label for="reset-email" class="text-sm font-medium text-slate-700">ایمیل حساب کاربری</label>
-                        <input id="reset-email" type="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                        <input id="reset-email" type="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                     </div>
                     <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ارسال لینک بازیابی</button>
                 </form>
@@ -89,31 +98,25 @@
         const usernameForm = document.getElementById('username-form');
         const passwordForm = document.getElementById('password-form');
         const resetPasswordForm = document.getElementById('reset-password-form');
+        let currentUser = null;
 
-        // Protect this page: Check if user is logged in
         document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (!session) {
-                // If no user is logged in, redirect to the login page
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
                 window.location.href = 'login.html';
+            } else {
+                currentUser = user;
             }
         });
 
-        // 1. Change Username Logic
         usernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newUsername = e.target.username.value;
             
-            const { data: { user } } = await _supabase.auth.getUser();
-
-            if (user) {
-                const { error } = await _supabase
-                    .from('profiles')
-                    .update({ username: newUsername })
-                    .eq('id', user.id);
-
+            if (currentUser) {
+                const { error } = await _supabase.from('profiles').update({ username: newUsername }).eq('id', currentUser.id);
                 if (error) {
-                    if (error.code === '23505') { // Unique constraint violation
+                    if (error.code === '23505') {
                         alert('خطا: این نام کاربری قبلاً استفاده شده است.');
                     } else {
                         alert('خطا در به‌روزرسانی نام کاربری: ' + error.message);
@@ -125,48 +128,70 @@
             }
         });
         
-        // 2. Change Password Logic (for logged-in users)
+        // START: JavaScript Changes for Password Form
         passwordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const currentPassword = e.target['current-password'].value;
             const newPassword = e.target['new-password'].value;
-            
-            // Password strength validation
+            const confirmPassword = e.target['confirm-password'].value;
+
+            // 1. Check if new passwords match
+            if (newPassword !== confirmPassword) {
+                alert('رمز عبور جدید و تکرار آن یکسان نیستند.');
+                return;
+            }
+
+            // 2. Check new password strength
             const hasUpperCase = /[A-Z]/.test(newPassword);
             const hasLowerCase = /[a-z]/.test(newPassword);
             const hasNumber = /\d/.test(newPassword);
             const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
-
             if (newPassword.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
-                alert('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
+                alert('رمز عبور جدید باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
                 return;
             }
 
-            const { error } = await _supabase.auth.updateUser({ password: newPassword });
+            // 3. Verify the current password by trying to sign in with it
+            if (currentUser) {
+                const { error: reauthError } = await _supabase.auth.signInWithPassword({
+                    email: currentUser.email,
+                    password: currentPassword,
+                });
 
-            if (error) {
-                alert('خطا در تغییر رمز عبور: ' + error.message);
+                if (reauthError) {
+                    alert('رمز عبور فعلی شما اشتباه است.');
+                    return;
+                }
+            } else {
+                return; // Should not happen due to page protection
+            }
+            
+            // 4. If current password is correct, update to the new password
+            const { error: updateError } = await _supabase.auth.updateUser({ password: newPassword });
+
+            if (updateError) {
+                alert('خطا در تغییر رمز عبور: ' + updateError.message);
             } else {
                 alert('رمز عبور شما با موفقیت تغییر کرد.');
-                 e.target['new-password'].value = '';
+                e.target['current-password'].value = '';
+                e.target['new-password'].value = '';
+                e.target['confirm-password'].value = '';
             }
         });
+        // END: JavaScript Changes for Password Form
 
-        // 3. Forgot Password Logic
         resetPasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = e.target['reset-email'].value;
-            
             const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/index.html' // Where to redirect after password reset
+                redirectTo: window.location.origin + '/index.html'
             });
-
             if (error) {
                 alert('خطا: ' + error.message);
             } else {
                 alert('ایمیل بازیابی رمز عبور برای شما ارسال شد. لطفاً ایمیل خود را بررسی کنید.');
             }
         });
-
     </script>
 </body>
 </html>

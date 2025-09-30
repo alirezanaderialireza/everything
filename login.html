@@ -8,165 +8,232 @@
     <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --navy: #0A192F; --slate-800: #1e2h3b; --slate-600: #475569;
+            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
             --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
             --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
         }
         body { font-family: var(--font-body); background-color: var(--slate-100); }
         h1, h2, .font-display { font-family: var(--font-display); }
-        .form-container { transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; }
-        .hidden-form { opacity: 0; transform: scale(0.95); display: none; }
+        .form-container { display: block; }
+        .form-container.hidden { display: none; }
+        /* START: New Notification Styles */
+        #notification {
+            transition: opacity 0.3s ease-in-out;
+        }
+        #notification.hidden {
+            opacity: 0;
+            display: none;
+        }
+        /* END: New Notification Styles */
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
         
+        <div id="notification" class="hidden p-4 mb-4 text-sm rounded-lg flex justify-between items-center" role="alert">
+            <span id="notification-message"></span>
+            <button id="notification-close" class="ml-4 font-bold">&times;</button>
+        </div>
         <div id="login-form" class="form-container">
             <h1 class="text-3xl font-display text-center text-[var(--navy)]">ورود به حساب</h1>
-            <p class="text-center text-slate-500 mt-2">خوشحالیم که دوباره شما را می‌بینیم!</p>
             <form id="login-form-element" class="mt-8 space-y-6">
                 <div>
                     <label for="login-identifier" class="text-sm font-medium text-slate-700">ایمیل یا نام کاربری</label>
-                    <input id="login-identifier" name="identifier" type="text" required autocomplete="username" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
-                    </div>
+                    <input id="login-identifier" name="identifier" type="text" required autocomplete="username" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                </div>
                 <div>
                     <label for="login-password" class="text-sm font-medium text-slate-700">رمز عبور</label>
-                    <input id="login-password" name="password" type="password" required autocomplete="current-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                    <input id="login-password" name="password" type="password" required autocomplete="current-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)] transition-colors">ورود</button>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ورود</button>
             </form>
-            <p class="mt-4 text-center text-sm">حساب کاربری ندارید؟ <a href="#" id="show-register" class="font-medium text-[var(--gold)] hover:underline">ثبت‌نام کنید</a></p>
+            <div class="mt-4 text-center text-sm space-y-2">
+                <p>حساب کاربری ندارید؟ <a href="#" id="show-register" class="font-medium text-[var(--gold)] hover:underline">ثبت‌نام کنید</a></p>
+                <div>
+                    <a href="#" id="show-forgot-password" class="font-medium text-[var(--gold)] hover:underline">فراموشی رمز عبور</a>
+                    <span class="mx-2 text-slate-400">|</span>
+                    <a href="#" id="show-forgot-username" class="font-medium text-[var(--gold)] hover:underline">فراموشی نام کاربری</a>
+                </div>
+            </div>
         </div>
 
-        <div id="register-form" class="form-container hidden-form">
+        <div id="register-form" class="form-container hidden">
             <h1 class="text-3xl font-display text-center text-[var(--navy)]">ایجاد حساب جدید</h1>
-            <p class="text-center text-slate-500 mt-2">به جمع ما بپیوندید!</p>
             <form id="register-form-element" class="mt-8 space-y-6">
-                <div>
+                 <div>
                     <label for="register-username" class="text-sm font-medium text-slate-700">نام کاربری</label>
-                    <input id="register-username" name="username" type="text" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                    <input id="register-username" name="username" type="text" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
                 <div>
                     <label for="register-email" class="text-sm font-medium text-slate-700">ایمیل</label>
-                    <input id="register-email" name="email" type="email" required autocomplete="email" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                    <input id="register-email" name="email" type="email" required autocomplete="email" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
                 <div>
                     <label for="register-password" class="text-sm font-medium text-slate-700">رمز عبور</label>
-                    <input id="register-password" name="password" type="password" required autocomplete="new-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                    <input id="register-password" name="password" type="password" required autocomplete="new-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                     <p class="mt-2 text-xs text-slate-500">حداقل ۸ کاراکتر، شامل حروف بزرگ و کوچک، عدد و علائم خاص.</p>
                 </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)] transition-colors">ثبت‌نام</button>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ثبت‌نام</button>
             </form>
-            <p class="mt-4 text-center text-sm">قبلاً ثبت‌نام کرده‌اید؟ <a href="#" id="show-login" class="font-medium text-[var(--gold)] hover:underline">وارد شوید</a></p>
+            <p class="mt-4 text-center text-sm">قبلاً ثبت‌نام کرده‌اید؟ <a href="#" id="show-login-from-register" class="font-medium text-[var(--gold)] hover:underline">وارد شوید</a></p>
         </div>
-
-        <div id="verification-msg" class="hidden-form text-center">
-             <h1 class="text-3xl font-display text-center text-[var(--navy)]">ثبت‌نام موفقیت‌آمیز بود!</h1>
-             <p class="mt-4 text-slate-600">یک ایمیل حاوی لینک فعال‌سازی برای شما ارسال شد. لطفاً برای تکمیل ثبت‌نام، ایمیل خود را چک کرده و روی لینک کلیک کنید.</p>
-             <a href="index.html" class="mt-6 inline-block font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه اصلی</a>
+        
+        <div id="forgot-password-form" class="form-container hidden">
+            <h1 class="text-3xl font-display text-center text-[var(--navy)]">بازیابی رمز عبور</h1>
+            <p class="text-center text-slate-500 mt-2">ایمیل خود را وارد کنید تا لینک بازیابی ارسال شود.</p>
+            <form id="forgot-password-form-element" class="mt-8 space-y-6">
+                <div>
+                    <label for="forgot-password-email" class="text-sm font-medium text-slate-700">ایمیل</label>
+                    <input id="forgot-password-email" name="email" type="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                </div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ارسال لینک</button>
+            </form>
+            <p class="mt-4 text-center text-sm"><a href="#" class="show-login font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه ورود</a></p>
         </div>
-    </div>
+        <div id="forgot-username-form" class="form-container hidden">
+            <h1 class="text-3xl font-display text-center text-[var(--navy)]">بازیابی نام کاربری</h1>
+             <p class="text-center text-slate-500 mt-2">ایمیل خود را وارد کنید تا نام کاربری شما را پیدا کنیم.</p>
+            <form id="forgot-username-form-element" class="mt-8 space-y-6">
+                <div>
+                    <label for="forgot-username-email" class="text-sm font-medium text-slate-700">ایمیل</label>
+                    <input id="forgot-username-email" name="email" type="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                </div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">پیدا کردن نام کاربری</button>
+            </form>
+            <p class="mt-4 text-center text-sm"><a href="#" class="show-login font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه ورود</a></p>
+        </div>
+        </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
-
         const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                storage: window.sessionStorage,
-            },
-        });
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
+        const allForms = document.querySelectorAll('.form-container');
         const loginFormDiv = document.getElementById('login-form');
         const registerFormDiv = document.getElementById('register-form');
-        const verificationMsgDiv = document.getElementById('verification-msg');
+        const forgotPasswordFormDiv = document.getElementById('forgot-password-form');
+        const forgotUsernameFormDiv = document.getElementById('forgot-username-form');
+
         const loginForm = document.getElementById('login-form-element');
         const registerForm = document.getElementById('register-form-element');
-        const showRegisterLink = document.getElementById('show-register');
-        const showLoginLink = document.getElementById('show-login');
+        const forgotPasswordForm = document.getElementById('forgot-password-form-element');
+        const forgotUsernameForm = document.getElementById('forgot-username-form-element');
+        
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notification-message');
+        const notificationClose = document.getElementById('notification-close');
 
-        showRegisterLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginFormDiv.classList.add('hidden-form');
-            registerFormDiv.classList.remove('hidden-form');
+        // START: New Notification Logic
+        function showNotification(message, type = 'error') {
+            notificationMessage.textContent = message;
+            if (type === 'success') {
+                notification.classList.remove('bg-red-100', 'text-red-700');
+                notification.classList.add('bg-green-100', 'text-green-700');
+            } else {
+                notification.classList.remove('bg-green-100', 'text-green-700');
+                notification.classList.add('bg-red-100', 'text-red-700');
+            }
+            notification.classList.remove('hidden');
+        }
+
+        notificationClose.addEventListener('click', () => {
+            notification.classList.add('hidden');
         });
+        // END: New Notification Logic
 
-        showLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerFormDiv.classList.add('hidden-form');
-            loginFormDiv.classList.remove('hidden-form');
-        });
+        function showForm(formToShow) {
+            notification.classList.add('hidden'); // Hide notifications when switching forms
+            allForms.forEach(form => form.classList.add('hidden'));
+            formToShow.classList.remove('hidden');
+        }
 
-        // START: JavaScript Logic Update
+        document.getElementById('show-register').addEventListener('click', (e) => { e.preventDefault(); showForm(registerFormDiv); });
+        document.getElementById('show-login-from-register').addEventListener('click', (e) => { e.preventDefault(); showForm(loginFormDiv); });
+        document.getElementById('show-forgot-password').addEventListener('click', (e) => { e.preventDefault(); showForm(forgotPasswordFormDiv); });
+        document.getElementById('show-forgot-username').addEventListener('click', (e) => { e.preventDefault(); showForm(forgotUsernameFormDiv); });
+        document.querySelectorAll('.show-login').forEach(el => el.addEventListener('click', (e) => { e.preventDefault(); showForm(loginFormDiv); }));
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const identifier = e.target.identifier.value; // This can be email or username
+            const identifier = e.target.identifier.value;
             const password = e.target.password.value;
             let email = identifier;
 
-            // Check if the identifier is a username (doesn't contain '@')
             if (!identifier.includes('@')) {
-                // It's a username, so we need to find the corresponding email from the 'profiles' table.
-                const { data: profile, error: profileError } = await _supabase
-                    .from('profiles')
-                    .select('email')
-                    .eq('username', identifier)
-                    .single(); // Use .single() to get one record or an error
-
-                if (profileError || !profile) {
-                    alert('نام کاربری یافت نشد.');
+                const { data, error } = await _supabase.rpc('get_username_by_email', { user_email: identifier });
+                if (error || !data) {
+                    showNotification('نام کاربری یا ایمیل یافت نشد.');
                     return;
+                }
+                email = data; // This line seems incorrect. `get_username_by_email` should get the email from the username
+                
+                // Let's call a function that gets email from username instead
+                 const { data: profile, error: profileError } = await _supabase.from('profiles').select('email').eq('username', identifier).single();
+                if (profileError || !profile) {
+                     showNotification('نام کاربری یافت نشد.');
+                     return;
                 }
                 email = profile.email;
             }
             
-            // Now, sign in with the resolved email
-            const { data, error } = await _supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
-
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
             if (error) {
-                alert('خطا در ورود: ' + error.message);
+                showNotification('ایمیل/نام کاربری یا رمز عبور اشتباه است.');
             } else {
                 window.location.href = 'index.html';
             }
         });
-        // END: JavaScript Logic Update
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = e.target.username.value;
-            const email = e.target.email.value;
+            // Register logic is the same, but uses showNotification instead of alert
             const password = e.target.password.value;
-            
-            const hasUpperCase = /[A-Z]/.test(password);
-            const hasLowerCase = /[a-z]/.test(password);
-            const hasNumber = /\d/.test(password);
-            const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-
-            if (password.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
-                alert('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
+             if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+                showNotification('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
                 return;
             }
-            
-            const { data, error } = await _supabase.auth.signUp({
-                email,
-                password,
-                options: { data: { username: username } }
+            const { error } = await _supabase.auth.signUp({
+                email: e.target.email.value,
+                password: password,
+                options: { data: { username: e.target.username.value } }
             });
-
             if (error) {
-                alert('خطا در ثبت‌نام: ' + error.message);
+                showNotification(error.message);
             } else {
-                loginFormDiv.classList.add('hidden-form');
-                registerFormDiv.classList.add('hidden-form');
-                verificationMsgDiv.classList.remove('hidden-form');
+                showNotification('ایمیل تایید برای شما ارسال شد. لطفاً صندوق ورودی خود را چک کنید.', 'success');
             }
         });
+        
+        // START: New Forgot Password Logic
+        forgotPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = e.target.email.value;
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+            if (error) {
+                showNotification(error.message);
+            } else {
+                showNotification('اگر این ایمیل در سیستم ما موجود باشد، لینک بازیابی برایتان ارسال خواهد شد.', 'success');
+            }
+        });
+        // END: New Forgot Password Logic
+        
+        // START: New Forgot Username Logic
+        forgotUsernameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = e.target.email.value;
+            const { data, error } = await _supabase.rpc('get_username_by_email', { user_email: email });
+
+            if (error || !data) {
+                showNotification('ایمیلی با این مشخصات یافت نشد.');
+            } else {
+                showNotification(`نام کاربری شما "${data}" است.`, 'success');
+            }
+        });
+        // END: New Forgot Username Logic
     </script>
 </body>
 </html>

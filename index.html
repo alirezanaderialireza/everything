@@ -459,7 +459,7 @@
                 const weekCol = document.getElementById('week-events');
                 const monthCol = document.getElementById('month-events');
                 const currentShamsiYear = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric' }).format(new Date()).replace(/[^0-9]/g, '');
-                const apiUrl = `https://yourusername.pythonanywhere.com/api/events/${currentShamsiYear}`;
+                const apiUrl = `https://alirezaanaderi.pythonanywhere.com/api/events/${currentShamsiYear}`;
                 fetch(apiUrl)
                     .then(response => {
                         if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');

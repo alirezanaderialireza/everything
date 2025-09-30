@@ -384,7 +384,7 @@
             const monthCol = document.getElementById('month-events');
 
             const currentShamsiYear = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric' }).format(new Date()).replace(/[^0-9]/g, '');
-            const apiUrl = `http://12_7.0.0.1:5000/api/events/${currentShamsiYear}`; // IP
+            const apiUrl = `http://127.0.0.1:5000/api/events/${currentShamsiYear}`; // IP
             fetch(apiUrl)
                 .then(response => {
                     if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');

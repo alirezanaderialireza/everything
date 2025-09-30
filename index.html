@@ -102,7 +102,6 @@
             box-shadow: 0 4px 20px rgba(196, 152, 39, 0.25);
         }
 
-        /* استایل‌های ویجت تقویم که اضافه شده */
         #calendar-widget {
             background-color: var(--slate-100);
             color: var(--slate-800);
@@ -200,7 +199,6 @@
 </head>
 
 <body class="bg-white">
-
     <div id="landing-page">
         <header class="main-header sticky top-0 z-50">
             <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
@@ -413,99 +411,102 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // اسکریپت اصلی شما برای لاگین (بدون تغییر)
+        // اسکریپت کامل لاگین
         const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
         const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
-
-        // ... (تمام کدهای مربوط به لاگین شما اینجا قرار می‌گیرد)
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage, }, });
         const loginBtn = document.getElementById('login-btn');
-        // ... و غیره
+        const userMenu = document.getElementById('user-menu');
+        const profileToggleBtn = document.getElementById('profile-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+        });
+        if (profileToggleBtn){
+            profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
+            logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });
+        }
 
-        // =====> اسکریپت تقویم با منطق نهایی و اصلاح‌شده <=====
-        document.addEventListener('DOMContentLoaded', function () {
-            // -- بخش اول: بروزرسانی ساعت و تاریخ (بدون تغییر) --
+        // اسکریپت ویجت تقویم
+        document.addEventListener('DOMContentLoaded', function() {
             const timeEl = document.getElementById('widget-time');
             const shamsiDateEl = document.getElementById('widget-shamsi-date');
             const qamariDateEl = document.getElementById('widget-qamari-date');
             const gregorianDateEl = document.getElementById('widget-gregorian-date');
-
             function updateTimeAndDate() {
                 const now = new Date();
-                timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }); // ثانیه حذف شد برای ظاهر بهتر
-                shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long' }).format(now);
-                gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(now);
-                try {
-                    qamariDateEl.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', { day: 'numeric', month: 'long' }).format(now);
-                } catch (e) { qamariDateEl.textContent = 'ناموجود'; }
+                if(timeEl) timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+                if(shamsiDateEl) shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long' }).format(now);
+                if(gregorianDateEl) gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(now);
+                if(qamariDateEl) try { qamariDateEl.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', { day: 'numeric', month: 'long' }).format(now); } catch(e) { qamariDateEl.textContent = 'ناموجود'; }
             }
-            updateTimeAndDate();
-            setInterval(updateTimeAndDate, 1000);
-
-            // -- بخش دوم: دریافت، فیلتر و نمایش رویدادها (منطق نهایی و دقیق) --
+            if(timeEl) {
+                updateTimeAndDate();
+                setInterval(updateTimeAndDate, 1000);
+            }
+            
             const todayCol = document.getElementById('today-events');
-            const weekCol = document.getElementById('week-events');
-            const monthCol = document.getElementById('month-events');
-
-            const currentShamsiYear = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric' }).format(new Date()).replace(/[^0-9]/g, '');
-            const apiUrl = `http://127.0.0.1:5000/api/events/${currentShamsiYear}`;
-
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');
-                    return response.json();
-                })
-                .then(events => {
-                    // 1. محاسبه تاریخ‌های مرزی برای فیلتر کردن
-                    const today = new Date();
-                    const todayShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(today).replace(/\//g, '-');
-
-                    const sevenDaysFromNow = new Date();
-                    sevenDaysFromNow.setDate(today.getDate() + 7);
-                    const sevenDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(sevenDaysFromNow).replace(/\//g, '-');
-
-                    const thirtyDaysFromNow = new Date();
-                    thirtyDaysFromNow.setDate(today.getDate() + 30);
-                    const thirtyDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(thirtyDaysFromNow).replace(/\//g, '-');
-
-                    // 2. فیلتر کردن رویدادها با بازه‌های زمانی کاملاً مجزا
-                    const todayEvents = events.filter(e => e.date === todayShamsi);
-                    const weekEvents = events.filter(e => e.date > todayShamsi && e.date <= sevenDaysLaterShamsi);
-                    const monthEvents = events.filter(e => e.date > sevenDaysLaterShamsi && e.date <= thirtyDaysLaterShamsi);
-
-                    // 3. نمایش نتایج فیلتر شده
-                    renderEvents(todayCol, todayEvents);
-                    renderEvents(weekCol, weekEvents, true);
-                    renderEvents(monthCol, monthEvents, true);
-                })
-                .catch(error => {
-                    console.error("Error fetching events:", error);
-                    const errorLi = `<li>خطا در بارگذاری رویدادها.</li>`;
-                    todayCol.querySelector('ul').innerHTML = errorLi;
-                    weekCol.querySelector('ul').innerHTML = errorLi;
-                    monthCol.querySelector('ul').innerHTML = errorLi;
-                });
-
-            function renderEvents(columnElement, eventList, showDate = false) {
-                const ul = columnElement.querySelector('ul');
-                const noEventsP = columnElement.querySelector('.no-events');
-                if (eventList.length === 0) {
-                    noEventsP.classList.remove('hidden');
-                    ul.innerHTML = ''; // لیست را خالی می‌کنیم
-                    return;
+            if(todayCol) {
+                const weekCol = document.getElementById('week-events');
+                const monthCol = document.getElementById('month-events');
+                const currentShamsiYear = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric' }).format(new Date()).replace(/[^0-9]/g, '');
+                const apiUrl = `http://127.0.0.1:5000/api/events/${currentShamsiYear}`;
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');
+                        return response.json();
+                    })
+                    .then(events => {
+                        const today = new Date();
+                        const todayShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(today).replace(/\//g, '-');
+                        const sevenDaysFromNow = new Date();
+                        sevenDaysFromNow.setDate(today.getDate() + 7);
+                        const sevenDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(sevenDaysFromNow).replace(/\//g, '-');
+                        const thirtyDaysFromNow = new Date();
+                        thirtyDaysFromNow.setDate(today.getDate() + 30);
+                        const thirtyDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(thirtyDaysFromNow).replace(/\//g, '-');
+                        const todayEvents = events.filter(e => e.date === todayShamsi);
+                        const weekEvents = events.filter(e => e.date > todayShamsi && e.date <= sevenDaysLaterShamsi);
+                        const monthEvents = events.filter(e => e.date > sevenDaysLaterShamsi && e.date <= thirtyDaysLaterShamsi);
+                        renderEvents(todayCol, todayEvents);
+                        renderEvents(weekCol, weekEvents, true);
+                        renderEvents(monthCol, monthEvents, true);
+                    })
+                    .catch(error => {
+                        console.error("Error fetching events:", error);
+                        const errorLi = `<li>خطا در بارگذاری. از فعال بودن سرور پایتون اطمینان حاصل کنید.</li>`;
+                        todayCol.querySelector('ul').innerHTML = errorLi;
+                        weekCol.querySelector('ul').innerHTML = errorLi;
+                        monthCol.querySelector('ul').innerHTML = errorLi;
+                    });
+                
+                function renderEvents(columnElement, eventList, showDate = false) {
+                    const ul = columnElement.querySelector('ul');
+                    const noEventsP = columnElement.querySelector('.no-events');
+                    if (eventList.length === 0) {
+                        noEventsP.classList.remove('hidden');
+                        ul.innerHTML = '';
+                        return;
+                    }
+                    noEventsP.classList.add('hidden');
+                    let html = '';
+                    eventList.forEach(event => {
+                        const dateTag = showDate ? `<span class="event-date-tag">${event.date.substring(5)}</span>` : '';
+                        html += `<li>${dateTag}${event.title}</li>`;
+                    });
+                    ul.innerHTML = html;
                 }
-
-                noEventsP.classList.add('hidden');
-                let html = '';
-                eventList.forEach(event => {
-                    const dateTag = showDate ? `<span class="event-date-tag">${event.date.substring(5)}</span>` : '';
-                    html += `<li>${dateTag}${event.title}</li>`;
-                });
-                ul.innerHTML = html;
             }
         });
     </script>
 </body>
-
 </html>

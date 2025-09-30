@@ -226,8 +226,8 @@
                         </button>
                         <div id="dropdown-menu"
                             class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات
-                                پروفایل</a>
+                            <a href="settings.html"
+                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
                             <a href="#" id="logout-btn"
                                 class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
                         </div>
@@ -430,32 +430,32 @@
                 userMenu.classList.add('hidden');
             }
         });
-        if (profileToggleBtn){
+        if (profileToggleBtn) {
             profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
             logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });
         }
 
         // اسکریپت ویجت تقویم
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const timeEl = document.getElementById('widget-time');
             const shamsiDateEl = document.getElementById('widget-shamsi-date');
             const qamariDateEl = document.getElementById('widget-qamari-date');
             const gregorianDateEl = document.getElementById('widget-gregorian-date');
             function updateTimeAndDate() {
                 const now = new Date();
-                if(timeEl) timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                if(shamsiDateEl) shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long' }).format(now);
-                if(gregorianDateEl) gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(now);
-                if(qamariDateEl) try { qamariDateEl.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', { day: 'numeric', month: 'long' }).format(now); } catch(e) { qamariDateEl.textContent = 'ناموجود'; }
+                if (timeEl) timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (shamsiDateEl) shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long' }).format(now);
+                if (gregorianDateEl) gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(now);
+                if (qamariDateEl) try { qamariDateEl.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', { day: 'numeric', month: 'long' }).format(now); } catch (e) { qamariDateEl.textContent = 'ناموجود'; }
             }
-            if(timeEl) {
+            if (timeEl) {
                 updateTimeAndDate();
                 setInterval(updateTimeAndDate, 1000);
             }
-            
+
             const todayCol = document.getElementById('today-events');
-            if(todayCol) {
+            if (todayCol) {
                 const weekCol = document.getElementById('week-events');
                 const monthCol = document.getElementById('month-events');
                 const currentShamsiYear = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric' }).format(new Date()).replace(/[^0-9]/g, '');
@@ -488,7 +488,7 @@
                         weekCol.querySelector('ul').innerHTML = errorLi;
                         monthCol.querySelector('ul').innerHTML = errorLi;
                     });
-                
+
                 function renderEvents(columnElement, eventList, showDate = false) {
                     const ul = columnElement.querySelector('ul');
                     const noEventsP = columnElement.querySelector('.no-events');
@@ -509,4 +509,5 @@
         });
     </script>
 </body>
+
 </html>

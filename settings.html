@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تنظیمات پروفایل - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
+            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+        }
+        body { font-family: var(--font-body); background-color: var(--slate-100); }
+        h1, h2, .font-display { font-family: var(--font-display); }
+        .btn-gold { 
+            background-color: var(--gold); color: var(--navy);
+            transition: background-color 0.3s;
+        }
+        .btn-gold:hover { background-color: #b98d1e; }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <header class="bg-white shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+            <a href="index.html" class="text-sm font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه اصلی</a>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-6 mt-8">
+        <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-10">تنظیمات حساب کاربری</h1>
+
+        <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <div class="space-y-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">تغییر نام کاربری</h2>
+                    <form id="username-form" class="space-y-4">
+                        <div>
+                            <label for="username" class="text-sm font-medium text-slate-700">نام کاربری جدید</label>
+                            <input id="username" type="text" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ذخیره نام کاربری</button>
+                    </form>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">تغییر رمز عبور</h2>
+                    <form id="password-form" class="space-y-4">
+                        <div>
+                            <label for="new-password" class="text-sm font-medium text-slate-700">رمز عبور جدید</label>
+                            <input id="new-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                             <p class="mt-2 text-xs text-slate-500">حداقل ۸ کاراکتر، شامل حروف بزرگ و کوچک، عدد و علائم خاص.</p>
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ذخیره رمز عبور</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">فراموشی رمز عبور</h2>
+                <p class="text-slate-600 mb-4">اگر رمز عبور خود را فراموش کرده‌اید، ایمیل خود را وارد کنید تا لینک بازیابی برایتان ارسال شود.</p>
+                <form id="reset-password-form" class="space-y-4">
+                    <div>
+                        <label for="reset-email" class="text-sm font-medium text-slate-700">ایمیل حساب کاربری</label>
+                        <input id="reset-email" type="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                    </div>
+                    <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ارسال لینک بازیابی</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                storage: window.sessionStorage,
+            },
+        });
+
+        const usernameForm = document.getElementById('username-form');
+        const passwordForm = document.getElementById('password-form');
+        const resetPasswordForm = document.getElementById('reset-password-form');
+
+        // Protect this page: Check if user is logged in
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session) {
+                // If no user is logged in, redirect to the login page
+                window.location.href = 'login.html';
+            }
+        });
+
+        // 1. Change Username Logic
+        usernameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newUsername = e.target.username.value;
+            
+            const { data: { user } } = await _supabase.auth.getUser();
+
+            if (user) {
+                const { error } = await _supabase
+                    .from('profiles')
+                    .update({ username: newUsername })
+                    .eq('id', user.id);
+
+                if (error) {
+                    if (error.code === '23505') { // Unique constraint violation
+                        alert('خطا: این نام کاربری قبلاً استفاده شده است.');
+                    } else {
+                        alert('خطا در به‌روزرسانی نام کاربری: ' + error.message);
+                    }
+                } else {
+                    alert('نام کاربری شما با موفقیت تغییر کرد.');
+                    e.target.username.value = '';
+                }
+            }
+        });
+        
+        // 2. Change Password Logic (for logged-in users)
+        passwordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPassword = e.target['new-password'].value;
+            
+            // Password strength validation
+            const hasUpperCase = /[A-Z]/.test(newPassword);
+            const hasLowerCase = /[a-z]/.test(newPassword);
+            const hasNumber = /\d/.test(newPassword);
+            const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
+
+            if (newPassword.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
+                alert('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
+                return;
+            }
+
+            const { error } = await _supabase.auth.updateUser({ password: newPassword });
+
+            if (error) {
+                alert('خطا در تغییر رمز عبور: ' + error.message);
+            } else {
+                alert('رمز عبور شما با موفقیت تغییر کرد.');
+                 e.target['new-password'].value = '';
+            }
+        });
+
+        // 3. Forgot Password Logic
+        resetPasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = e.target['reset-email'].value;
+            
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/index.html' // Where to redirect after password reset
+            });
+
+            if (error) {
+                alert('خطا: ' + error.message);
+            } else {
+                alert('ایمیل بازیابی رمز عبور برای شما ارسال شد. لطفاً ایمیل خود را بررسی کنید.');
+            }
+        });
+
+    </script>
+</body>
+</html>

@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
+            --navy: #0A192F; --slate-800: #1e2h3b; --slate-600: #475569;
             --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
             --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
         }
@@ -27,9 +27,9 @@
             <p class="text-center text-slate-500 mt-2">خوشحالیم که دوباره شما را می‌بینیم!</p>
             <form id="login-form-element" class="mt-8 space-y-6">
                 <div>
-                    <label for="login-email" class="text-sm font-medium text-slate-700">ایمیل</label>
-                    <input id="login-email" name="email" type="email" required autocomplete="email" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
-                </div>
+                    <label for="login-identifier" class="text-sm font-medium text-slate-700">ایمیل یا نام کاربری</label>
+                    <input id="login-identifier" name="identifier" type="text" required autocomplete="username" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                    </div>
                 <div>
                     <label for="login-password" class="text-sm font-medium text-slate-700">رمز عبور</label>
                     <input id="login-password" name="password" type="password" required autocomplete="current-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
@@ -76,7 +76,7 @@
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
-                storage: window.sessionStorage, // Use session storage to log out on browser close
+                storage: window.sessionStorage,
             },
         });
 
@@ -100,17 +100,42 @@
             loginFormDiv.classList.remove('hidden-form');
         });
 
+        // START: JavaScript Logic Update
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = e.target.email.value;
+            const identifier = e.target.identifier.value; // This can be email or username
             const password = e.target.password.value;
-            const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+            let email = identifier;
+
+            // Check if the identifier is a username (doesn't contain '@')
+            if (!identifier.includes('@')) {
+                // It's a username, so we need to find the corresponding email from the 'profiles' table.
+                const { data: profile, error: profileError } = await _supabase
+                    .from('profiles')
+                    .select('email')
+                    .eq('username', identifier)
+                    .single(); // Use .single() to get one record or an error
+
+                if (profileError || !profile) {
+                    alert('نام کاربری یافت نشد.');
+                    return;
+                }
+                email = profile.email;
+            }
+            
+            // Now, sign in with the resolved email
+            const { data, error } = await _supabase.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
+
             if (error) {
                 alert('خطا در ورود: ' + error.message);
             } else {
                 window.location.href = 'index.html';
             }
         });
+        // END: JavaScript Logic Update
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();

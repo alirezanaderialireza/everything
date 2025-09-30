@@ -16,15 +16,8 @@
         h1, h2, .font-display { font-family: var(--font-display); }
         .form-container { display: block; }
         .form-container.hidden { display: none; }
-        /* START: New Notification Styles */
-        #notification {
-            transition: opacity 0.3s ease-in-out;
-        }
-        #notification.hidden {
-            opacity: 0;
-            display: none;
-        }
-        /* END: New Notification Styles */
+        #notification { transition: opacity 0.3s ease-in-out; }
+        #notification.hidden { opacity: 0; display: none; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -35,6 +28,7 @@
             <span id="notification-message"></span>
             <button id="notification-close" class="ml-4 font-bold">&times;</button>
         </div>
+
         <div id="login-form" class="form-container">
             <h1 class="text-3xl font-display text-center text-[var(--navy)]">ورود به حساب</h1>
             <form id="login-form-element" class="mt-8 space-y-6">
@@ -91,6 +85,7 @@
             </form>
             <p class="mt-4 text-center text-sm"><a href="#" class="show-login font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه ورود</a></p>
         </div>
+
         <div id="forgot-username-form" class="form-container hidden">
             <h1 class="text-3xl font-display text-center text-[var(--navy)]">بازیابی نام کاربری</h1>
              <p class="text-center text-slate-500 mt-2">ایمیل خود را وارد کنید تا نام کاربری شما را پیدا کنیم.</p>
@@ -103,7 +98,8 @@
             </form>
             <p class="mt-4 text-center text-sm"><a href="#" class="show-login font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه ورود</a></p>
         </div>
-        </div>
+
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -127,7 +123,6 @@
         const notificationMessage = document.getElementById('notification-message');
         const notificationClose = document.getElementById('notification-close');
 
-        // START: New Notification Logic
         function showNotification(message, type = 'error') {
             notificationMessage.textContent = message;
             if (type === 'success') {
@@ -143,10 +138,9 @@
         notificationClose.addEventListener('click', () => {
             notification.classList.add('hidden');
         });
-        // END: New Notification Logic
 
         function showForm(formToShow) {
-            notification.classList.add('hidden'); // Hide notifications when switching forms
+            notification.classList.add('hidden');
             allForms.forEach(form => form.classList.add('hidden'));
             formToShow.classList.remove('hidden');
         }
@@ -164,25 +158,16 @@
             let email = identifier;
 
             if (!identifier.includes('@')) {
-                const { data, error } = await _supabase.rpc('get_username_by_email', { user_email: identifier });
-                if (error || !data) {
-                    showNotification('نام کاربری یا ایمیل یافت نشد.');
-                    return;
+                const { data, error } = await _supabase.rpc('get_email_by_username', { user_name: identifier });
+                if (data) {
+                    email = data;
                 }
-                email = data; // This line seems incorrect. `get_username_by_email` should get the email from the username
-                
-                // Let's call a function that gets email from username instead
-                 const { data: profile, error: profileError } = await _supabase.from('profiles').select('email').eq('username', identifier).single();
-                if (profileError || !profile) {
-                     showNotification('نام کاربری یافت نشد.');
-                     return;
-                }
-                email = profile.email;
             }
             
-            const { error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) {
-                showNotification('ایمیل/نام کاربری یا رمز عبور اشتباه است.');
+            const { error: signInError } = await _supabase.auth.signInWithPassword({ email, password });
+
+            if (signInError) {
+                showNotification('اطلاعات ورود نامعتبر است. لطفاً دوباره تلاش کنید.');
             } else {
                 window.location.href = 'index.html';
             }
@@ -190,50 +175,47 @@
 
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Register logic is the same, but uses showNotification instead of alert
             const password = e.target.password.value;
-             if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-                showNotification('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
-                return;
+            if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+               showNotification('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
+               return;
             }
             const { error } = await _supabase.auth.signUp({
-                email: e.target.email.value,
-                password: password,
-                options: { data: { username: e.target.username.value } }
+               email: e.target.email.value,
+               password: password,
+               options: { data: { username: e.target.username.value } }
             });
             if (error) {
-                showNotification(error.message);
+               showNotification('خطا در ثبت‌نام: ' + error.message);
             } else {
-                showNotification('ایمیل تایید برای شما ارسال شد. لطفاً صندوق ورودی خود را چک کنید.', 'success');
+               showNotification('ایمیل تایید برای شما ارسال شد. لطفاً صندوق ورودی خود را چک کنید.', 'success');
+               e.target.reset(); // Clear form on success
             }
         });
         
-        // START: New Forgot Password Logic
         forgotPasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = e.target.email.value;
-            const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+            const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/index.html' });
             if (error) {
-                showNotification(error.message);
+                showNotification('خطا: ' + error.message);
             } else {
                 showNotification('اگر این ایمیل در سیستم ما موجود باشد، لینک بازیابی برایتان ارسال خواهد شد.', 'success');
+                e.target.reset(); // Clear form on success
             }
         });
-        // END: New Forgot Password Logic
         
-        // START: New Forgot Username Logic
         forgotUsernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
             const email = e.target.email.value;
             const { data, error } = await _supabase.rpc('get_username_by_email', { user_email: email });
-
             if (error || !data) {
                 showNotification('ایمیلی با این مشخصات یافت نشد.');
             } else {
                 showNotification(`نام کاربری شما "${data}" است.`, 'success');
             }
         });
-        // END: New Forgot Username Logic
     </script>
 </body>
 </html>

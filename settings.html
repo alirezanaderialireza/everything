@@ -33,51 +33,36 @@
     <main class="container mx-auto p-6 mt-8">
         <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-10">تنظیمات حساب کاربری</h1>
 
-        <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-
-            <div class="space-y-8">
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">تغییر نام کاربری</h2>
-                    <form id="username-form" class="space-y-4">
-                        <div>
-                            <label for="username" class="text-sm font-medium text-slate-700">نام کاربری جدید</label>
-                            <input id="username" type="text" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
-                        </div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ذخیره نام کاربری</button>
-                    </form>
-                </div>
-
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">تغییر رمز عبور</h2>
-                    <form id="password-form" class="space-y-4">
-                        <div>
-                            <label for="current-password" class="text-sm font-medium text-slate-700">رمز عبور فعلی</label>
-                            <input id="current-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
-                        </div>
-                        <hr/>
-                        <div>
-                            <label for="new-password" class="text-sm font-medium text-slate-700">رمز عبور جدید</label>
-                            <input id="new-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
-                             <p class="mt-2 text-xs text-slate-500">حداقل ۸ کاراکتر، شامل حروف بزرگ و کوچک، عدد و علائم خاص.</p>
-                        </div>
-                         <div>
-                            <label for="confirm-password" class="text-sm font-medium text-slate-700">تکرار رمز عبور جدید</label>
-                            <input id="confirm-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
-                        </div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ذخیره رمز عبور</button>
-                    </form>
+        <div class="max-w-lg mx-auto space-y-8">
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">تغییر نام کاربری</h2>
+                <form id="username-form" class="space-y-4">
+                    <div>
+                        <label for="username" class="text-sm font-medium text-slate-700">نام کاربری جدید</label>
+                        <input id="username" type="text" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
                     </div>
+                    <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ذخیره نام کاربری</button>
+                </form>
             </div>
 
             <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">فراموشی رمز عبور</h2>
-                <p class="text-slate-600 mb-4">اگر رمز عبور فعلی خود را به یاد نمی‌آورید، از این بخش برای ارسال لینک بازیابی استفاده کنید.</p>
-                <form id="reset-password-form" class="space-y-4">
+                <h2 class="text-2xl font-display text-slate-800 border-b pb-3 mb-4">تغییر رمز عبور</h2>
+                <form id="password-form" class="space-y-4">
                     <div>
-                        <label for="reset-email" class="text-sm font-medium text-slate-700">ایمیل حساب کاربری</label>
-                        <input id="reset-email" type="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                        <label for="current-password" class="text-sm font-medium text-slate-700">رمز عبور فعلی</label>
+                        <input id="current-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                     </div>
-                    <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ارسال لینک بازیابی</button>
+                    <hr/>
+                    <div>
+                        <label for="new-password" class="text-sm font-medium text-slate-700">رمز عبور جدید</label>
+                        <input id="new-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                         <p class="mt-2 text-xs text-slate-500">حداقل ۸ کاراکتر، شامل حروف بزرگ و کوچک، عدد و علائم خاص.</p>
+                    </div>
+                     <div>
+                        <label for="confirm-password" class="text-sm font-medium text-slate-700">تکرار رمز عبور جدید</label>
+                        <input id="confirm-password" type="password" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                    </div>
+                    <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">ذخیره رمز عبور</button>
                 </form>
             </div>
         </div>
@@ -89,15 +74,10 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
 
         const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                storage: window.sessionStorage,
-            },
-        });
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
         const usernameForm = document.getElementById('username-form');
         const passwordForm = document.getElementById('password-form');
-        const resetPasswordForm = document.getElementById('reset-password-form');
         let currentUser = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -112,15 +92,11 @@
         usernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const newUsername = e.target.username.value;
-            
             if (currentUser) {
                 const { error } = await _supabase.from('profiles').update({ username: newUsername }).eq('id', currentUser.id);
                 if (error) {
-                    if (error.code === '23505') {
-                        alert('خطا: این نام کاربری قبلاً استفاده شده است.');
-                    } else {
-                        alert('خطا در به‌روزرسانی نام کاربری: ' + error.message);
-                    }
+                    if (error.code === '23505') { alert('خطا: این نام کاربری قبلاً استفاده شده است.'); } 
+                    else { alert('خطا در به‌روزرسانی نام کاربری: ' + error.message); }
                 } else {
                     alert('نام کاربری شما با موفقیت تغییر کرد.');
                     e.target.username.value = '';
@@ -128,47 +104,35 @@
             }
         });
         
-        // START: JavaScript Changes for Password Form
         passwordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const currentPassword = e.target['current-password'].value;
             const newPassword = e.target['new-password'].value;
             const confirmPassword = e.target['confirm-password'].value;
 
-            // 1. Check if new passwords match
             if (newPassword !== confirmPassword) {
                 alert('رمز عبور جدید و تکرار آن یکسان نیستند.');
                 return;
             }
 
-            // 2. Check new password strength
             const hasUpperCase = /[A-Z]/.test(newPassword);
             const hasLowerCase = /[a-z]/.test(newPassword);
-            const hasNumber = /\d/.test(newPassword);
+            const hasNumber = /\d]/.test(newPassword);
             const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
             if (newPassword.length < 8 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
                 alert('رمز عبور جدید باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
                 return;
             }
 
-            // 3. Verify the current password by trying to sign in with it
             if (currentUser) {
-                const { error: reauthError } = await _supabase.auth.signInWithPassword({
-                    email: currentUser.email,
-                    password: currentPassword,
-                });
-
+                const { error: reauthError } = await _supabase.auth.signInWithPassword({ email: currentUser.email, password: currentPassword });
                 if (reauthError) {
                     alert('رمز عبور فعلی شما اشتباه است.');
                     return;
                 }
-            } else {
-                return; // Should not happen due to page protection
-            }
+            } else { return; }
             
-            // 4. If current password is correct, update to the new password
             const { error: updateError } = await _supabase.auth.updateUser({ password: newPassword });
-
             if (updateError) {
                 alert('خطا در تغییر رمز عبور: ' + updateError.message);
             } else {
@@ -176,20 +140,6 @@
                 e.target['current-password'].value = '';
                 e.target['new-password'].value = '';
                 e.target['confirm-password'].value = '';
-            }
-        });
-        // END: JavaScript Changes for Password Form
-
-        resetPasswordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = e.target['reset-email'].value;
-            const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/index.html'
-            });
-            if (error) {
-                alert('خطا: ' + error.message);
-            } else {
-                alert('ایمیل بازیابی رمز عبور برای شما ارسال شد. لطفاً ایمیل خود را بررسی کنید.');
             }
         });
     </script>

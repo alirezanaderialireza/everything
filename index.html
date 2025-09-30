@@ -418,9 +418,12 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
-        // ... (بقیه کدهای لاگین شما بدون تغییر باقی می‌ماند)
 
-        // =====> اسکریپت جدید و هوشمند برای ویجت تقویم از اینجا شروع می‌شود <=====
+        // ... (تمام کدهای مربوط به لاگین شما اینجا قرار می‌گیرد)
+        const loginBtn = document.getElementById('login-btn');
+        // ... و غیره
+
+        // =====> اسکریپت تقویم با منطق نهایی و اصلاح‌شده <=====
         document.addEventListener('DOMContentLoaded', function () {
             // -- بخش اول: بروزرسانی ساعت و تاریخ (بدون تغییر) --
             const timeEl = document.getElementById('widget-time');
@@ -430,7 +433,7 @@
 
             function updateTimeAndDate() {
                 const now = new Date();
-                timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }); // ثانیه حذف شد برای ظاهر بهتر
                 shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long' }).format(now);
                 gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(now);
                 try {
@@ -440,7 +443,7 @@
             updateTimeAndDate();
             setInterval(updateTimeAndDate, 1000);
 
-            // -- بخش دوم: دریافت، فیلتر و نمایش رویدادها (منطق جدید و دقیق) --
+            // -- بخش دوم: دریافت، فیلتر و نمایش رویدادها (منطق نهایی و دقیق) --
             const todayCol = document.getElementById('today-events');
             const weekCol = document.getElementById('week-events');
             const monthCol = document.getElementById('month-events');
@@ -466,17 +469,15 @@
                     thirtyDaysFromNow.setDate(today.getDate() + 30);
                     const thirtyDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(thirtyDaysFromNow).replace(/\//g, '-');
 
-                    // 2. فیلتر کردن رویدادها بر اساس بازه‌های زمانی دقیق
-                    // چون تاریخ‌ها فرمت YYYY-MM-DD دارند، مقایسه رشته‌ها به درستی کار می‌کند
-
+                    // 2. فیلتر کردن رویدادها با بازه‌های زمانی کاملاً مجزا
                     const todayEvents = events.filter(e => e.date === todayShamsi);
                     const weekEvents = events.filter(e => e.date > todayShamsi && e.date <= sevenDaysLaterShamsi);
                     const monthEvents = events.filter(e => e.date > sevenDaysLaterShamsi && e.date <= thirtyDaysLaterShamsi);
 
                     // 3. نمایش نتایج فیلتر شده
                     renderEvents(todayCol, todayEvents);
-                    renderEvents(weekCol, weekEvents, true); // با نمایش تاریخ
-                    renderEvents(monthCol, monthEvents, true); // با نمایش تاریخ
+                    renderEvents(weekCol, weekEvents, true);
+                    renderEvents(monthCol, monthEvents, true);
                 })
                 .catch(error => {
                     console.error("Error fetching events:", error);
@@ -491,10 +492,11 @@
                 const noEventsP = columnElement.querySelector('.no-events');
                 if (eventList.length === 0) {
                     noEventsP.classList.remove('hidden');
-                    return; // اگر رویدادی نبود، پیغام "رویدادی ثبت نشده" را نمایش بده
+                    ul.innerHTML = ''; // لیست را خالی می‌کنیم
+                    return;
                 }
 
-                noEventsP.classList.add('hidden'); // مخفی کردن پیغام "رویدادی ثبت نشده"
+                noEventsP.classList.add('hidden');
                 let html = '';
                 eventList.forEach(event => {
                     const dateTag = showDate ? `<span class="event-date-tag">${event.date.substring(5)}</span>` : '';

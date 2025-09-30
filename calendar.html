@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقویم هوشمند حسابداری - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
+
+    <style>
+        :root {
+            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
+            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-body); background-color: var(--slate-100); }
+        h1, h2, h3, h4, .font-display { font-family: var(--font-display); }
+        .main-header { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
+        .nav-link { position: relative; padding-bottom: 4px; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; right: 0; background-color: var(--gold); transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .btn-gold { background-color: var(--gold); color: var(--navy); }
+
+        /* استایل‌های اصلی تقویم */
+        #calendar-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            background-color: var(--navy);
+            color: white;
+        }
+        .calendar-nav-btn {
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .calendar-nav-btn:hover { background: rgba(255,255,255,0.2); }
+        .calendar-month-display { font-family: var(--font-display); font-size: 2rem; }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        .weekday-header {
+            text-align: center;
+            padding: 0.75rem 0;
+            font-weight: 600;
+            color: var(--slate-600);
+            background-color: var(--slate-100);
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .day-cell {
+            position: relative;
+            min-height: 120px;
+            padding: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            border-left: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .day-cell:nth-child(7n) { border-left: none; }
+        .day-cell:hover { background-color: var(--light-gold); }
+        .day-cell.other-month .day-number { color: #ccc; }
+        .day-cell.today .day-number {
+            background-color: var(--gold);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .day-cell.selected {
+            background-color: var(--light-gold);
+            border: 2px solid var(--gold);
+        }
+        .event-dot {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: var(--gold);
+            border-radius: 50%;
+        }
+        .day-events-list {
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .event-title-inline {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            background: var(--navy);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 3px;
+        }
+
+        #day-details-container {
+            background-color: var(--slate-100);
+            padding: 2rem;
+            min-height: 100px;
+        }
+        #day-details-container h3 {
+            color: var(--navy);
+            font-family: var(--font-display);
+        }
+        #details-list li {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <header class="main-header sticky top-0 z-50">
+       </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <h1 class="text-4xl md:text-5xl font-display text-center mb-12" style="color: var(--navy);">تقویم هوشمند حسابداری</h1>
+        
+        <div id="calendar-container">
+            <div class="calendar-header">
+                <button id="prev-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-right"></i></button>
+                <div id="month-display" class="calendar-month-display">...</div>
+                <button id="next-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-left"></i></button>
+            </div>
+            <div class="calendar-grid weekday-grid">
+                <div class="weekday-header">شنبه</div>
+                <div class="weekday-header">یکشنبه</div>
+                <div class="weekday-header">دوشنبه</div>
+                <div class="weekday-header">سه‌شنبه</div>
+                <div class="weekday-header">چهارشنبه</div>
+                <div class="weekday-header">پنجشنبه</div>
+                <div class="weekday-header">جمعه</div>
+            </div>
+            <div id="calendar-days-grid" class="calendar-grid">
+                </div>
+        </div>
+
+        <div id="day-details-container" class="mt-8">
+            <h3 class="text-2xl mb-4">رویدادهای روز انتخاب شده:</h3>
+            <ul id="details-list">
+                <li>روزی را برای مشاهده جزئیات انتخاب کنید.</li>
+            </ul>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // تنظیم زبان کتابخانه تاریخ به فارسی
+        moment.locale('fa');
+
+        const monthDisplay = document.getElementById('month-display');
+        const daysGrid = document.getElementById('calendar-days-grid');
+        const detailsList = document.getElementById('details-list');
+        const prevMonthBtn = document.getElementById('prev-month-btn');
+        const nextMonthBtn = document.getElementById('next-month-btn');
+
+        let currentMoment = moment();
+        let allEvents = [];
+        let selectedDate = null;
+
+        // دریافت رویدادها از API
+        async function fetchEvents(year) {
+            const apiUrl = `http://127.0.0.1:5000/api/events/${year}`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('Network response was not ok');
+                allEvents = await response.json();
+                renderCalendar();
+            } catch (error) {
+                console.error("Failed to fetch events:", error);
+                daysGrid.innerHTML = `<p class="p-4 col-span-7 text-center">خطا در بارگذاری رویدادها</p>`;
+            }
+        }
+        
+        // ساخت و نمایش تقویم
+        function renderCalendar() {
+            daysGrid.innerHTML = '';
+            monthDisplay.textContent = currentMoment.format('MMMM YYYY');
+            
+            const today = moment().format('YYYY-MM-DD');
+            const startOfMonth = currentMoment.clone().startOf('jMonth');
+            const endOfMonth = currentMoment.clone().endOf('jMonth');
+            const daysInMonth = currentMoment.jDaysInMonth();
+            const firstDayOfWeek = startOfMonth.day(); // 0:یکشنبه, 6:شنبه
+            
+            // شنبه در کتابخانه moment شماره 6 است
+            const startOffset = (firstDayOfWeek + 1) % 7;
+
+            // ساخت خانه‌های خالی قبل از شروع ماه
+            for (let i = 0; i < startOffset; i++) {
+                daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`);
+            }
+
+            // ساخت خانه‌های روزهای ماه
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayMoment = currentMoment.clone().jDate(i);
+                const dateString = dayMoment.format('YYYY-MM-DD');
+                const dayEvents = allEvents.filter(e => e.date === dateString);
+
+                let cellClasses = 'day-cell';
+                if (dateString === today) cellClasses += ' today';
+                if (dateString === selectedDate) cellClasses += ' selected';
+                
+                let eventsHtml = '';
+                if (dayEvents.length > 0) {
+                    eventsHtml = '<div class="day-events-list">';
+                    dayEvents.slice(0, 2).forEach(event => { // نمایش حداکثر ۲ رویداد
+                        eventsHtml += `<div class="event-title-inline">${event.title}</div>`;
+                    });
+                    eventsHtml += '</div>';
+                    if(dayEvents.length > 2) eventsHtml += '<div class="event-dot"></div>';
+                }
+                
+                const cellHtml = `
+                    <div class="${cellClasses}" data-date="${dateString}">
+                        <div class="day-number">${i}</div>
+                        ${eventsHtml}
+                    </div>`;
+                daysGrid.insertAdjacentHTML('beforeend', cellHtml);
+            }
+            
+            // اضافه کردن event listener به روزها
+            document.querySelectorAll('.day-cell[data-date]').forEach(cell => {
+                cell.addEventListener('click', handleDayClick);
+            });
+        }
+        
+        // مدیریت کلیک روی یک روز
+        function handleDayClick(event) {
+            const clickedCell = event.currentTarget;
+            selectedDate = clickedCell.dataset.date;
+            
+            // آپدیت کلاس selected
+            document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+            clickedCell.classList.add('selected');
+            
+            // نمایش جزئیات
+            const dayEvents = allEvents.filter(e => e.date === selectedDate);
+            detailsList.innerHTML = '';
+            if (dayEvents.length > 0) {
+                dayEvents.forEach(e => {
+                    detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
+                });
+            } else {
+                detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+            }
+        }
+        
+        // دکمه‌های ناوبری
+        prevMonthBtn.addEventListener('click', () => {
+            currentMoment.subtract(1, 'jMonth');
+            renderCalendar();
+        });
+        nextMonthBtn.addEventListener('click', () => {
+            currentMoment.add(1, 'jMonth');
+            renderCalendar();
+        });
+
+        // شروع برنامه
+        fetchEvents(currentMoment.jYear());
+    });
+    </script>
+</body>
+</html>

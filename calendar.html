@@ -358,24 +358,8 @@
             const monthDisplay = document.getElementById('month-display');
             const daysGrid = document.getElementById('calendar-days-grid');
             const detailsList = document.getElementById('details-list');
-            prevMonthBtn.addEventListener('click', () => {
-                const currentYear = currentMoment.jYear();
-                currentMoment.subtract(1, 'jMonth');
-                if (currentMoment.jYear() !== currentYear) {
-                    fetchEvents(currentMoment.jYear()); // رویدادهای سال جدید را دریافت می‌کند
-                } else {
-                    renderCalendar();
-                }
-            });
-            nextMonthBtn.addEventListener('click', () => {
-                const currentYear = currentMoment.jYear();
-                currentMoment.add(1, 'jMonth');
-                if (currentMoment.jYear() !== currentYear) {
-                    fetchEvents(currentMoment.jYear()); // رویدادهای سال جدید را دریافت می‌کند
-                } else {
-                    renderCalendar();
-                }
-            });
+            const prevMonthBtn = document.getElementById('prev-month-btn');
+            const nextMonthBtn = document.getElementById('next-month-btn');
 
             let currentMoment = moment();
             let allEvents = [];
@@ -456,7 +440,7 @@
                 const currentYear = currentMoment.jYear();
                 currentMoment.subtract(1, 'jMonth');
                 if (currentMoment.jYear() !== currentYear) {
-                    fetchEvents(currentMoment.jYear());
+                    fetchEvents(currentMoment.jYear()); // رویدادهای سال جدید را دریافت می‌کند
                 } else {
                     renderCalendar();
                 }
@@ -465,7 +449,7 @@
                 const currentYear = currentMoment.jYear();
                 currentMoment.add(1, 'jMonth');
                 if (currentMoment.jYear() !== currentYear) {
-                    fetchEvents(currentMoment.jYear());
+                    fetchEvents(currentMoment.jYear()); // رویدادهای سال جدید را دریافت می‌کند
                 } else {
                     renderCalendar();
                 }

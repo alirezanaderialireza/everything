@@ -1,83 +1,44 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ماشین حساب هوشمند حسابداری - آیدا شیرازی</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --navy: #0A192F;
-            --slate-800: #1e293b;
-            --slate-600: #475569;
-            --slate-100: #f1f5f9;
-            --gold: #c49827;
-            --light-gold: #FBEFCE;
-            --font-display: 'Lalezar', cursive;
-            --font-body: 'Vazirmatn', sans-serif;
+            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
+            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
         }
-
-        body {
-            font-family: var(--font-body);
-            background-color: var(--slate-100);
-        }
-
-        h1,
-        h2,
-        .font-display {
-            font-family: var(--font-display);
-        }
-
-        .btn-gold {
-            background-color: var(--gold);
-            color: var(--navy);
-            transition: background-color 0.3s;
-        }
-
-        .btn-gold:hover {
-            background-color: #b98d1e;
-        }
-
-        .calculator-tab {
-            cursor: pointer;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            border-bottom: 4px solid transparent;
-        }
-
-        .calculator-tab.active {
-            color: var(--navy);
-            border-bottom-color: var(--gold);
-        }
-
-        .calculator-content {
-            display: none;
-        }
-
-        .calculator-content.active {
-            display: block;
-        }
-
-        .result-field {
-            background-color: var(--slate-100);
-            border-right: 4px solid var(--gold);
-        }
+        body { font-family: var(--font-body); background-color: var(--slate-100); }
+        h1, h2, .font-display { font-family: var(--font-display); }
+        .btn-gold { background-color: var(--gold); color: var(--navy); transition: background-color 0.3s; }
+        .btn-gold:hover { background-color: #b98d1e; }
+        .calculator-tab { cursor: pointer; padding: 0.75rem 1.5rem; font-weight: 600; border-bottom: 4px solid transparent; }
+        .calculator-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+        .calculator-content { display: none; }
+        .calculator-content.active { display: block; }
+        .result-field { background-color: var(--slate-100); border-right: 4px solid var(--gold); }
     </style>
 </head>
-
 <body class="bg-slate-100">
 
-    <div class="hidden md:flex items-center space-x-10 space-x-reverse">
-        <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
-        <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
-        <a href="calculator.html" class="nav-link">ماشین حساب</a> <a href="index.html#updates" class="nav-link">آخرین
-            تغییرات</a>
-        <a href="index.html#about" class="nav-link">درباره من</a>
-    </div>
+    <header class="bg-white shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+             <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+             <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+                <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
+                <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
+                <a href="calculator.html" class="nav-link">ماشین حساب</a>
+                <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
+                <a href="index.html#about" class="nav-link">درباره من</a>
+            </div>
+             <a href="index.html" class="text-sm font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه اصلی</a>
+        </nav>
+    </header>
 
     <main class="container mx-auto p-6 mt-8">
         <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-10">ماشین حساب هوشمند حسابداری</h1>
@@ -94,13 +55,10 @@
                     <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر حقوق و دستمزد</h2>
                     <form id="salary-form" class="space-y-4">
                         <div>
-                            <label for="gross-salary" class="text-sm font-medium text-slate-700">حقوق ناخالص ماهانه
-                                (تومان)</label>
-                            <input id="gross-salary" type="number" placeholder="مثال: 15,000,000" required
-                                class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                            <label for="gross-salary" class="text-sm font-medium text-slate-700">حقوق ناخالص ماهانه (تومان)</label>
+                            <input id="gross-salary" type="number" placeholder="مثال: 15,000,000" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                         </div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه
-                            کن</button>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه کن</button>
                     </form>
                     <div id="salary-results" class="mt-6 space-y-3 hidden">
                         <div class="result-field p-4 rounded-md flex justify-between items-center">
@@ -112,8 +70,7 @@
                             <span id="tax-result" class="font-bold text-lg text-red-600"></span>
                         </div>
                         <hr class="my-3">
-                        <div
-                            class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
+                        <div class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
                             <span class="font-semibold text-green-800">حقوق خالص دریافتی:</span>
                             <span id="net-salary-result" class="font-bold text-xl text-green-800"></span>
                         </div>
@@ -121,24 +78,21 @@
                 </div>
 
                 <div id="content-vat" class="calculator-content">
-                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر ارزش افزوده (VAT)</h2>
+                     <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر ارزش افزوده (VAT)</h2>
                     <form id="vat-form" class="space-y-4">
                         <div>
                             <label for="base-price" class="text-sm font-medium text-slate-700">مبلغ پایه (تومان)</label>
-                            <input id="base-price" type="number" placeholder="مثال: 1,000,000" required
-                                class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                            <input id="base-price" type="number" placeholder="مثال: 1,000,000" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                         </div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه
-                            کن</button>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه کن</button>
                     </form>
                     <div id="vat-results" class="mt-6 space-y-3 hidden">
-                        <div class="result-field p-4 rounded-md flex justify-between items-center">
+                         <div class="result-field p-4 rounded-md flex justify-between items-center">
                             <span class="font-semibold text-slate-600">مبلغ ارزش افزوده (۱۰٪):</span>
                             <span id="vat-amount-result" class="font-bold text-lg text-red-600"></span>
                         </div>
                         <hr class="my-3">
-                        <div
-                            class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
+                        <div class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
                             <span class="font-semibold text-green-800">مبلغ نهایی با ارزش افزوده:</span>
                             <span id="total-price-result" class="font-bold text-xl text-green-800"></span>
                         </div>
@@ -149,19 +103,14 @@
                     <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر عیدی و سنوات</h2>
                     <form id="bonus-form" class="space-y-4">
                         <div>
-                            <label for="bonus-salary" class="text-sm font-medium text-slate-700">حقوق پایه ماهانه
-                                (تومان)</label>
-                            <input id="bonus-salary" type="number" placeholder="مثال: 10,000,000" required
-                                class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                            <label for="bonus-salary" class="text-sm font-medium text-slate-700">حقوق پایه ماهانه (تومان)</label>
+                            <input id="bonus-salary" type="number" placeholder="مثال: 10,000,000" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                         </div>
-                        <div>
-                            <label for="months-worked" class="text-sm font-medium text-slate-700">تعداد ماه‌های کارکرد
-                                در سال</label>
-                            <input id="months-worked" type="number" value="12" min="1" max="12" required
-                                class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                         <div>
+                            <label for="months-worked" class="text-sm font-medium text-slate-700">تعداد ماه‌های کارکرد در سال</label>
+                            <input id="months-worked" type="number" value="12" min="1" max="12" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                         </div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه
-                            کن</button>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه کن</button>
                     </form>
                     <div id="bonus-results" class="mt-6 space-y-3 hidden">
                         <div class="result-field p-4 rounded-md flex justify-between items-center">
@@ -187,51 +136,40 @@
                 tab.addEventListener('click', () => {
                     tabs.forEach(item => item.classList.remove('active'));
                     contents.forEach(item => item.classList.remove('active'));
-
+                    
                     tab.classList.add('active');
                     const contentId = 'content-' + tab.id.split('-')[1];
                     document.getElementById(contentId).classList.add('active');
                 });
             });
-
-            // Helper to format numbers with commas
+            
             const formatNumber = (num) => new Intl.NumberFormat('fa-IR').format(num) + ' تومان';
 
-            // --- Salary Calculator Logic ---
             const salaryForm = document.getElementById('salary-form');
             salaryForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const grossSalary = parseFloat(document.getElementById('gross-salary').value);
-
-                // 1. Calculate Insurance (7% of gross)
                 const insurance = grossSalary * 0.07;
-
-                // 2. Calculate Tax (Based on simplified 1403 brackets)
                 const annualSalary = grossSalary * 12;
                 let annualTax = 0;
                 // Note: These are simplified brackets for demonstration.
-                if (annualSalary > 144000000) { // Up to 144M is exempt
+                if (annualSalary > 144000000) {
                     const taxableBase = annualSalary - 144000000;
-                    if (taxableBase <= 480000000) { // 10% bracket up to 480M
+                    if (taxableBase <= 480000000) {
                         annualTax = taxableBase * 0.10;
-                    } else {
-                        // Simplified calculation for higher brackets
-                        annualTax = (480000000 * 0.10) + ((taxableBase - 480000000) * 0.15);
+                    } else { 
+                        annualTax = (480000000 * 0.10) + ((taxableBase - 480000000) * 0.15); 
                     }
                 }
                 const monthlyTax = annualTax / 12;
-
-                // 3. Calculate Net Salary
                 const netSalary = grossSalary - insurance - monthlyTax;
 
-                // Display results
                 document.getElementById('insurance-result').textContent = '- ' + formatNumber(Math.round(insurance));
                 document.getElementById('tax-result').textContent = '- ' + formatNumber(Math.round(monthlyTax));
                 document.getElementById('net-salary-result').textContent = formatNumber(Math.round(netSalary));
                 document.getElementById('salary-results').classList.remove('hidden');
             });
-
-            // --- VAT Calculator Logic ---
+            
             const vatForm = document.getElementById('vat-form');
             vatForm.addEventListener('submit', (e) => {
                 e.preventDefault();
@@ -245,17 +183,12 @@
                 document.getElementById('vat-results').classList.remove('hidden');
             });
 
-            // --- Bonus/Severance Calculator Logic ---
             const bonusForm = document.getElementById('bonus-form');
             bonusForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const salary = parseFloat(document.getElementById('bonus-salary').value);
                 const months = parseInt(document.getElementById('months-worked').value);
-
-                // Eidi (Bonus) calculation: 2 * salary, adjusted for months worked
                 const eidi = (salary * 2) * (months / 12);
-
-                // Sanavat (Severance) calculation: 1 * salary for each year
                 const sanavat = salary * (months / 12);
 
                 document.getElementById('eidi-result').textContent = formatNumber(Math.round(eidi));
@@ -265,5 +198,4 @@
         });
     </script>
 </body>
-
 </html>

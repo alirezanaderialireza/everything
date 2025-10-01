@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقویم هوشمند حسابداری - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
+    <style>
+        /* Your CSS styles remain unchanged... */
+        :root {
+            --navy: #0A192F; --slate-800: #1e2b3b; --slate-600: #475569;
+            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+        }
+        html { scroll-behavior: smooth; }
+        body { font-family: var(--font-body); background-color: var(--slate-100); }
+        h1, h2, h3, h4, .font-display { font-family: var(--font-display); }
+        .main-header { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
+        .nav-link { transition: color 0.3s ease; color: var(--slate-800); font-weight: 500; position: relative; padding-bottom: 4px; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; right: 0; background-color: var(--gold); transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .nav-link:hover { color: var(--navy); }
+        .btn-gold { background-color: var(--gold); color: var(--navy); border-radius: 0.5rem; font-weight: 600; padding: 0.75rem 1.75rem; }
+        #live-clock-display { font-family: 'Vazirmatn', sans-serif; font-weight: 700; font-size: 1.25rem; color: var(--navy); letter-spacing: 1.5px; }
+        #calendar-container { background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; background-color: var(--navy); color: white; }
+        .calendar-nav-btn { background: rgba(255, 255, 255, 0.1); border-radius: 50%; width: 40px; height: 40px; border: none; cursor: pointer; transition: background-color 0.2s; }
+        .calendar-nav-btn:hover { background: rgba(255, 255, 255, 0.2); }
+        .calendar-month-display { font-family: var(--font-display); font-size: 2rem; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+        .weekday-header { text-align: center; padding: 0.75rem 0; font-weight: 600; color: var(--slate-600); background-color: var(--slate-100); border-bottom: 1px solid #e2e8f0; }
+        .day-cell { position: relative; min-height: 120px; padding: 8px; border-bottom: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; cursor: pointer; transition: background-color 0.2s; }
+        .day-cell:nth-child(7n) { border-left: none; }
+        .day-cell:hover { background-color: var(--light-gold); }
+        .day-cell.other-month .day-number { color: #ccc; }
+        .day-cell.today .day-number { background-color: var(--gold); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; }
+        .day-cell.selected { background-color: var(--light-gold); border: 2px solid var(--gold); }
+        .event-dot { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background-color: var(--gold); border-radius: 50%; }
+        .day-events-list { font-size: 0.75rem; margin-top: 4px; }
+        .event-title-inline { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--navy); color: white; padding: 2px 6px; border-radius: 4px; margin-bottom: 3px; }
+        #day-details-container { background-color: white; padding: 2rem; min-height: 100px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
+        #day-details-container h3 { color: var(--navy); font-family: var(--font-display); }
+        #details-list li { background: var(--slate-100); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; border-right: 4px solid var(--gold); }
+    </style>
+</head>
+
+<body class="bg-slate-100">
+
+    <header class="main-header sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-3">
+                    <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو" class="w-10 h-10 rounded-full">
+                    <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+                </div>
+                <div id="live-clock-display" class="hidden md:block">--:--:--</div>
+            </div>
+            <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+                <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
+                <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
+                <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
+                <a href="index.html#about" class="nav-link">درباره من</a>
+            </div>
+            <div id="profile-section" class="relative">
+                <a href="login.html" id="login-btn" class="btn btn-gold flex items-center justify-center gap-2 px-6 py-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>ورود / ثبت‌نام</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="profile-toggle-btn" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
+                        <i class="fa-solid fa-user text-slate-600"></i>
+                    </button>
+                    <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <h1 class="text-4xl md:text-5xl font-display text-center mb-12" style="color: var(--navy);">تقویم هوشمند حسابداری</h1>
+
+        <div id="calendar-container">
+            <div class="calendar-header">
+                <button id="prev-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-right"></i></button>
+                <div id="month-display" class="calendar-month-display">...</div>
+                <button id="next-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-left"></i></button>
+            </div>
+            <div class="calendar-grid weekday-grid">
+                <div class="weekday-header">شنبه</div>
+                <div class="weekday-header">یکشنبه</div>
+                <div class="weekday-header">دوشنبه</div>
+                <div class="weekday-header">سه‌شنبه</div>
+                <div class="weekday-header">چهارشنبه</div>
+                <div class="weekday-header">پنجشنبه</div>
+                <div class="weekday-header">جمعه</div>
+            </div>
+            <div id="calendar-days-grid" class="calendar-grid"></div>
+        </div>
+
+        <div id="day-details-container" class="mt-8">
+            <h3 class="text-2xl mb-4">رویدادهای روز انتخاب شده:</h3>
+            <ul id="details-list">
+                <li>روزی را برای مشاهده جزئیات انتخاب کنید.</li>
+            </ul>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // اسکریپت لاگین
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: { storage: window.sessionStorage, },
+        });
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const profileToggleBtn = document.getElementById('profile-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+        });
+        profileToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('hidden');
+        });
+        window.addEventListener('click', () => {
+            if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+        logoutBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await _supabase.auth.signOut();
+        });
+
+        // اسکریپت تقویم
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const clockEl = document.getElementById('live-clock-display');
+            function updateClock() {
+                const now = new Date();
+                if (clockEl) clockEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            moment.locale('fa');
+
+            const monthDisplay = document.getElementById('month-display');
+            const daysGrid = document.getElementById('calendar-days-grid');
+            const detailsList = document.getElementById('details-list');
+            
+            // START: FIX - Define button variables by selecting them from HTML
+            const prevMonthBtn = document.getElementById('prev-month-btn');
+            const nextMonthBtn = document.getElementById('next-month-btn');
+            // END: FIX
+
+            prevMonthBtn.addEventListener('click', () => {
+                const currentYear = currentMoment.jYear();
+                currentMoment.subtract(1, 'jMonth');
+                if (currentMoment.jYear() !== currentYear) {
+                    fetchEvents(currentMoment.jYear());
+                } else {
+                    renderCalendar();
+                }
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                const currentYear = currentMoment.jYear();
+                currentMoment.add(1, 'jMonth');
+                if (currentMoment.jYear() !== currentYear) {
+                    fetchEvents(currentMoment.jYear());
+                } else {
+                    renderCalendar();
+                }
+            });
+
+            let currentMoment = moment();
+            let allEvents = [];
+            let selectedDate = null;
+
+            async function fetchEvents(year) {
+                const apiUrl = `http://127.0.0.1:5000/api/events/${year}`;
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    allEvents = await response.json();
+                    renderCalendar();
+                } catch (error) {
+                    console.error("Failed to fetch events:", error);
+                    daysGrid.innerHTML = `<p class="p-4 col-span-7 text-center">خطا در بارگذاری رویدادها. لطفاً از فعال بودن سرور پایتون اطمینان حاصل کنید.</p>`;
+                }
+            }
+
+            function renderCalendar() {
+                daysGrid.innerHTML = '';
+                monthDisplay.textContent = currentMoment.format('jMMMM jYYYY'); // Correct format for Jalali
+
+                const today = moment().format('YYYY-MM-DD');
+                const startOfMonth = currentMoment.clone().startOf('jMonth');
+                const daysInMonth = currentMoment.jDaysInMonth();
+                
+                // Jalali calendar starts on Saturday (6), so we adjust the offset
+                const firstDayOfWeek = startOfMonth.day();
+                const startOffset = (firstDayOfWeek + 1) % 7; 
+
+                for (let i = 0; i < startOffset; i++) {
+                    daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`);
+                }
+
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayMoment = currentMoment.clone().jDate(i);
+                    const dateString = dayMoment.format('YYYY-MM-DD');
+                    const dayEvents = allEvents.filter(e => moment(e.date).isSame(dayMoment, 'day'));
+                    
+                    let cellClasses = 'day-cell';
+                    if (dayMoment.isSame(moment(), 'day')) cellClasses += ' today';
+                    if (selectedDate && dayMoment.isSame(moment(selectedDate), 'day')) cellClasses += ' selected';
+                    
+                    let eventsHtml = '';
+                    if (dayEvents.length > 0) {
+                        eventsHtml = '<div class="day-events-list">';
+                        dayEvents.slice(0, 2).forEach(event => {
+                            eventsHtml += `<div class="event-title-inline">${event.title}</div>`;
+                        });
+                        eventsHtml += '</div>';
+                        if (dayEvents.length > 2) eventsHtml += '<div class="event-dot"></div>';
+                    }
+                    const cellHtml = `
+                        <div class="${cellClasses}" data-date="${dateString}">
+                            <div class="day-number">${i}</div>
+                            ${eventsHtml}
+                        </div>`;
+                    daysGrid.insertAdjacentHTML('beforeend', cellHtml);
+                }
+                document.querySelectorAll('.day-cell[data-date]').forEach(cell => {
+                    cell.addEventListener('click', handleDayClick);
+                });
+            }
+
+            function handleDayClick(event) {
+                const clickedCell = event.currentTarget;
+                selectedDate = clickedCell.dataset.date;
+                
+                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+                clickedCell.classList.add('selected');
+                
+                const dayEvents = allEvents.filter(e => moment(e.date).isSame(moment(selectedDate), 'day'));
+                detailsList.innerHTML = '';
+                if (dayEvents.length > 0) {
+                    dayEvents.forEach(e => {
+                        detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
+                    });
+                } else {
+                    detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+                }
+            }
+            
+            // Initial fetch
+            fetchEvents(currentMoment.jYear());
+        });
+    </script>
+</body>
+
+</html>

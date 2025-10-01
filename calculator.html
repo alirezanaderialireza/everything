@@ -4,278 +4,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقویم هوشمند حسابداری - آیدا شیرازی</title>
+    <title>ماشین حساب هوشمند حسابداری - آیدا شیرازی</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
-        /* Your CSS styles remain unchanged... */
         :root {
-            --navy: #0A192F; --slate-800: #1e2b3b; --slate-600: #475569;
-            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
-            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+            --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --gold: #c49827;
+            --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
         }
-        html { scroll-behavior: smooth; }
-        body { font-family: var(--font-body); background-color: var(--slate-100); }
-        h1, h2, h3, h4, .font-display { font-family: var(--font-display); }
-        .main-header { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
-        .nav-link { transition: color 0.3s ease; color: var(--slate-800); font-weight: 500; position: relative; padding-bottom: 4px; }
-        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; right: 0; background-color: var(--gold); transition: width 0.3s ease; }
-        .nav-link:hover::after { width: 100%; }
-        .nav-link:hover { color: var(--navy); }
-        .btn-gold { background-color: var(--gold); color: var(--navy); border-radius: 0.5rem; font-weight: 600; padding: 0.75rem 1.75rem; }
-        #live-clock-display { font-family: 'Vazirmatn', sans-serif; font-weight: 700; font-size: 1.25rem; color: var(--navy); letter-spacing: 1.5px; }
-        #calendar-container { background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); overflow: hidden; }
-        .calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; background-color: var(--navy); color: white; }
-        .calendar-nav-btn { background: rgba(255, 255, 255, 0.1); border-radius: 50%; width: 40px; height: 40px; border: none; cursor: pointer; transition: background-color 0.2s; }
-        .calendar-nav-btn:hover { background: rgba(255, 255, 255, 0.2); }
-        .calendar-month-display { font-family: var(--font-display); font-size: 2rem; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
-        .weekday-header { text-align: center; padding: 0.75rem 0; font-weight: 600; color: var(--slate-600); background-color: var(--slate-100); border-bottom: 1px solid #e2e8f0; }
-        .day-cell { position: relative; min-height: 120px; padding: 8px; border-bottom: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; cursor: pointer; transition: background-color 0.2s; }
-        .day-cell:nth-child(7n) { border-left: none; }
-        .day-cell:hover { background-color: var(--light-gold); }
-        .day-cell.other-month .day-number { color: #ccc; }
-        .day-cell.today .day-number { background-color: var(--gold); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; justify-content: center; align-items: center; }
-        .day-cell.selected { background-color: var(--light-gold); border: 2px solid var(--gold); }
-        .event-dot { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background-color: var(--gold); border-radius: 50%; }
-        .day-events-list { font-size: 0.75rem; margin-top: 4px; }
-        .event-title-inline { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--navy); color: white; padding: 2px 6px; border-radius: 4px; margin-bottom: 3px; }
-        #day-details-container { background-color: white; padding: 2rem; min-height: 100px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
-        #day-details-container h3 { color: var(--navy); font-family: var(--font-display); }
-        #details-list li { background: var(--slate-100); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; border-right: 4px solid var(--gold); }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--slate-100);
+        }
+
+        h1,
+        h2,
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: var(--navy);
+            transition: background-color 0.3s;
+        }
+
+        .btn-gold:hover {
+            background-color: #b98d1e;
+        }
+
+        .calculator-tab {
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-bottom: 4px solid transparent;
+        }
+
+        .calculator-tab.active {
+            color: var(--navy);
+            border-bottom-color: var(--gold);
+        }
+
+        .calculator-content {
+            display: none;
+        }
+
+        .calculator-content.active {
+            display: block;
+        }
+
+        .result-field {
+            background-color: var(--slate-100);
+            border-right: 4px solid var(--gold);
+        }
     </style>
 </head>
 
 <body class="bg-slate-100">
 
-    <header class="main-header sticky top-0 z-50">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-3">
-                    <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو" class="w-10 h-10 rounded-full">
-                    <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+    <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+        <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
+        <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
+        <a href="calculator.html" class="nav-link">ماشین حساب</a> <a href="index.html#updates" class="nav-link">آخرین
+            تغییرات</a>
+        <a href="index.html#about" class="nav-link">درباره من</a>
+    </div>
+
+    <main class="container mx-auto p-6 mt-8">
+        <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-10">ماشین حساب هوشمند حسابداری</h1>
+
+        <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="flex border-b">
+                <button id="tab-salary" class="calculator-tab active">حقوق و دستمزد</button>
+                <button id="tab-vat" class="calculator-tab">ارزش افزوده</button>
+                <button id="tab-bonus" class="calculator-tab">عیدی و سنوات</button>
+            </div>
+
+            <div class="p-8">
+                <div id="content-salary" class="calculator-content active">
+                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر حقوق و دستمزد</h2>
+                    <form id="salary-form" class="space-y-4">
+                        <div>
+                            <label for="gross-salary" class="text-sm font-medium text-slate-700">حقوق ناخالص ماهانه
+                                (تومان)</label>
+                            <input id="gross-salary" type="number" placeholder="مثال: 15,000,000" required
+                                class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه
+                            کن</button>
+                    </form>
+                    <div id="salary-results" class="mt-6 space-y-3 hidden">
+                        <div class="result-field p-4 rounded-md flex justify-between items-center">
+                            <span class="font-semibold text-slate-600">سهم بیمه کارگر (۷٪):</span>
+                            <span id="insurance-result" class="font-bold text-lg text-red-600"></span>
+                        </div>
+                        <div class="result-field p-4 rounded-md flex justify-between items-center">
+                            <span class="font-semibold text-slate-600">مالیات بر حقوق:</span>
+                            <span id="tax-result" class="font-bold text-lg text-red-600"></span>
+                        </div>
+                        <hr class="my-3">
+                        <div
+                            class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
+                            <span class="font-semibold text-green-800">حقوق خالص دریافتی:</span>
+                            <span id="net-salary-result" class="font-bold text-xl text-green-800"></span>
+                        </div>
+                    </div>
                 </div>
-                <div id="live-clock-display" class="hidden md:block">--:--:--</div>
-            </div>
-            <div class="hidden md:flex items-center space-x-10 space-x-reverse">
-                <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
-                <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
-                <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
-                <a href="index.html#about" class="nav-link">درباره من</a>
-            </div>
-            <div id="profile-section" class="relative">
-                <a href="login.html" id="login-btn" class="btn btn-gold flex items-center justify-center gap-2 px-6 py-2">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    <span>ورود / ثبت‌نام</span>
-                </a>
-                <div id="user-menu" class="hidden">
-                    <button id="profile-toggle-btn" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
-                        <i class="fa-solid fa-user text-slate-600"></i>
-                    </button>
-                    <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
-                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
+
+                <div id="content-vat" class="calculator-content">
+                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر ارزش افزوده (VAT)</h2>
+                    <form id="vat-form" class="space-y-4">
+                        <div>
+                            <label for="base-price" class="text-sm font-medium text-slate-700">مبلغ پایه (تومان)</label>
+                            <input id="base-price" type="number" placeholder="مثال: 1,000,000" required
+                                class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه
+                            کن</button>
+                    </form>
+                    <div id="vat-results" class="mt-6 space-y-3 hidden">
+                        <div class="result-field p-4 rounded-md flex justify-between items-center">
+                            <span class="font-semibold text-slate-600">مبلغ ارزش افزوده (۱۰٪):</span>
+                            <span id="vat-amount-result" class="font-bold text-lg text-red-600"></span>
+                        </div>
+                        <hr class="my-3">
+                        <div
+                            class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
+                            <span class="font-semibold text-green-800">مبلغ نهایی با ارزش افزوده:</span>
+                            <span id="total-price-result" class="font-bold text-xl text-green-800"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-bonus" class="calculator-content">
+                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر عیدی و سنوات</h2>
+                    <form id="bonus-form" class="space-y-4">
+                        <div>
+                            <label for="bonus-salary" class="text-sm font-medium text-slate-700">حقوق پایه ماهانه
+                                (تومان)</label>
+                            <input id="bonus-salary" type="number" placeholder="مثال: 10,000,000" required
+                                class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="months-worked" class="text-sm font-medium text-slate-700">تعداد ماه‌های کارکرد
+                                در سال</label>
+                            <input id="months-worked" type="number" value="12" min="1" max="12" required
+                                class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                        </div>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه
+                            کن</button>
+                    </form>
+                    <div id="bonus-results" class="mt-6 space-y-3 hidden">
+                        <div class="result-field p-4 rounded-md flex justify-between items-center">
+                            <span class="font-semibold text-slate-600">عیدی (تقریبی):</span>
+                            <span id="eidi-result" class="font-bold text-lg text-green-700"></span>
+                        </div>
+                        <div class="result-field p-4 rounded-md flex justify-between items-center">
+                            <span class="font-semibold text-slate-600">سنوات (پایه سنوات):</span>
+                            <span id="sanavat-result" class="font-bold text-lg text-green-700"></span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <main class="container mx-auto px-6 py-12">
-        <h1 class="text-4xl md:text-5xl font-display text-center mb-12" style="color: var(--navy);">تقویم هوشمند حسابداری</h1>
-
-        <div id="calendar-container">
-            <div class="calendar-header">
-                <button id="prev-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-right"></i></button>
-                <div id="month-display" class="calendar-month-display">...</div>
-                <button id="next-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-left"></i></button>
-            </div>
-            <div class="calendar-grid weekday-grid">
-                <div class="weekday-header">شنبه</div>
-                <div class="weekday-header">یکشنبه</div>
-                <div class="weekday-header">دوشنبه</div>
-                <div class="weekday-header">سه‌شنبه</div>
-                <div class="weekday-header">چهارشنبه</div>
-                <div class="weekday-header">پنجشنبه</div>
-                <div class="weekday-header">جمعه</div>
-            </div>
-            <div id="calendar-days-grid" class="calendar-grid"></div>
-        </div>
-
-        <div id="day-details-container" class="mt-8">
-            <h3 class="text-2xl mb-4">رویدادهای روز انتخاب شده:</h3>
-            <ul id="details-list">
-                <li>روزی را برای مشاهده جزئیات انتخاب کنید.</li>
-            </ul>
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // اسکریپت لاگین
-        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: { storage: window.sessionStorage, },
-        });
-        const loginBtn = document.getElementById('login-btn');
-        const userMenu = document.getElementById('user-menu');
-        const profileToggleBtn = document.getElementById('profile-toggle-btn');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        const logoutBtn = document.getElementById('logout-btn');
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session && session.user) {
-                loginBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
-            } else {
-                loginBtn.classList.remove('hidden');
-                userMenu.classList.add('hidden');
-            }
-        });
-        profileToggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('hidden');
-        });
-        window.addEventListener('click', () => {
-            if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
-                dropdownMenu.classList.add('hidden');
-            }
-        });
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await _supabase.auth.signOut();
-        });
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabs = document.querySelectorAll('.calculator-tab');
+            const contents = document.querySelectorAll('.calculator-content');
 
-        // اسکریپت تقویم
-        document.addEventListener('DOMContentLoaded', function () {
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(item => item.classList.remove('active'));
+                    contents.forEach(item => item.classList.remove('active'));
 
-            const clockEl = document.getElementById('live-clock-display');
-            function updateClock() {
-                const now = new Date();
-                if (clockEl) clockEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            }
-            updateClock();
-            setInterval(updateClock, 1000);
-
-            moment.locale('fa');
-
-            const monthDisplay = document.getElementById('month-display');
-            const daysGrid = document.getElementById('calendar-days-grid');
-            const detailsList = document.getElementById('details-list');
-            
-            // START: FIX - Define button variables by selecting them from HTML
-            const prevMonthBtn = document.getElementById('prev-month-btn');
-            const nextMonthBtn = document.getElementById('next-month-btn');
-            // END: FIX
-
-            prevMonthBtn.addEventListener('click', () => {
-                const currentYear = currentMoment.jYear();
-                currentMoment.subtract(1, 'jMonth');
-                if (currentMoment.jYear() !== currentYear) {
-                    fetchEvents(currentMoment.jYear());
-                } else {
-                    renderCalendar();
-                }
-            });
-
-            nextMonthBtn.addEventListener('click', () => {
-                const currentYear = currentMoment.jYear();
-                currentMoment.add(1, 'jMonth');
-                if (currentMoment.jYear() !== currentYear) {
-                    fetchEvents(currentMoment.jYear());
-                } else {
-                    renderCalendar();
-                }
-            });
-
-            let currentMoment = moment();
-            let allEvents = [];
-            let selectedDate = null;
-
-            async function fetchEvents(year) {
-                const apiUrl = `http://127.0.0.1:5000/api/events/${year}`;
-                try {
-                    const response = await fetch(apiUrl);
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    allEvents = await response.json();
-                    renderCalendar();
-                } catch (error) {
-                    console.error("Failed to fetch events:", error);
-                    daysGrid.innerHTML = `<p class="p-4 col-span-7 text-center">خطا در بارگذاری رویدادها. لطفاً از فعال بودن سرور پایتون اطمینان حاصل کنید.</p>`;
-                }
-            }
-
-            function renderCalendar() {
-                daysGrid.innerHTML = '';
-                monthDisplay.textContent = currentMoment.format('jMMMM jYYYY'); // Correct format for Jalali
-
-                const today = moment().format('YYYY-MM-DD');
-                const startOfMonth = currentMoment.clone().startOf('jMonth');
-                const daysInMonth = currentMoment.jDaysInMonth();
-                
-                // Jalali calendar starts on Saturday (6), so we adjust the offset
-                const firstDayOfWeek = startOfMonth.day();
-                const startOffset = (firstDayOfWeek + 1) % 7; 
-
-                for (let i = 0; i < startOffset; i++) {
-                    daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`);
-                }
-
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const dayMoment = currentMoment.clone().jDate(i);
-                    const dateString = dayMoment.format('YYYY-MM-DD');
-                    const dayEvents = allEvents.filter(e => moment(e.date).isSame(dayMoment, 'day'));
-                    
-                    let cellClasses = 'day-cell';
-                    if (dayMoment.isSame(moment(), 'day')) cellClasses += ' today';
-                    if (selectedDate && dayMoment.isSame(moment(selectedDate), 'day')) cellClasses += ' selected';
-                    
-                    let eventsHtml = '';
-                    if (dayEvents.length > 0) {
-                        eventsHtml = '<div class="day-events-list">';
-                        dayEvents.slice(0, 2).forEach(event => {
-                            eventsHtml += `<div class="event-title-inline">${event.title}</div>`;
-                        });
-                        eventsHtml += '</div>';
-                        if (dayEvents.length > 2) eventsHtml += '<div class="event-dot"></div>';
-                    }
-                    const cellHtml = `
-                        <div class="${cellClasses}" data-date="${dateString}">
-                            <div class="day-number">${i}</div>
-                            ${eventsHtml}
-                        </div>`;
-                    daysGrid.insertAdjacentHTML('beforeend', cellHtml);
-                }
-                document.querySelectorAll('.day-cell[data-date]').forEach(cell => {
-                    cell.addEventListener('click', handleDayClick);
+                    tab.classList.add('active');
+                    const contentId = 'content-' + tab.id.split('-')[1];
+                    document.getElementById(contentId).classList.add('active');
                 });
-            }
+            });
 
-            function handleDayClick(event) {
-                const clickedCell = event.currentTarget;
-                selectedDate = clickedCell.dataset.date;
-                
-                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
-                clickedCell.classList.add('selected');
-                
-                const dayEvents = allEvents.filter(e => moment(e.date).isSame(moment(selectedDate), 'day'));
-                detailsList.innerHTML = '';
-                if (dayEvents.length > 0) {
-                    dayEvents.forEach(e => {
-                        detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
-                    });
-                } else {
-                    detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+            // Helper to format numbers with commas
+            const formatNumber = (num) => new Intl.NumberFormat('fa-IR').format(num) + ' تومان';
+
+            // --- Salary Calculator Logic ---
+            const salaryForm = document.getElementById('salary-form');
+            salaryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const grossSalary = parseFloat(document.getElementById('gross-salary').value);
+
+                // 1. Calculate Insurance (7% of gross)
+                const insurance = grossSalary * 0.07;
+
+                // 2. Calculate Tax (Based on simplified 1403 brackets)
+                const annualSalary = grossSalary * 12;
+                let annualTax = 0;
+                // Note: These are simplified brackets for demonstration.
+                if (annualSalary > 144000000) { // Up to 144M is exempt
+                    const taxableBase = annualSalary - 144000000;
+                    if (taxableBase <= 480000000) { // 10% bracket up to 480M
+                        annualTax = taxableBase * 0.10;
+                    } else {
+                        // Simplified calculation for higher brackets
+                        annualTax = (480000000 * 0.10) + ((taxableBase - 480000000) * 0.15);
+                    }
                 }
-            }
-            
-            // Initial fetch
-            fetchEvents(currentMoment.jYear());
+                const monthlyTax = annualTax / 12;
+
+                // 3. Calculate Net Salary
+                const netSalary = grossSalary - insurance - monthlyTax;
+
+                // Display results
+                document.getElementById('insurance-result').textContent = '- ' + formatNumber(Math.round(insurance));
+                document.getElementById('tax-result').textContent = '- ' + formatNumber(Math.round(monthlyTax));
+                document.getElementById('net-salary-result').textContent = formatNumber(Math.round(netSalary));
+                document.getElementById('salary-results').classList.remove('hidden');
+            });
+
+            // --- VAT Calculator Logic ---
+            const vatForm = document.getElementById('vat-form');
+            vatForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const basePrice = parseFloat(document.getElementById('base-price').value);
+                const vatRate = 0.10; // 10% VAT
+                const vatAmount = basePrice * vatRate;
+                const totalPrice = basePrice + vatAmount;
+
+                document.getElementById('vat-amount-result').textContent = formatNumber(Math.round(vatAmount));
+                document.getElementById('total-price-result').textContent = formatNumber(Math.round(totalPrice));
+                document.getElementById('vat-results').classList.remove('hidden');
+            });
+
+            // --- Bonus/Severance Calculator Logic ---
+            const bonusForm = document.getElementById('bonus-form');
+            bonusForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const salary = parseFloat(document.getElementById('bonus-salary').value);
+                const months = parseInt(document.getElementById('months-worked').value);
+
+                // Eidi (Bonus) calculation: 2 * salary, adjusted for months worked
+                const eidi = (salary * 2) * (months / 12);
+
+                // Sanavat (Severance) calculation: 1 * salary for each year
+                const sanavat = salary * (months / 12);
+
+                document.getElementById('eidi-result').textContent = formatNumber(Math.round(eidi));
+                document.getElementById('sanavat-result').textContent = formatNumber(Math.round(sanavat));
+                document.getElementById('bonus-results').classList.remove('hidden');
+            });
         });
     </script>
 </body>

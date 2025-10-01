@@ -15,7 +15,11 @@
         }
         body { font-family: var(--font-body); background-color: var(--slate-100); }
         h1, h2, .font-display { font-family: var(--font-display); }
-        .btn-gold { background-color: var(--gold); color: var(--navy); transition: background-color 0.3s; }
+        .main-header { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
+        .nav-link { transition: color 0.3s ease; color: var(--slate-800); font-weight: 500; position: relative; padding-bottom: 4px; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; right: 0; background-color: var(--gold); transition: width 0.3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .btn-gold { background-color: var(--gold); color: var(--navy); transition: background-color 0.3s; border-radius: 0.5rem; font-weight: 600; }
         .btn-gold:hover { background-color: #b98d1e; }
         .calculator-tab { cursor: pointer; padding: 0.75rem 1.5rem; font-weight: 600; border-bottom: 4px solid transparent; }
         .calculator-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
@@ -26,20 +30,36 @@
 </head>
 <body class="bg-slate-100">
 
-    <header class="bg-white shadow-sm">
+    <header class="main-header sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-             <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
-             <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+            <div class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو" class="w-10 h-10 rounded-full">
+                <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-10 space-x-reverse">
                 <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
                 <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
                 <a href="calculator.html" class="nav-link">ماشین حساب</a>
                 <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
                 <a href="index.html#about" class="nav-link">درباره من</a>
             </div>
-             <a href="index.html" class="text-sm font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه اصلی</a>
+            <div id="profile-section" class="relative">
+                <a href="login.html" id="login-btn" class="btn btn-gold flex items-center justify-center gap-2 px-4 py-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>ورود / ثبت‌نام</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="profile-toggle-btn" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
+                        <i class="fa-solid fa-user text-slate-600"></i>
+                    </button>
+                    <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
+                    </div>
+                </div>
+            </div>
         </nav>
     </header>
-
     <main class="container mx-auto p-6 mt-8">
         <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-10">ماشین حساب هوشمند حسابداری</h1>
 
@@ -127,7 +147,51 @@
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // START: Added Auth Logic for Header
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const profileToggleBtn = document.getElementById('profile-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        if (profileToggleBtn) {
+            profileToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('hidden');
+            });
+        }
+
+        window.addEventListener('click', () => {
+            if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+        
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await _supabase.auth.signOut();
+            });
+        }
+        // END: Added Auth Logic for Header
+
         document.addEventListener('DOMContentLoaded', () => {
             const tabs = document.querySelectorAll('.calculator-tab');
             const contents = document.querySelectorAll('.calculator-content');
@@ -152,7 +216,6 @@
                 const insurance = grossSalary * 0.07;
                 const annualSalary = grossSalary * 12;
                 let annualTax = 0;
-                // Note: These are simplified brackets for demonstration.
                 if (annualSalary > 144000000) {
                     const taxableBase = annualSalary - 144000000;
                     if (taxableBase <= 480000000) {
@@ -174,7 +237,7 @@
             vatForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const basePrice = parseFloat(document.getElementById('base-price').value);
-                const vatRate = 0.10; // 10% VAT
+                const vatRate = 0.10;
                 const vatAmount = basePrice * vatRate;
                 const totalPrice = basePrice + vatAmount;
 

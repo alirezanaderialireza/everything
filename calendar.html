@@ -309,41 +309,24 @@
         const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
         const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: { storage: window.sessionStorage, },
-        });
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage, }, });
         const loginBtn = document.getElementById('login-btn');
         const userMenu = document.getElementById('user-menu');
         const profileToggleBtn = document.getElementById('profile-toggle-btn');
         const dropdownMenu = document.getElementById('dropdown-menu');
         const logoutBtn = document.getElementById('logout-btn');
         _supabase.auth.onAuthStateChange((event, session) => {
-            if (session && session.user) {
-                loginBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
-            } else {
-                loginBtn.classList.remove('hidden');
-                userMenu.classList.add('hidden');
-            }
+            if (session && session.user) { if (loginBtn) loginBtn.classList.add('hidden'); if (userMenu) userMenu.classList.remove('hidden'); } else { if (loginBtn) loginBtn.classList.remove('hidden'); if (userMenu) userMenu.classList.add('hidden'); }
         });
-        profileToggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('hidden');
-        });
-        window.addEventListener('click', () => {
-            if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
-                dropdownMenu.classList.add('hidden');
-            }
-        });
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await _supabase.auth.signOut();
-        });
+        if (profileToggleBtn) {
+            profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
+            logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });
+        }
 
         // اسکریپت کامل تقویم
         document.addEventListener('DOMContentLoaded', function () {
-
-            // این بخش را در ابتدای addEventListener اضافه کنید
+            // منطق ساعت زنده در هدر
             const clockEl = document.getElementById('live-clock-display');
             function updateClock() {
                 const now = new Date();
@@ -352,24 +335,23 @@
             updateClock();
             setInterval(updateClock, 1000);
 
-            // منطق تقویم کامل
+            // منطق تقوim کامل
             moment.locale('fa');
-
             const monthDisplay = document.getElementById('month-display');
             const daysGrid = document.getElementById('calendar-days-grid');
             const detailsList = document.getElementById('details-list');
             const prevMonthBtn = document.getElementById('prev-month-btn');
             const nextMonthBtn = document.getElementById('next-month-btn');
-
             let currentMoment = moment();
             let allEvents = [];
             let selectedDate = null;
 
             async function fetchEvents(year) {
-                const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${currentShamsiYear}`;
+                // در اینجا از نام کاربری صحیح شما استفاده می‌کنیم
+                const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
                 try {
                     const response = await fetch(apiUrl);
-                    if (!response.ok) throw new Error('Network response was not ok');
+                    if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');
                     allEvents = await response.json();
                     renderCalendar();
                 } catch (error) {
@@ -381,17 +363,12 @@
             function renderCalendar() {
                 daysGrid.innerHTML = '';
                 monthDisplay.textContent = currentMoment.format('MMMM YYYY');
-
                 const today = moment().format('YYYY-MM-DD');
                 const startOfMonth = currentMoment.clone().startOf('jMonth');
                 const daysInMonth = currentMoment.jDaysInMonth();
                 const firstDayOfWeek = startOfMonth.day();
                 const startOffset = (firstDayOfWeek + 1) % 7;
-
-                for (let i = 0; i < startOffset; i++) {
-                    daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`);
-                }
-
+                for (let i = 0; i < startOffset; i++) { daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`); }
                 for (let i = 1; i <= daysInMonth; i++) {
                     const dayMoment = currentMoment.clone().jDate(i);
                     const dateString = dayMoment.format('YYYY-MM-DD');
@@ -402,22 +379,14 @@
                     let eventsHtml = '';
                     if (dayEvents.length > 0) {
                         eventsHtml = '<div class="day-events-list">';
-                        dayEvents.slice(0, 2).forEach(event => {
-                            eventsHtml += `<div class="event-title-inline">${event.title}</div>`;
-                        });
+                        dayEvents.slice(0, 2).forEach(event => { eventsHtml += `<div class="event-title-inline">${event.title}</div>`; });
                         eventsHtml += '</div>';
                         if (dayEvents.length > 2) eventsHtml += '<div class="event-dot"></div>';
                     }
-                    const cellHtml = `
-                        <div class="${cellClasses}" data-date="${dateString}">
-                            <div class="day-number">${i}</div>
-                            ${eventsHtml}
-                        </div>`;
+                    const cellHtml = `<div class="${cellClasses}" data-date="${dateString}"><div class="day-number">${i}</div>${eventsHtml}</div>`;
                     daysGrid.insertAdjacentHTML('beforeend', cellHtml);
                 }
-                document.querySelectorAll('.day-cell[data-date]').forEach(cell => {
-                    cell.addEventListener('click', handleDayClick);
-                });
+                document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
             }
 
             function handleDayClick(event) {
@@ -428,9 +397,7 @@
                 const dayEvents = allEvents.filter(e => e.date === selectedDate);
                 detailsList.innerHTML = '';
                 if (dayEvents.length > 0) {
-                    dayEvents.forEach(e => {
-                        detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
-                    });
+                    dayEvents.forEach(e => { detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`); });
                 } else {
                     detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
                 }
@@ -439,21 +406,17 @@
             prevMonthBtn.addEventListener('click', () => {
                 const currentYear = currentMoment.jYear();
                 currentMoment.subtract(1, 'jMonth');
-                if (currentMoment.jYear() !== currentYear) {
-                    fetchEvents(currentMoment.jYear()); // رویدادهای سال جدید را دریافت می‌کند
-                } else {
-                    renderCalendar();
-                }
+                // اگر سال تغییر کرد، رویدادهای سال جدید را از API دریافت کن
+                if (currentMoment.jYear() !== currentYear) { fetchEvents(currentMoment.jYear()); } else { renderCalendar(); }
             });
             nextMonthBtn.addEventListener('click', () => {
                 const currentYear = currentMoment.jYear();
                 currentMoment.add(1, 'jMonth');
-                if (currentMoment.jYear() !== currentYear) {
-                    fetchEvents(currentMoment.jYear()); // رویدادهای سال جدید را دریافت می‌کند
-                } else {
-                    renderCalendar();
-                }
+                // اگر سال تغییر کرد، رویدادهای سال جدید را از API دریافت کن
+                if (currentMoment.jYear() !== currentYear) { fetchEvents(currentMoment.jYear()); } else { renderCalendar(); }
             });
+
+            // شروع برنامه با دریافت رویدادهای سال جاری شمسی
             fetchEvents(currentMoment.jYear());
         });
     </script>

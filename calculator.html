@@ -572,6 +572,50 @@
     </main>
 
     <script>
+        // --- SUPABASE & AUTH LOGIC ---
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        // گرفتن عناصر مربوط به پروفایل از HTML
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const profileToggleBtn = document.getElementById('profile-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // بررسی وضعیت ورود کاربر و آپدیت کردن ظاهر هدر
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // منطق باز و بسته شدن منوی پروفایل
+        if (profileToggleBtn) {
+            profileToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('hidden');
+            });
+        }
+        window.addEventListener('click', () => {
+            if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // منطق دکمه خروج از حساب
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await _supabase.auth.signOut();
+            });
+        }
         document.addEventListener('DOMContentLoaded', () => {
             const formatToman = (num) => new Intl.NumberFormat('fa-IR').format(Math.round(num)) + ' تومان';
             // این آبجکت را به کد خود اضافه کنید

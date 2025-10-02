@@ -313,17 +313,23 @@
                             </select>
                         </div>
                         <div>
-                            <label for="base-salary" class="text-sm font-medium text-slate-700">مبلغ حقوق پایه
+                            <label for="base-salary" class="text-sm font-medium text-slate-700">حقوق پایه ماهانه
                                 (تومان)</label>
-                            <input id="base-salary" type="number" value="71661850" required
+                            <input id="base-salary" type="number" value="9316041" required
                                 class="mt-1 block w-full px-3 py-2 border rounded-md">
                         </div>
-                        <div><label for="housing-allowance" class="text-sm font-medium text-slate-700">حق مسکن
-                                (تومان)</label><input id="housing-allowance" type="number" value="9000000" required
-                                class="mt-1 w-full p-2 border rounded-md"></div>
-                        <div><label for="benefits-allowance" class="text-sm font-medium text-slate-700">بن کارگری
-                                (تومان)</label><input id="benefits-allowance" type="number" value="14000000" required
-                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div>
+                            <label for="housing-allowance" class="text-sm font-medium text-slate-700">حق مسکن
+                                (تومان)</label>
+                            <input id="housing-allowance" type="number" value="1150000" required
+                                class="mt-1 block w-full px-3 py-2 border rounded-md">
+                        </div>
+                        <div>
+                            <label for="benefits-allowance" class="text-sm font-medium text-slate-700">بن کارگری
+                                (تومان)</label>
+                            <input id="benefits-allowance" type="number" value="1700000" required
+                                class="mt-1 block w-full px-3 py-2 border rounded-md">
+                        </div>
                         <div><label for="child-allowance-count" class="text-sm font-medium text-slate-700">تعداد
                                 فرزندان</label><input id="child-allowance-count" type="number" value="0" min="0"
                                 required class="mt-1 w-full p-2 border rounded-md"></div>
@@ -520,6 +526,8 @@
 
                 <!-- این کد را جایگزین محتوای <div id="content-vat"> فعلی کنید -->
 
+                <!-- این کد را جایگزین محتوای <div id="content-vat"> کنید -->
+
                 <div id="content-vat" class="calculator-content">
                     <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر پیشرفته ارزش افزوده</h2>
                     <form id="vat-form" class="space-y-6">
@@ -568,10 +576,49 @@
                     </div>
                 </div>
             </div>
-        </div>
     </main>
 
     <script>
+        // --- بخش اول: منطق احراز هویت (باید همیشه در ابتدا باشد) ---
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const profileToggleBtn = document.getElementById('profile-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        _supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        if (profileToggleBtn) {
+            profileToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('hidden');
+            });
+        }
+        window.addEventListener('click', () => {
+            if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await _supabase.auth.signOut();
+            });
+        }
         document.addEventListener('DOMContentLoaded', () => {
             const formatToman = (num) => new Intl.NumberFormat('fa-IR').format(Math.round(num)) + ' تومان';
             // این آبجکت را به کد خود اضافه کنید
@@ -669,10 +716,11 @@
             document.getElementById('salary-form').addEventListener('submit', e => {
                 e.preventDefault();
 
-                // --- Constants for 1403 ---
-                const MIN_DAILY_WAGE = 2388728; // حداقل دستمزد روزانه
-                const CHILD_ALLOWANCE_PER_CHILD = MIN_DAILY_WAGE * 3; // حق اولاد
-                const EIDI_CAP = MIN_DAILY_WAGE * 90; // سقف عیدی (90 روز حداقل دستمزد)
+                // --- Constants for 1404 ---
+                const MIN_DAILY_WAGE_TOMAN = 298591; // افزایش ۲۵ درصدی
+                const CHILD_ALLOWANCE_PER_CHILD_TOMAN = MIN_DAILY_WAGE_TOMAN * 3;
+                const EIDI_CAP_TOMAN = MIN_DAILY_WAGE_TOMAN * 90;
+                const TAX_EXEMPTION_ANNUAL_TOMAN = 18000000; // معافیت سالانه ۱۸ میلیون تومان
 
                 // --- Get Inputs ---
                 const salaryType = document.getElementById('salary-type').value;
@@ -702,12 +750,26 @@
                 const annualTaxableIncome = grossSalaryForTax * 12;
                 let annualTax = 0;
                 const taxExemption = 144000000;
-                if (annualTaxableIncome > taxExemption) {
-                    const taxableBase = annualTaxableIncome - taxExemption;
-                    if (taxableBase <= 480000000) { annualTax = taxableBase * 0.10; }
-                    else if (taxableBase <= 960000000) { annualTax = (480000000 * 0.10) + ((taxableBase - 480000000) * 0.15); }
-                    else if (taxableBase <= 1680000000) { annualTax = (480000000 * 0.10) + (480000000 * 0.15) + ((taxableBase - 960000000) * 0.20); }
-                    else { annualTax = (480000000 * 0.10) + (480000000 * 0.15) + (720000000 * 0.20) + ((taxableBase - 1680000000) * 0.30); }
+                // کد جدید و اصلاح شده برای محاسبه مالیات سال ۱۴۰۴
+                if (annualTaxableIncome > TAX_EXEMPTION_ANNUAL_TOMAN) {
+                    const taxableBase = annualTaxableIncome - TAX_EXEMPTION_ANNUAL_TOMAN;
+
+                    // پلکان اول: تا ۶۰ میلیون تومان با نرخ ۱۰٪
+                    if (taxableBase <= 60000000) {
+                        annualTax = taxableBase * 0.10;
+                    }
+                    // پلکان دوم: مازاد بر ۶۰ تا ۱۲۰ میلیون با نرخ ۱۵٪
+                    else if (taxableBase <= 120000000) {
+                        annualTax = (60000000 * 0.10) + ((taxableBase - 60000000) * 0.15);
+                    }
+                    // پلکان سوم: مازاد بر ۱۲۰ تا ۲۱۰ میلیون با نرخ ۲۰٪
+                    else if (taxableBase <= 210000000) {
+                        annualTax = (60000000 * 0.10) + (60000000 * 0.15) + ((taxableBase - 120000000) * 0.20);
+                    }
+                    // پلکان چهارم: مازاد بر ۲۱۰ میلیون با نرخ ۳۰٪
+                    else {
+                        annualTax = (60000000 * 0.10) + (60000000 * 0.15) + (90000000 * 0.20) + ((taxableBase - 210000000) * 0.30);
+                    }
                 }
                 const monthlyTax = annualTax / 12;
 

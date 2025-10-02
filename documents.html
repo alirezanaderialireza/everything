@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اسناد حسابداری - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
+            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+        }
+        body { font-family: var(--font-body); background-color: var(--slate-100); }
+        h1, h2, .font-display { font-family: var(--font-display); }
+        .main-header { background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
+        .nav-link { transition: color 0.3s ease; color: var(--slate-800); font-weight: 500; position: relative; padding-bottom: 4px; }
+        .nav-link:hover { color: var(--navy); }
+        .btn-gold { background-color: var(--gold); color: var(--navy); transition: all 0.3s; border-radius: 0.5rem; font-weight: 600; }
+        .btn-gold:hover { background-color: #b98d1e; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.07);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .card.unlocked { cursor: pointer; }
+        .card.unlocked:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .card.locked { filter: grayscale(80%); opacity: 0.7; cursor: not-allowed; }
+        .card-icon { font-size: 3.5rem; margin-bottom: 1rem; color: var(--gold); }
+        .lock-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: rgba(0,0,0,0.6);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #document-viewer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out, opacity 0.5s ease;
+            opacity: 0;
+        }
+        #document-viewer.open {
+            max-height: 2000px; /* Adjust if content is longer */
+            opacity: 1;
+        }
+        .accordion-header { cursor: pointer; transition: background-color 0.2s; }
+        .accordion-header:hover { background-color: #f8fafc; }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .accordion-content.open { max-height: 500px; }
+        .account-box { border-radius: 0.5rem; padding: 1rem; }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <header class="main-header sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو" class="w-10 h-10 rounded-full">
+                <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+                <a href="index.html" class="nav-link">نقشه راه</a>
+                <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
+                <a href="calculator.html" class="nav-link">ماشین حساب</a>
+                <a href="documents.html" class="nav-link">اسناد حسابداری</a>
+            </div>
+            <div id="profile-section" class="relative">
+                <a href="login.html" id="login-btn" class="btn-gold flex items-center justify-center gap-2 px-4 py-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>ورود / ثبت‌نام</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="profile-toggle-btn" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
+                        <i class="fa-solid fa-user text-slate-600"></i>
+                    </button>
+                    <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-6 mt-8">
+        <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-4">بانک اسناد حسابداری</h1>
+        <p id="auth-prompt" class="text-center text-slate-500 mb-12 hidden">برای دسترسی به اسناد رایگان، لطفاً <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Card 1: Service (Free) -->
+            <div id="service-card" class="card locked">
+                <i class="fas fa-concierge-bell card-icon"></i>
+                <h2 class="text-2xl font-display text-slate-800">شرکت‌های خدماتی</h2>
+                <p class="text-slate-500 mt-2 mb-4">اسناد رایج در شرکت‌های ارائه‌دهنده خدمات.</p>
+                <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با ثبت‌نام)</span>
+            </div>
+
+            <!-- Card 2: Merchandising (Paid) -->
+            <div class="card locked">
+                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
+                <i class="fas fa-store card-icon"></i>
+                <h2 class="text-2xl font-display text-slate-800">شرکت‌های بازرگانی</h2>
+                <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به خرید، فروش و انبارداری کالا.</p>
+                <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
+            </div>
+
+            <!-- Card 3: Contracting (Paid) -->
+            <div class="card locked">
+                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
+                <i class="fas fa-hard-hat card-icon"></i>
+                <h2 class="text-2xl font-display text-slate-800">شرکت‌های پیمانکاری</h2>
+                <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به صورت وضعیت‌ها و هزینه‌های پروژه.</p>
+                <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
+            </div>
+
+            <!-- Card 4: Manufacturing (Paid) -->
+            <div class="card locked">
+                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
+                <i class="fas fa-industry card-icon"></i>
+                <h2 class="text-2xl font-display text-slate-800">شرکت‌های تولیدی</h2>
+                <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به بهای تمام شده و جریان تولید.</p>
+                <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
+            </div>
+        </div>
+
+        <div id="document-viewer" class="mt-12"></div>
+    </main>
+
+    <script>
+        // --- AUTH LOGIC (for header) ---
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+        const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn');
+        _supabase.auth.onAuthStateChange((event, session) => { if(session && session.user){loginBtn.classList.add('hidden'); userMenu.classList.remove('hidden');} else {loginBtn.classList.remove('hidden'); userMenu.classList.add('hidden');}});
+        if(profileToggleBtn){profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });}
+        window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
+        if(logoutBtn){logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });}
+
+        // --- ACCOUNTING DOCUMENTS LOGIC ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const documentsData = {
+                service: [
+                    { id: 1, description: "دریافت وجه نقد بابت ارائه خدمات", debit: ["موجودی نقد و بانک"], credit: ["درآمدهای عملیاتی"] },
+                    { id: 2, description: "پرداخت هزینه حقوق کارکنان", debit: ["هزینه حقوق و دستمزد"], credit: ["موجودی نقد و بانک", "مالیات پرداختنی", "بیمه پرداختنی"] },
+                    { id: 3, description: "پرداخت هزینه اجاره دفتر", debit: ["هزینه اجاره"], credit: ["موجودی نقد و بانک"] },
+                    { id: 4, description: "خرید اثاثه اداری به صورت نسیه", debit: ["اثاثه و منصوبات"], credit: ["حساب‌های پرداختنی"] },
+                ],
+                // Data for other categories can be added later
+            };
+
+            const authPrompt = document.getElementById('auth-prompt');
+            const serviceCard = document.getElementById('service-card');
+            const lockedCards = document.querySelectorAll('.card.locked:not(#service-card)');
+            const viewer = document.getElementById('document-viewer');
+
+            function renderDocuments(data, title) {
+                let contentHTML = `
+                    <div class="bg-white p-8 rounded-lg shadow-xl">
+                        <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
+                        <div class="relative mb-6">
+                            <input type="search" class="search-bar w-full p-3 pl-10 border rounded-lg focus:ring-2 focus:ring-[var(--gold)]" placeholder="جستجو در شرح اسناد...">
+                            <i class="fas fa-search absolute top-1/2 left-3 -translate-y-1/2 text-slate-400"></i>
+                        </div>
+                        <div class="space-y-2 document-list">
+                `;
+                data.forEach(doc => {
+                    contentHTML += `
+                        <div class="document-item border rounded-lg overflow-hidden bg-white">
+                            <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
+                                <h3 class="font-semibold text-slate-800">${doc.description}</h3>
+                                <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="account-box bg-red-50 text-red-800">
+                                        <h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4>
+                                        <ul>${doc.debit.map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
+                                    </div>
+                                    <div class="account-box bg-green-50 text-green-800">
+                                        <h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4>
+                                        <ul>${doc.credit.map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                contentHTML += `</div></div>`;
+                viewer.innerHTML = contentHTML;
+                viewer.classList.add('open');
+                viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                addEventListenersToViewer();
+            }
+            
+            function addEventListenersToViewer() {
+                document.querySelectorAll('.accordion-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        const icon = header.querySelector('i');
+                        content.classList.toggle('open');
+                        icon.classList.toggle('rotate-180');
+                    });
+                });
+
+                document.querySelector('.search-bar').addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    document.querySelectorAll('.document-item').forEach(item => {
+                        const description = item.querySelector('h3').textContent.toLowerCase();
+                        item.style.display = description.includes(searchTerm) ? 'block' : 'none';
+                    });
+                });
+            }
+
+            _supabase.auth.onAuthStateChange((event, session) => {
+                if (session && session.user) {
+                    authPrompt.classList.add('hidden');
+                    serviceCard.classList.remove('locked');
+                    serviceCard.classList.add('unlocked');
+                    
+                    serviceCard.onclick = () => {
+                        renderDocuments(documentsData.service, 'اسناد حسابداری شرکت‌های خدماتی');
+                    };
+                } else {
+                    authPrompt.classList.remove('hidden');
+                    serviceCard.classList.add('locked');
+                    serviceCard.classList.remove('unlocked');
+                    serviceCard.onclick = () => {
+                        window.location.href = 'login.html';
+                    };
+                }
+            });
+
+            lockedCards.forEach(card => {
+                card.onclick = () => {
+                    alert("برای دسترسی به این بخش نیاز به اشتراک ویژه دارید. این قابلیت به زودی اضافه خواهد شد!");
+                };
+            });
+        });
+    </script>
+</body>
+</html>
+

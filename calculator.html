@@ -518,22 +518,53 @@
                     </div>
                 </div>
 
+                <!-- این کد را جایگزین محتوای <div id="content-vat"> فعلی کنید -->
+
                 <div id="content-vat" class="calculator-content">
-                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر ارزش افزوده (VAT)</h2>
-                    <form id="vat-form" class="space-y-4">
-                        <div><label for="base-price" class="text-sm font-medium text-slate-700">مبلغ پایه
-                                (تومان)</label><input id="base-price" type="number" placeholder="1,000,000" required
-                                class="mt-1 w-full p-2 border rounded-md"></div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه</button>
+                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر پیشرفته ارزش افزوده</h2>
+                    <form id="vat-form" class="space-y-6">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="vat-calc-type" class="text-sm font-medium text-slate-700">نوع محاسبه</label>
+                                <select id="vat-calc-type" class="mt-1 block w-full p-2 border rounded-md bg-white">
+                                    <option value="add" selected>افزودن ارزش افزوده به مبلغ</option>
+                                    <option value="extract">استخراج ارزش افزوده از مبلغ</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="vat-rate" class="text-sm font-medium text-slate-700">نرخ ارزش افزوده
+                                    (%)</label>
+                                <input id="vat-rate" type="number" value="10" required
+                                    class="mt-1 block w-full p-2 border rounded-md">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="vat-amount-input" id="vat-amount-label"
+                                class="text-sm font-medium text-slate-700">مبلغ پایه (تومان)</label>
+                            <input id="vat-amount-input" type="number" placeholder="مبلغ را وارد کنید" required
+                                class="mt-1 block w-full p-2 border rounded-md">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-3 px-4 rounded-md font-semibold btn-gold text-lg">محاسبه</button>
                     </form>
-                    <div id="vat-results" class="mt-6 space-y-3 hidden">
-                        <div class="result-field p-4 rounded-md flex justify-between items-center"><span
-                                class="font-semibold">ارزش افزوده (۱۰٪):</span><span id="vat-amount-result"
-                                class="font-bold text-lg text-red-600"></span></div>
-                        <hr>
-                        <div class="result-field p-4 rounded-md flex justify-between items-center"><span
-                                class="font-semibold">مبلغ نهایی با ارزش افزوده:</span><span id="total-price-result"
-                                class="font-bold text-xl text-green-800"></span></div>
+
+                    <div id="vat-results" class="mt-8 pt-6 border-t hidden space-y-4">
+                        <div class="result-field p-4 rounded-md flex justify-between items-center">
+                            <span class="result-title">مبلغ پایه (بدون مالیات):</span>
+                            <span id="res-vat-base" class="result-value text-slate-800"></span>
+                        </div>
+                        <div class="result-field p-4 rounded-md flex justify-between items-center border-red-500">
+                            <span class="result-title">مبلغ ارزش افزوده:</span>
+                            <span id="res-vat-amount" class="result-value text-red-600"></span>
+                        </div>
+                        <div
+                            class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
+                            <span class="text-lg font-semibold text-green-800">مبلغ نهایی (با مالیات):</span>
+                            <span id="res-vat-total" class="text-2xl font-bold text-green-800"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -756,7 +787,49 @@
             moment.locale('fa'); document.getElementById('shamsi-to-gregorian-form').addEventListener('submit', e => { e.preventDefault(); const y = document.getElementById('shamsi-year').value, m = document.getElementById('shamsi-month').value, d = document.getElementById('shamsi-day').value, mom = moment(`${y}/${m}/${d}`, 'jYYYY/jMM/jDD'), res = document.getElementById('gregorian-result'); res.textContent = mom.isValid() ? `میلادی: ${mom.format('YYYY-MM-DD')}` : 'تاریخ نامعتبر'; res.classList.remove('hidden'); }); document.getElementById('gregorian-to-shamsi-form').addEventListener('submit', e => { e.preventDefault(); const y = document.getElementById('gregorian-year').value, m = document.getElementById('gregorian-month').value, d = document.getElementById('gregorian-day').value, mom = moment(`${y}-${m}-${d}`, 'YYYY-MM-DD'), res = document.getElementById('shamsi-result'); res.textContent = mom.isValid() ? `شمسی: ${mom.format('jYYYY/jMM/jDD')}` : 'تاریخ نامعتبر'; res.classList.remove('hidden'); });
 
             // 6. VAT CALCULATOR LOGIC
-            document.getElementById('vat-form').addEventListener('submit', e => { e.preventDefault(); const p = parseFloat(document.getElementById('base-price').value); const v = p * 0.1, t = p + v; document.getElementById('vat-amount-result').textContent = formatToman(v); document.getElementById('total-price-result').textContent = formatToman(t); document.getElementById('vat-results').classList.remove('hidden'); });
+            // این کد جدید را جایگزین کد قدیمی VAT کنید
+
+            const vatForm = document.getElementById('vat-form');
+            const vatCalcTypeSelect = document.getElementById('vat-calc-type');
+            const vatAmountLabel = document.getElementById('vat-amount-label');
+
+            // یک ایونت لیسنر برای تغییر لیبل بر اساس نوع محاسبه
+            vatCalcTypeSelect.addEventListener('change', (e) => {
+                if (e.target.value === 'add') {
+                    vatAmountLabel.textContent = 'مبلغ پایه (تومان)';
+                } else {
+                    vatAmountLabel.textContent = 'مبلغ نهایی (تومان)';
+                }
+            });
+
+            vatForm.addEventListener('submit', e => {
+                e.preventDefault();
+
+                const calculationType = vatCalcTypeSelect.value;
+                const amount = parseFloat(document.getElementById('vat-amount-input').value) || 0;
+                const rate = (parseFloat(document.getElementById('vat-rate').value) || 0) / 100;
+
+                let basePrice, vatAmount, totalPrice;
+
+                if (calculationType === 'add') {
+                    // محاسبه مستقیم: از مبلغ پایه به نهایی
+                    basePrice = amount;
+                    vatAmount = basePrice * rate;
+                    totalPrice = basePrice + vatAmount;
+                } else {
+                    // محاسبه معکوس: از مبلغ نهایی به پایه
+                    totalPrice = amount;
+                    basePrice = totalPrice / (1 + rate);
+                    vatAmount = totalPrice - basePrice;
+                }
+
+                // نمایش نتایج
+                document.getElementById('res-vat-base').textContent = formatToman(basePrice);
+                document.getElementById('res-vat-amount').textContent = formatToman(vatAmount);
+                document.getElementById('res-vat-total').textContent = formatToman(totalPrice);
+
+                document.getElementById('vat-results').classList.remove('hidden');
+            });
         });
     </script>
 </body>

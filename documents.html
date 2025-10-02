@@ -23,41 +23,27 @@
         .btn-gold:hover { background-color: #b98d1e; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         
         .card {
-            background: white;
-            border-radius: 1rem;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.07);
-            transition: transform 0.3s, box-shadow 0.3s;
-            position: relative;
-            overflow: hidden;
+            background: white; border-radius: 1rem; padding: 2rem; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.07); transition: transform 0.3s, box-shadow 0.3s;
+            position: relative; overflow: hidden;
         }
         .card.unlocked { cursor: pointer; }
         .card.unlocked:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .card.locked { filter: grayscale(80%); opacity: 0.7; cursor: not-allowed; }
         .card-icon { font-size: 3.5rem; margin-bottom: 1rem; color: var(--gold); }
         .lock-overlay {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background-color: rgba(0,0,0,0.6);
-            color: white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: 1rem; left: 1rem; background-color: rgba(0,0,0,0.6);
+            color: white; border-radius: 50%; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
         }
         #document-viewer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.7s ease-in-out, opacity 0.5s ease;
-            opacity: 0;
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.7s ease-in-out, opacity 0.5s ease, margin-top 0.7s ease;
+            opacity: 0; margin-top: 0;
         }
         #document-viewer.open {
             max-height: 2000px; /* Adjust if content is longer */
-            opacity: 1;
+            opacity: 1; margin-top: 3rem;
         }
         .accordion-header { cursor: pointer; transition: background-color 0.2s; }
         .accordion-header:hover { background-color: #f8fafc; }
@@ -103,15 +89,12 @@
         <p id="auth-prompt" class="text-center text-slate-500 mb-12 hidden">برای دسترسی به اسناد رایگان، لطفاً <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <!-- Card 1: Service (Free) -->
             <div id="service-card" class="card locked">
                 <i class="fas fa-concierge-bell card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های خدماتی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد رایج در شرکت‌های ارائه‌دهنده خدمات.</p>
-                <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با ثبت‌نام)</span>
+                <span id="service-card-tag" class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با ثبت‌نام)</span>
             </div>
-
-            <!-- Card 2: Merchandising (Paid) -->
             <div class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-store card-icon"></i>
@@ -119,8 +102,6 @@
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به خرید، فروش و انبارداری کالا.</p>
                 <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
             </div>
-
-            <!-- Card 3: Contracting (Paid) -->
             <div class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-hard-hat card-icon"></i>
@@ -128,8 +109,6 @@
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به صورت وضعیت‌ها و هزینه‌های پروژه.</p>
                 <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
             </div>
-
-            <!-- Card 4: Manufacturing (Paid) -->
             <div class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-industry card-icon"></i>
@@ -139,7 +118,7 @@
             </div>
         </div>
 
-        <div id="document-viewer" class="mt-12"></div>
+        <div id="document-viewer"></div>
     </main>
 
     <script>
@@ -157,52 +136,54 @@
         // --- ACCOUNTING DOCUMENTS LOGIC ---
         document.addEventListener('DOMContentLoaded', () => {
             const documentsData = {
-                service: [
-                    { id: 1, description: "دریافت وجه نقد بابت ارائه خدمات", debit: ["موجودی نقد و بانک"], credit: ["درآمدهای عملیاتی"] },
-                    { id: 2, description: "پرداخت هزینه حقوق کارکنان", debit: ["هزینه حقوق و دستمزد"], credit: ["موجودی نقد و بانک", "مالیات پرداختنی", "بیمه پرداختنی"] },
-                    { id: 3, description: "پرداخت هزینه اجاره دفتر", debit: ["هزینه اجاره"], credit: ["موجودی نقد و بانک"] },
-                    { id: 4, description: "خرید اثاثه اداری به صورت نسیه", debit: ["اثاثه و منصوبات"], credit: ["حساب‌های پرداختنی"] },
-                ],
-                // Data for other categories can be added later
+                service: [],
+                merchandising: [],
+                contracting: [],
+                manufacturing: []
             };
 
             const authPrompt = document.getElementById('auth-prompt');
             const serviceCard = document.getElementById('service-card');
+            const serviceCardTag = document.getElementById('service-card-tag');
             const lockedCards = document.querySelectorAll('.card.locked:not(#service-card)');
             const viewer = document.getElementById('document-viewer');
 
             function renderDocuments(data, title) {
                 let contentHTML = `
-                    <div class="bg-white p-8 rounded-lg shadow-xl">
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
                         <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
                         <div class="relative mb-6">
-                            <input type="search" class="search-bar w-full p-3 pl-10 border rounded-lg focus:ring-2 focus:ring-[var(--gold)]" placeholder="جستجو در شرح اسناد...">
-                            <i class="fas fa-search absolute top-1/2 left-3 -translate-y-1/2 text-slate-400"></i>
+                            <input type="search" class="search-bar w-full p-4 pl-12 text-lg bg-slate-100 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gold)] focus:border-[var(--gold)]" placeholder="جستجو در شرح اسناد...">
+                            <i class="fas fa-search absolute top-1/2 left-4 -translate-y-1/2 text-slate-500 text-xl"></i>
                         </div>
                         <div class="space-y-2 document-list">
                 `;
-                data.forEach(doc => {
-                    contentHTML += `
-                        <div class="document-item border rounded-lg overflow-hidden bg-white">
-                            <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
-                                <h3 class="font-semibold text-slate-800">${doc.description}</h3>
-                                <i class="fas fa-chevron-down transition-transform duration-300"></i>
-                            </div>
-                            <div class="accordion-content">
-                                <div class="p-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="account-box bg-red-50 text-red-800">
-                                        <h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4>
-                                        <ul>${doc.debit.map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
-                                    </div>
-                                    <div class="account-box bg-green-50 text-green-800">
-                                        <h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4>
-                                        <ul>${doc.credit.map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
+                if (data.length > 0) {
+                    data.forEach(doc => {
+                        contentHTML += `
+                            <div class="document-item border rounded-lg overflow-hidden bg-white">
+                                <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
+                                    <h3 class="font-semibold text-slate-800">${doc.description}</h3>
+                                    <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                                </div>
+                                <div class="accordion-content">
+                                    <div class="p-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="account-box bg-red-50 text-red-800">
+                                            <h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4>
+                                            <ul>${doc.debit.map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
+                                        </div>
+                                        <div class="account-box bg-green-50 text-green-800">
+                                            <h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4>
+                                            <ul>${doc.credit.map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                });
+                        `;
+                    });
+                } else {
+                    contentHTML += `<p class="text-center text-slate-500 py-8">دیتابیس این بخش در حال آماده‌سازی است و به زودی تکمیل خواهد شد.</p>`;
+                }
                 contentHTML += `</div></div>`;
                 viewer.innerHTML = contentHTML;
                 viewer.classList.add('open');
@@ -220,13 +201,16 @@
                     });
                 });
 
-                document.querySelector('.search-bar').addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    document.querySelectorAll('.document-item').forEach(item => {
-                        const description = item.querySelector('h3').textContent.toLowerCase();
-                        item.style.display = description.includes(searchTerm) ? 'block' : 'none';
+                const searchBar = document.querySelector('.search-bar');
+                if (searchBar) {
+                    searchBar.addEventListener('input', (e) => {
+                        const searchTerm = e.target.value.toLowerCase();
+                        document.querySelectorAll('.document-item').forEach(item => {
+                            const description = item.querySelector('h3').textContent.toLowerCase();
+                            item.style.display = description.includes(searchTerm) ? 'block' : 'none';
+                        });
                     });
-                });
+                }
             }
 
             _supabase.auth.onAuthStateChange((event, session) => {
@@ -234,6 +218,7 @@
                     authPrompt.classList.add('hidden');
                     serviceCard.classList.remove('locked');
                     serviceCard.classList.add('unlocked');
+                    if (serviceCardTag) serviceCardTag.classList.add('hidden');
                     
                     serviceCard.onclick = () => {
                         renderDocuments(documentsData.service, 'اسناد حسابداری شرکت‌های خدماتی');
@@ -242,6 +227,7 @@
                     authPrompt.classList.remove('hidden');
                     serviceCard.classList.add('locked');
                     serviceCard.classList.remove('unlocked');
+                    if (serviceCardTag) serviceCardTag.classList.remove('hidden');
                     serviceCard.onclick = () => {
                         window.location.href = 'login.html';
                     };

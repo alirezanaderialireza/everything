@@ -1,264 +1,768 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ماشین حساب هوشمند حسابداری - آیدا شیرازی</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
-            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
-            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+            --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --gold: #c49827;
+            --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
         }
-        body { font-family: var(--font-body); background-color: var(--slate-100); }
-        h1, h2, .font-display { font-family: var(--font-display); }
-        .main-header { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
-        .nav-link { transition: color 0.3s ease; color: var(--slate-800); font-weight: 500; position: relative; padding-bottom: 4px; }
-        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; right: 0; background-color: var(--gold); transition: width 0.3s ease; }
-        .nav-link:hover::after { width: 100%; }
-        .btn-gold { background-color: var(--gold); color: var(--navy); transition: background-color 0.3s; border-radius: 0.5rem; font-weight: 600; }
-        .btn-gold:hover { background-color: #b98d1e; }
-        .calculator-tab { cursor: pointer; padding: 0.75rem 1.5rem; font-weight: 600; border-bottom: 4px solid transparent; }
-        .calculator-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
-        .calculator-content { display: none; }
-        .calculator-content.active { display: block; }
-        .result-field { background-color: var(--slate-100); border-right: 4px solid var(--gold); }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--slate-100);
+        }
+
+        h1,
+        h2,
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .main-header {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-link {
+            transition: color 0.3s ease;
+            color: var(--slate-800);
+            font-weight: 500;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-link:hover {
+            color: var(--navy);
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: var(--navy);
+            transition: background-color 0.3s;
+            border-radius: 0.5rem;
+            font-weight: 600;
+        }
+
+        .btn-gold:hover {
+            background-color: #b98d1e;
+        }
+
+        .calculator-tab {
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            border-bottom: 4px solid transparent;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        @media (min-width: 640px) {
+            .calculator-tab {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        .calculator-tab.active {
+            color: var(--navy);
+            border-bottom-color: var(--gold);
+        }
+
+        .calculator-content {
+            display: none;
+        }
+
+        .calculator-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-field {
+            background-color: #f8fafc;
+            border-right: 4px solid var(--gold);
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: var(--slate-600);
+        }
+
+        .result-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        #loan-schedule-table {
+            width: 100%;
+            text-align: center;
+            border-collapse: collapse;
+        }
+
+        #loan-schedule-table th,
+        #loan-schedule-table td {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        #loan-schedule-table thead {
+            background-color: var(--navy);
+            color: white;
+        }
+
+        .calc-btn {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            font-size: 1.25rem;
+            transition: background-color 0.2s, transform 0.1s;
+            border-radius: 0.5rem;
+        }
+
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
+
+        .calc-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .calc-btn.operator {
+            background-color: #f0f0f0;
+            color: var(--gold);
+        }
+
+        .calc-btn.equals {
+            background-color: var(--gold);
+            color: var(--navy);
+            grid-column: span 2;
+        }
+
+        .calc-btn.accounting {
+            background-color: #e8f0fe;
+            color: #4285f4;
+            font-size: 1rem;
+        }
+
+        #memory-display ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #memory-display li {
+            background-color: #f0f2f5;
+            border-bottom: 1px solid #e5e7eb;
+        }
     </style>
 </head>
+
 <body class="bg-slate-100">
 
     <header class="main-header sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو" class="w-10 h-10 rounded-full">
+                <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو"
+                    class="w-10 h-10 rounded-full">
                 <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
             </div>
             <div class="hidden md:flex items-center space-x-10 space-x-reverse">
-                <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
+                <a href="index.html" class="nav-link">نقشه راه</a>
                 <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
                 <a href="calculator.html" class="nav-link">ماشین حساب</a>
-                <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
-                <a href="index.html#about" class="nav-link">درباره من</a>
             </div>
             <div id="profile-section" class="relative">
-                <a href="login.html" id="login-btn" class="btn btn-gold flex items-center justify-center gap-2 px-4 py-2">
+                <a href="login.html" id="login-btn" class="btn-gold flex items-center justify-center gap-2 px-4 py-2">
                     <i class="fa-solid fa-right-to-bracket"></i>
                     <span>ورود / ثبت‌نام</span>
                 </a>
                 <div id="user-menu" class="hidden">
-                    <button id="profile-toggle-btn" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
+                    <button id="profile-toggle-btn"
+                        class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
                         <i class="fa-solid fa-user text-slate-600"></i>
                     </button>
-                    <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
-                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
+                    <div id="dropdown-menu"
+                        class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات
+                            پروفایل</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج
+                            از حساب</a>
                     </div>
                 </div>
             </div>
         </nav>
     </header>
-    <main class="container mx-auto p-6 mt-8">
+
+    <main class="container mx-auto p-4 sm:p-6 mt-8">
         <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-10">ماشین حساب هوشمند حسابداری</h1>
 
-        <div class="max-w-3xl mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="flex border-b">
-                <button id="tab-salary" class="calculator-tab active">حقوق و دستمزد</button>
+        <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+            <div class="flex border-b flex-wrap overflow-x-auto">
+                <button id="tab-advanced" class="calculator-tab active">ماشین حساب پایه</button>
+                <button id="tab-salary" class="calculator-tab">حقوق و دستمزد</button>
+                <button id="tab-loan" class="calculator-tab">وام و اقساط</button>
+                <button id="tab-currency" class="calculator-tab">تبدیل ارز</button>
+                <button id="tab-date" class="calculator-tab">تبدیل تاریخ</button>
                 <button id="tab-vat" class="calculator-tab">ارزش افزوده</button>
-                <button id="tab-bonus" class="calculator-tab">عیدی و سنوات</button>
             </div>
 
-            <div class="p-8">
-                <div id="content-salary" class="calculator-content active">
-                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر حقوق و دستمزد</h2>
-                    <form id="salary-form" class="space-y-4">
+            <div class="p-4 sm:p-8">
+                <!-- Advanced Base Calculator -->
+                <div id="content-advanced" class="calculator-content active">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-2">
+                            <div class="bg-slate-200 p-4 rounded-lg mb-4 break-words text-right"
+                                style="direction: ltr;">
+                                <div id="calc-expression" class="h-6 text-slate-500">&nbsp;</div>
+                                <div id="calc-main-display" class="text-5xl font-mono text-slate-800">0</div>
+                            </div>
+                            <div id="calc-buttons" class="grid grid-cols-5 gap-2 text-center">
+                                <button class="calc-btn accounting" data-action="gt">GT</button>
+                                <button class="calc-btn accounting" data-action="mu">MU</button>
+                                <button class="calc-btn accounting" data-action="tax-plus">+TAX</button>
+                                <button class="calc-btn accounting" data-action="tax-minus">-TAX</button>
+                                <button class="calc-btn operator !bg-red-100 !text-red-600"
+                                    data-action="clear-all">C</button>
+                                <button class="calc-btn operator" data-action="memory-clear">MC</button>
+                                <button class="calc-btn operator" data-action="memory-recall">MR</button>
+                                <button class="calc-btn operator" data-action="memory-plus">M+</button>
+                                <button class="calc-btn operator" data-action="memory-minus">M-</button>
+                                <button class="calc-btn operator" data-action="divide">÷</button>
+                                <button class="calc-btn" data-value="7">7</button>
+                                <button class="calc-btn" data-value="8">8</button>
+                                <button class="calc-btn" data-value="9">9</button>
+                                <button class="calc-btn operator" data-action="percent">%</button>
+                                <button class="calc-btn operator" data-action="multiply">×</button>
+                                <button class="calc-btn" data-value="4">4</button>
+                                <button class="calc-btn" data-value="5">5</button>
+                                <button class="calc-btn" data-value="6">6</button>
+                                <button class="calc-btn operator" data-action="sqrt">√</button>
+                                <button class="calc-btn operator" data-action="subtract">-</button>
+                                <button class="calc-btn" data-value="1">1</button>
+                                <button class="calc-btn" data-value="2">2</button>
+                                <button class="calc-btn" data-value="3">3</button>
+                                <button class="calc-btn operator" data-action="power">xʸ</button>
+                                <button class="calc-btn operator" data-action="add">+</button>
+                                <button class="calc-btn" data-value="0">0</button>
+                                <button class="calc-btn" data-action="decimal">.</button>
+                                <button class="calc-btn" data-action="negate">+/-</button>
+                                <button class="calc-btn equals" data-action="equals">=</button>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-slate-50 p-4 rounded-lg h-48 overflow-y-auto">
+                                <h3 class="font-bold border-b pb-2 mb-2">حافظه (Memory)</h3>
+                                <ul id="memory-list">
+                                    <li class="text-slate-400 p-2">حافظه خالی است.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg">
+                                <h3 class="font-bold">جمع کل (GT)</h3>
+                                <p id="gt-value" class="text-lg font-mono text-left" dir="ltr">0</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg space-y-3">
+                                <h3 class="font-bold">تنظیمات</h3>
+                                <div><label for="tax-rate" class="text-sm">نرخ مالیات (%)</label><input type="number"
+                                        id="tax-rate" value="10" class="w-full mt-1 p-1 border rounded"></div>
+                                <div><label for="decimal-places" class="text-sm">ارقام اعشار</label><input type="number"
+                                        id="decimal-places" value="2" min="0" max="10"
+                                        class="w-full mt-1 p-1 border rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Salary Calculator -->
+                <div id="content-salary" class="calculator-content">
+                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر حقوق و دستمزد (۱۴۰۳)</h2>
+                    <form id="salary-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label for="gross-salary" class="text-sm font-medium text-slate-700">حقوق ناخالص ماهانه (تومان)</label>
-                            <input id="gross-salary" type="number" placeholder="مثال: 15,000,000" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                            <label for="salary-type" class="text-sm font-medium text-slate-700">نوع محاسبه حقوق</label>
+                            <select id="salary-type" class="mt-1 block w-full p-2 border rounded-md bg-white">
+                                <option value="monthly" selected>ماهانه</option>
+                                <option value="daily">روزانه</option>
+                                <option value="hourly">ساعتی</option>
+                            </select>
                         </div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه کن</button>
+                        <div>
+                            <label for="base-salary" class="text-sm font-medium text-slate-700">مبلغ حقوق پایه
+                                (تومان)</label>
+                            <input id="base-salary" type="number" value="71661850" required
+                                class="mt-1 block w-full px-3 py-2 border rounded-md">
+                        </div>
+                        <div><label for="housing-allowance" class="text-sm font-medium text-slate-700">حق مسکن
+                                (تومان)</label><input id="housing-allowance" type="number" value="9000000" required
+                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div><label for="benefits-allowance" class="text-sm font-medium text-slate-700">بن کارگری
+                                (تومان)</label><input id="benefits-allowance" type="number" value="14000000" required
+                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div><label for="child-allowance-count" class="text-sm font-medium text-slate-700">تعداد
+                                فرزندان</label><input id="child-allowance-count" type="number" value="0" min="0"
+                                required class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div><label for="overtime-hours" class="text-sm font-medium text-slate-700">ساعات اضافه
+                                کاری</label><input id="overtime-hours" type="number" value="0" min="0" required
+                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div><label for="days-worked" class="text-sm font-medium text-slate-700">روزهای کارکرد در
+                                سال</label><input id="days-worked" type="number" value="365" min="1" max="366" required
+                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div class="md:col-span-2"><button type="submit"
+                                class="w-full py-3 px-4 rounded-md font-semibold btn-gold text-lg">محاسبه کن</button>
+                        </div>
+                        <div>
+                            <label for="days-worked" class="text-sm font-medium text-slate-700">تعداد روزهای کارکرد در
+                                سال</label>
+                            <input id="days-worked" type="number" value="365" min="1" max="366" required
+                                class="mt-1 block w-full px-3 py-2 border rounded-md">
+                        </div>
                     </form>
-                    <div id="salary-results" class="mt-6 space-y-3 hidden">
-                        <div class="result-field p-4 rounded-md flex justify-between items-center">
-                            <span class="font-semibold text-slate-600">سهم بیمه کارگر (۷٪):</span>
-                            <span id="insurance-result" class="font-bold text-lg text-red-600"></span>
+                    <div id="salary-results" class="mt-8 pt-6 border-t hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-xl font-display text-green-700 mb-4">اضافات</h3>
+                                <div class="space-y-3">
+                                    <div class="result-field p-3 rounded-md flex justify-between items-center"><span
+                                            class="result-title">حقوق پایه:</span><span id="res-base-salary"
+                                            class="result-value"></span></div>
+                                    <div class="result-field p-3 rounded-md flex justify-between items-center"><span
+                                            class="result-title">اضافه کاری:</span><span id="res-overtime"
+                                            class="result-value"></span></div>
+                                    <div class="result-field p-3 rounded-md flex justify-between items-center"><span
+                                            class="result-title">حق اولاد:</span><span id="res-child"
+                                            class="result-value"></span></div>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-display text-red-700 mb-4">کسورات</h3>
+                                <div class="space-y-3">
+                                    <div
+                                        class="result-field p-3 rounded-md flex justify-between items-center border-red-500">
+                                        <span class="result-title">بیمه (کارگر):</span><span id="res-insurance-employee"
+                                            class="result-value text-red-600"></span>
+                                    </div>
+                                    <div
+                                        class="result-field p-3 rounded-md flex justify-between items-center border-red-500">
+                                        <span class="result-title">مالیات:</span><span id="res-tax"
+                                            class="result-value text-red-600"></span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="result-field p-4 rounded-md flex justify-between items-center">
-                            <span class="font-semibold text-slate-600">مالیات بر حقوق:</span>
-                            <span id="tax-result" class="font-bold text-lg text-red-600"></span>
+                        <div class="mt-8 pt-6 border-t space-y-4">
+                            <div
+                                class="bg-blue-50 border-blue-500 result-field p-4 rounded-md flex justify-between items-center">
+                                <span class="font-semibold">مجموع درآمد مشمول بیمه:</span><span id="res-gross-insurance"
+                                    class="font-bold"></span>
+                            </div>
+                            <div
+                                class="bg-green-50 border-green-500 result-field p-4 rounded-md flex justify-between items-center">
+                                <span class="text-lg font-semibold">خالص دریافتی:</span><span id="res-net-salary"
+                                    class="text-2xl font-bold"></span>
+                            </div>
+                            <div
+                                class="bg-slate-200 border-slate-500 result-field p-4 rounded-md flex justify-between items-center">
+                                <span class="font-semibold">بیمه (کارفرما):</span><span id="res-insurance-employer"
+                                    class="font-bold"></span>
+                            </div>
+                            <div
+                                class="bg-slate-200 border-slate-500 result-field p-4 rounded-md flex justify-between items-center">
+                                <span class="font-semibold">هزینه کل برای کارفرما:</span><span id="res-total-cost"
+                                    class="font-bold"></span>
+                            </div>
+                            <div
+                                class="bg-yellow-50 border-yellow-500 result-field p-4 rounded-md flex justify-between items-center text-yellow-800">
+                                <span class="font-semibold">عیدی سالانه (تقریبی):</span><span id="res-eidi"
+                                    class="font-bold"></span>
+                            </div>
+                            <div
+                                class="bg-yellow-50 border-yellow-500 result-field p-4 rounded-md flex justify-between items-center text-yellow-800">
+                                <span class="font-semibold">سنوات پایان کار (تقریبی):</span><span id="res-sanavat"
+                                    class="font-bold"></span>
+                            </div>
                         </div>
-                        <hr class="my-3">
-                        <div class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
-                            <span class="font-semibold text-green-800">حقوق خالص دریافتی:</span>
-                            <span id="net-salary-result" class="font-bold text-xl text-green-800"></span>
+                        <!-- این دو div را به انتهای بخش نتایج اضافه کنید -->
+                        <div
+                            class="bg-yellow-50 border-yellow-500 result-field p-4 rounded-md flex justify-between items-center text-yellow-800">
+                            <span class="font-semibold">عیدی سالانه (تقریبی):</span>
+                            <span id="res-eidi" class="font-bold"></span>
                         </div>
+                        <div
+                            class="bg-yellow-50 border-yellow-500 result-field p-4 rounded-md flex justify-between items-center text-yellow-800">
+                            <span class="font-semibold">سنوات پایان کار (تقریبی):</span>
+                            <span id="res-sanavat" class="font-bold"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-loan" class="calculator-content">
+                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر وام و اقساط</h2>
+                    <form id="loan-form" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div><label for="loan-amount" class="text-sm font-medium text-slate-700">مبلغ وام
+                                (تومان)</label><input id="loan-amount" type="number" placeholder="100,000,000" required
+                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div><label for="interest-rate" class="text-sm font-medium text-slate-700">نرخ سود سالانه
+                                (%)</label><input id="interest-rate" type="number" placeholder="23" required
+                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div><label for="loan-term" class="text-sm font-medium text-slate-700">مدت بازپرداخت
+                                (ماه)</label><input id="loan-term" type="number" placeholder="36" required
+                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div class="md:col-span-3"><button type="submit"
+                                class="w-full py-3 px-4 rounded-md font-semibold btn-gold text-lg">محاسبه اقساط</button>
+                        </div>
+                    </form>
+                    <div id="loan-results" class="mt-8 pt-6 border-t hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-center">
+                            <div class="result-field p-4 rounded-md">
+                                <p class="result-title">قسط ماهانه</p>
+                                <p id="monthly-payment" class="result-value text-blue-700 text-xl"></p>
+                            </div>
+                            <div class="result-field p-4 rounded-md">
+                                <p class="result-title">مجموع سود</p>
+                                <p id="total-interest" class="result-value text-red-700 text-xl"></p>
+                            </div>
+                            <div class="result-field p-4 rounded-md">
+                                <p class="result-title">کل بازپرداخت</p>
+                                <p id="total-payment" class="result-value text-green-700 text-xl"></p>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-display text-slate-800 mb-4">جدول بازپرداخت اقساط</h3>
+                        <div class="overflow-x-auto">
+                            <table id="loan-schedule-table">
+                                <thead>
+                                    <tr>
+                                        <th>ماه</th>
+                                        <th>مبلغ قسط</th>
+                                        <th>سود</th>
+                                        <th>اصل پول</th>
+                                        <th>باقیمانده وام</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loan-schedule-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-date" class="calculator-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h2 class="text-2xl font-display text-slate-800 mb-6">تبدیل تاریخ شمسی به میلادی</h2>
+                            <form id="shamsi-to-gregorian-form" class="space-y-4">
+                                <div class="flex gap-4"><input type="number" id="shamsi-year" placeholder="سال" required
+                                        class="w-full p-2 border rounded-md"><input type="number" id="shamsi-month"
+                                        placeholder="ماه" required class="w-full p-2 border rounded-md"><input
+                                        type="number" id="shamsi-day" placeholder="روز" required
+                                        class="w-full p-2 border rounded-md"></div><button type="submit"
+                                    class="w-full py-2 px-4 rounded-md font-semibold btn-gold">تبدیل</button>
+                            </form>
+                            <div id="gregorian-result" class="mt-4 result-field p-4 text-center hidden"></div>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-display text-slate-800 mb-6">تبدیل تاریخ میلادی به شمسی</h2>
+                            <form id="gregorian-to-shamsi-form" class="space-y-4">
+                                <div class="flex gap-4"><input type="number" id="gregorian-year" placeholder="Year"
+                                        required class="w-full p-2 border rounded-md"><input type="number"
+                                        id="gregorian-month" placeholder="Month" required
+                                        class="w-full p-2 border rounded-md"><input type="number" id="gregorian-day"
+                                        placeholder="Day" required class="w-full p-2 border rounded-md"></div><button
+                                    type="submit"
+                                    class="w-full py-2 px-4 rounded-md font-semibold btn-gold">Convert</button>
+                            </form>
+                            <div id="shamsi-result" class="mt-4 result-field p-4 text-center hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-currency" class="calculator-content">
+                    <h2 class="text-2xl font-display text-slate-800 mb-6">مبدل نرخ ارز (با نرخ آنلاین)</h2>
+                    <form id="currency-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                            <div><label for="amount" class="text-sm font-medium text-slate-700">مبلغ</label><input
+                                    id="amount" type="number" value="1" required
+                                    class="mt-1 block w-full p-2 border rounded-md"></div>
+                            <div><label for="from-currency" class="text-sm font-medium text-slate-700">از
+                                    ارز</label><select id="from-currency"
+                                    class="mt-1 w-full p-2 border rounded-md bg-white"></select></div>
+                        </div>
+                        <div class="text-center my-4"><i class="fas fa-exchange-alt text-2xl text-slate-400"></i></div>
+                        <div><label for="to-currency" class="text-sm font-medium text-slate-700">به ارز</label><select
+                                id="to-currency" class="mt-1 w-full p-2 border rounded-md bg-white"></select></div>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">تبدیل</button>
+                    </form>
+                    <div id="currency-result-container" class="mt-6 hidden">
+                        <div class="result-field bg-green-50 border-green-500 p-4 text-center">
+                            <p id="currency-result" class="font-bold text-2xl text-green-800"></p>
+                        </div>
+                        <p id="rate-info" class="text-xs text-center text-slate-500 mt-2"></p>
                     </div>
                 </div>
 
                 <div id="content-vat" class="calculator-content">
-                     <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر ارزش افزوده (VAT)</h2>
+                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر ارزش افزوده (VAT)</h2>
                     <form id="vat-form" class="space-y-4">
-                        <div>
-                            <label for="base-price" class="text-sm font-medium text-slate-700">مبلغ پایه (تومان)</label>
-                            <input id="base-price" type="number" placeholder="مثال: 1,000,000" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
-                        </div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه کن</button>
+                        <div><label for="base-price" class="text-sm font-medium text-slate-700">مبلغ پایه
+                                (تومان)</label><input id="base-price" type="number" placeholder="1,000,000" required
+                                class="mt-1 w-full p-2 border rounded-md"></div>
+                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه</button>
                     </form>
                     <div id="vat-results" class="mt-6 space-y-3 hidden">
-                         <div class="result-field p-4 rounded-md flex justify-between items-center">
-                            <span class="font-semibold text-slate-600">مبلغ ارزش افزوده (۱۰٪):</span>
-                            <span id="vat-amount-result" class="font-bold text-lg text-red-600"></span>
-                        </div>
-                        <hr class="my-3">
-                        <div class="result-field bg-green-50 border-green-500 p-4 rounded-md flex justify-between items-center">
-                            <span class="font-semibold text-green-800">مبلغ نهایی با ارزش افزوده:</span>
-                            <span id="total-price-result" class="font-bold text-xl text-green-800"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="content-bonus" class="calculator-content">
-                    <h2 class="text-2xl font-display text-slate-800 mb-6">محاسبه‌گر عیدی و سنوات</h2>
-                    <form id="bonus-form" class="space-y-4">
-                        <div>
-                            <label for="bonus-salary" class="text-sm font-medium text-slate-700">حقوق پایه ماهانه (تومان)</label>
-                            <input id="bonus-salary" type="number" placeholder="مثال: 10,000,000" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
-                        </div>
-                         <div>
-                            <label for="months-worked" class="text-sm font-medium text-slate-700">تعداد ماه‌های کارکرد در سال</label>
-                            <input id="months-worked" type="number" value="12" min="1" max="12" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
-                        </div>
-                        <button type="submit" class="w-full py-2 px-4 rounded-md font-semibold btn-gold">محاسبه کن</button>
-                    </form>
-                    <div id="bonus-results" class="mt-6 space-y-3 hidden">
-                        <div class="result-field p-4 rounded-md flex justify-between items-center">
-                            <span class="font-semibold text-slate-600">عیدی (تقریبی):</span>
-                            <span id="eidi-result" class="font-bold text-lg text-green-700"></span>
-                        </div>
-                        <div class="result-field p-4 rounded-md flex justify-between items-center">
-                            <span class="font-semibold text-slate-600">سنوات (پایه سنوات):</span>
-                            <span id="sanavat-result" class="font-bold text-lg text-green-700"></span>
-                        </div>
+                        <div class="result-field p-4 rounded-md flex justify-between items-center"><span
+                                class="font-semibold">ارزش افزوده (۱۰٪):</span><span id="vat-amount-result"
+                                class="font-bold text-lg text-red-600"></span></div>
+                        <hr>
+                        <div class="result-field p-4 rounded-md flex justify-between items-center"><span
+                                class="font-semibold">مبلغ نهایی با ارزش افزوده:</span><span id="total-price-result"
+                                class="font-bold text-xl text-green-800"></span></div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // START: Added Auth Logic for Header
-        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
-
-        const loginBtn = document.getElementById('login-btn');
-        const userMenu = document.getElementById('user-menu');
-        const profileToggleBtn = document.getElementById('profile-toggle-btn');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        const logoutBtn = document.getElementById('logout-btn');
-
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session && session.user) {
-                loginBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
-            } else {
-                loginBtn.classList.remove('hidden');
-                userMenu.classList.add('hidden');
-            }
-        });
-
-        if (profileToggleBtn) {
-            profileToggleBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                dropdownMenu.classList.toggle('hidden');
-            });
-        }
-
-        window.addEventListener('click', () => {
-            if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
-                dropdownMenu.classList.add('hidden');
-            }
-        });
-        
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await _supabase.auth.signOut();
-            });
-        }
-        // END: Added Auth Logic for Header
-
         document.addEventListener('DOMContentLoaded', () => {
+            const formatToman = (num) => new Intl.NumberFormat('fa-IR').format(Math.round(num)) + ' تومان';
+            // این آبجکت را به کد خود اضافه کنید
+            const currencyNames = {
+                "USD": "دلار آمریکا", "EUR": "یورو", "JPY": "ین ژاپن", "GBP": "پوند بریتانیا",
+                "AUD": "دلار استرالیا", "CAD": "دلار کانادا", "CHF": "فرانک سوئیس", "CNY": "یوان چین",
+                "TRY": "لیر ترکیه", "AED": "درهم امارات", "IRR": "ریال ایران", "AFN": "افغانی افغانستان",
+                "ALL": "لک آلبانی", "DZD": "دینار الجزایر", "AOA": "کوانزای آنگولا", "ARS": "پزوی آرژانتین",
+                "AMD": "درام ارمنستان", "AZN": "منات آذربایجان", "BDT": "تاکای بنگلادش", "BYN": "روبل بلاروس",
+                "BOB": "بولیویانوی بولیوی", "BAM": "مارک بوسنی", "BRL": "رئال برزیل", "BGN": "لف بلغارستان",
+                "CLP": "پزوی شیلی", "COP": "پزوی کلمبیا", "CRC": "کولون کاستاریکا", "HRK": "کونای کرواسی",
+                "CUP": "پزوی کوبا", "CZK": "کرونای چک", "DKK": "کرون دانمارک", "EGP": "پوند مصر",
+                "GEL": "لاری گرجستان", "GHS": "سدی غنا", "GTQ": "کتزال گواتمالا", "HUF": "فورینت مجارستان",
+                "ISK": "کرونای ایسلند", "INR": "روپیه هند", "IDR": "روپیه اندونزی", "IQD": "دینار عراق",
+                "ILS": "شکل جدید اسرائیل", "JMD": "دلار جامائیکا", "KZT": "تنگه قزاقستان", "KES": "شیلینگ کنیا",
+                "KWD": "دینار کویت", "LAK": "کیپ لائوس", "LBP": "پوند لبنان", "MYR": "رینگیت مالزی",
+                "MUR": "روپیه موریس", "MXN": "پزوی مکزیک", "MDL": "لئوی مولداوی", "MNT": "توگریک مغولستان",
+                "MAD": "درهم مراکش", "MMK": "کیات میانمار", "NPR": "روپیه نپال", "NGN": "نایرای نیجریه",
+                "OMR": "ریال عمان", "PKR": "روپیه پاکستان", "PAB": "بالبوآی پاناما", "PYG": "گوارانی پاراگوئه",
+                "PEN": "سول پرو", "PHP": "پزوی فیلیپین", "PLN": "زلوتی لهستان", "QAR": "ریال قطر",
+                "RON": "لئوی رومانی", "RUB": "روبل روسیه", "SAR": "ریال عربستان", "RSD": "دینار صربستان",
+                "SGD": "دلار سنگاپور", "ZAR": "راند آفریقای جنوبی", "LKR": "روپیه سریلانکا", "SEK": "کرون سوئد",
+                "TWD": "دلار جدید تایوان", "TZS": "شیلینگ تانزانیا", "THB": "بات تایلند", "UAH": "گریونای اوکراین",
+                "UYU": "پزوی اوروگوئه", "UZS": "سوم ازبکستان", "VEF": "بولیوار ونزوئلا", "VND": "دانگ ویتنام"
+            };
+
             const tabs = document.querySelectorAll('.calculator-tab');
             const contents = document.querySelectorAll('.calculator-content');
-
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     tabs.forEach(item => item.classList.remove('active'));
                     contents.forEach(item => item.classList.remove('active'));
-                    
                     tab.classList.add('active');
-                    const contentId = 'content-' + tab.id.split('-')[1];
-                    document.getElementById(contentId).classList.add('active');
+                    document.getElementById('content-' + tab.id.split('-')[1]).classList.add('active');
                 });
             });
-            
-            const formatNumber = (num) => new Intl.NumberFormat('fa-IR').format(num) + ' تومان';
 
-            const salaryForm = document.getElementById('salary-form');
-            salaryForm.addEventListener('submit', (e) => {
+            // --- ALL CALCULATOR LOGICS ---
+
+            // 1. ADVANCED CALCULATOR LOGIC
+            const advDisplay = document.getElementById('calc-main-display');
+            const advExpressionDisplay = document.getElementById('calc-expression');
+            const advButtons = document.getElementById('calc-buttons');
+            const advMemoryList = document.getElementById('memory-list');
+            const advGtValue = document.getElementById('gt-value');
+            let advCurrentValue = '0', advPreviousValue = '', advOperator = null, advWaiting = false, advMemory = [], advGrandTotal = 0;
+
+            function advUpdateDisplay() { advDisplay.textContent = parseFloat(advCurrentValue).toLocaleString('en-US', { maximumFractionDigits: 10 }); }
+            function advUpdateMemoryDisplay() { advMemoryList.innerHTML = advMemory.length === 0 ? '<li class="text-slate-400 p-2">حافظه خالی است.</li>' : advMemory.map(val => `<li class="p-2 font-mono text-left">${val.toLocaleString('en-US')}</li>`).join(''); }
+
+            advButtons.addEventListener('click', (e) => {
+                const { target } = e; if (!target.matches('button')) return;
+                const { value, action } = target.dataset;
+
+                if (value) { if (advCurrentValue === '0' || advWaiting) { advCurrentValue = value; advWaiting = false; } else { if (advCurrentValue.length < 14) advCurrentValue += value; } }
+                if (action === 'decimal') { if (!advCurrentValue.includes('.')) advCurrentValue += '.'; }
+                if (['add', 'subtract', 'multiply', 'divide', 'power'].includes(action)) { if (advOperator && !advWaiting) { advCalculate(); } advPreviousValue = advCurrentValue; advOperator = action; advWaiting = true; advExpressionDisplay.textContent = `${parseFloat(advPreviousValue).toLocaleString('en-US')} ${target.textContent}`; }
+                if (action === 'equals') { advCalculate(); }
+                if (action === 'clear-all') { advCurrentValue = '0'; advPreviousValue = ''; advOperator = null; advGrandTotal = 0; advGtValue.textContent = '0'; advExpressionDisplay.textContent = '\u00A0'; }
+                if (action === 'percent') { advCurrentValue = (parseFloat(advCurrentValue) / 100).toString(); }
+                if (action === 'sqrt') { advCurrentValue = Math.sqrt(parseFloat(advCurrentValue)).toString(); }
+                if (action === 'negate') { advCurrentValue = (parseFloat(advCurrentValue) * -1).toString(); }
+                if (action === 'memory-plus') { advMemory.push(parseFloat(advCurrentValue)); advUpdateMemoryDisplay(); }
+                if (action === 'memory-minus') { advMemory.pop(); advUpdateMemoryDisplay(); }
+                if (action === 'memory-recall') { if (advMemory.length > 0) advCurrentValue = advMemory[advMemory.length - 1].toString(); }
+                if (action === 'memory-clear') { advMemory = []; advUpdateMemoryDisplay(); }
+                if (action === 'tax-plus' || action === 'tax-minus') { const taxRate = parseFloat(document.getElementById('tax-rate').value) / 100, num = parseFloat(advCurrentValue); advCurrentValue = (action === 'tax-plus' ? num * (1 + taxRate) : num / (1 + taxRate)).toString(); }
+                if (action === 'gt') { advCurrentValue = advGrandTotal.toString(); }
+                if (action === 'mu' && advPreviousValue && advOperator) { const base = parseFloat(advPreviousValue), percent = parseFloat(advCurrentValue); advCurrentValue = (base / (1 - (percent / 100))).toString(); advOperator = null; advPreviousValue = ''; }
+
+                advUpdateDisplay();
+            });
+
+            function advCalculate() {
+                if (advOperator === null || advWaiting) return;
+                const prev = parseFloat(advPreviousValue), current = parseFloat(advCurrentValue); let result = 0;
+                switch (advOperator) {
+                    case 'add': result = prev + current; break;
+                    case 'subtract': result = prev - current; break;
+                    case 'multiply': result = prev * current; break;
+                    case 'divide': result = prev / current; break;
+                    case 'power': result = Math.pow(prev, current); break;
+                    default: return;
+                }
+                const decimals = parseInt(document.getElementById('decimal-places').value);
+                advCurrentValue = result.toFixed(decimals); advGrandTotal += result;
+                advGtValue.textContent = advGrandTotal.toLocaleString('en-US');
+                advOperator = null; advPreviousValue = ''; advExpressionDisplay.textContent = '\u00A0'; advWaiting = true;
+            }
+            advUpdateDisplay(); advUpdateMemoryDisplay();
+
+            // 2. ADVANCED SALARY CALCULATOR LOGIC
+            // این کد را جایگزین addEventListener مربوط به salary-form کنید
+
+            document.getElementById('salary-form').addEventListener('submit', e => {
                 e.preventDefault();
-                const grossSalary = parseFloat(document.getElementById('gross-salary').value);
-                const insurance = grossSalary * 0.07;
-                const annualSalary = grossSalary * 12;
+
+                // --- Constants for 1403 ---
+                const MIN_DAILY_WAGE = 2388728; // حداقل دستمزد روزانه
+                const CHILD_ALLOWANCE_PER_CHILD = MIN_DAILY_WAGE * 3; // حق اولاد
+                const EIDI_CAP = MIN_DAILY_WAGE * 90; // سقف عیدی (90 روز حداقل دستمزد)
+
+                // --- Get Inputs ---
+                const salaryType = document.getElementById('salary-type').value;
+                const salaryInput = parseFloat(document.getElementById('base-salary').value) || 0;
+                const housingAllowance = parseFloat(document.getElementById('housing-allowance').value) || 0;
+                const benefitsAllowance = parseFloat(document.getElementById('benefits-allowance').value) || 0;
+                const childCount = parseInt(document.getElementById('child-allowance-count').value) || 0;
+                const overtimeHours = parseFloat(document.getElementById('overtime-hours').value) || 0;
+                const daysWorked = parseInt(document.getElementById('days-worked').value) || 365;
+
+                // --- Calculations ---
+                let monthlyBaseSalary = salaryInput;
+                if (salaryType === 'daily') {
+                    monthlyBaseSalary = salaryInput * 30.4; // میانگین روزهای ماه
+                } else if (salaryType === 'hourly') {
+                    monthlyBaseSalary = salaryInput * 192; // ساعات کاری ماهانه طبق قانون کار
+                }
+
+                const hourlyRate = monthlyBaseSalary / 192;
+                const overtimePay = hourlyRate * 1.4 * overtimeHours;
+                const childAllowance = childCount * CHILD_ALLOWANCE_PER_CHILD;
+                const grossSalaryForInsurance = monthlyBaseSalary + overtimePay + childAllowance;
+                const employeeInsurance = grossSalaryForInsurance * 0.07;
+                const employerInsurance = grossSalaryForInsurance * 0.23;
+
+                const grossSalaryForTax = monthlyBaseSalary + housingAllowance + benefitsAllowance + childAllowance + overtimePay - employeeInsurance;
+                const annualTaxableIncome = grossSalaryForTax * 12;
                 let annualTax = 0;
-                if (annualSalary > 144000000) {
-                    const taxableBase = annualSalary - 144000000;
-                    if (taxableBase <= 480000000) {
-                        annualTax = taxableBase * 0.10;
-                    } else { 
-                        annualTax = (480000000 * 0.10) + ((taxableBase - 480000000) * 0.15); 
-                    }
+                const taxExemption = 144000000;
+                if (annualTaxableIncome > taxExemption) {
+                    const taxableBase = annualTaxableIncome - taxExemption;
+                    if (taxableBase <= 480000000) { annualTax = taxableBase * 0.10; }
+                    else if (taxableBase <= 960000000) { annualTax = (480000000 * 0.10) + ((taxableBase - 480000000) * 0.15); }
+                    else if (taxableBase <= 1680000000) { annualTax = (480000000 * 0.10) + (480000000 * 0.15) + ((taxableBase - 960000000) * 0.20); }
+                    else { annualTax = (480000000 * 0.10) + (480000000 * 0.15) + (720000000 * 0.20) + ((taxableBase - 1680000000) * 0.30); }
                 }
                 const monthlyTax = annualTax / 12;
-                const netSalary = grossSalary - insurance - monthlyTax;
 
-                document.getElementById('insurance-result').textContent = '- ' + formatNumber(Math.round(insurance));
-                document.getElementById('tax-result').textContent = '- ' + formatNumber(Math.round(monthlyTax));
-                document.getElementById('net-salary-result').textContent = formatNumber(Math.round(netSalary));
+                // Eidi and Sanavat Calculation
+                let eidi = monthlyBaseSalary * 2;
+                if (eidi > EIDI_CAP) {
+                    eidi = EIDI_CAP;
+                }
+                const finalEidi = (eidi / 365) * daysWorked;
+                const sanavat = monthlyBaseSalary * (daysWorked / 365);
+
+                const totalGross = monthlyBaseSalary + housingAllowance + benefitsAllowance + childAllowance + overtimePay;
+                const netSalary = totalGross - employeeInsurance - monthlyTax;
+                const totalEmployerCost = totalGross + employerInsurance;
+
+                // --- Display Results ---
+                document.getElementById('res-base-salary').textContent = formatToman(monthlyBaseSalary);
+                document.getElementById('res-overtime').textContent = formatToman(overtimePay);
+                document.getElementById('res-child').textContent = formatToman(childAllowance);
+                document.getElementById('res-insurance-employee').textContent = "- " + formatToman(employeeInsurance);
+                document.getElementById('res-tax').textContent = "- " + formatToman(monthlyTax);
+                document.getElementById('res-gross-insurance').textContent = formatToman(grossSalaryForInsurance);
+                document.getElementById('res-net-salary').textContent = formatToman(netSalary);
+                document.getElementById('res-insurance-employer').textContent = formatToman(employerInsurance);
+                document.getElementById('res-total-cost').textContent = formatToman(totalEmployerCost);
+                document.getElementById('res-eidi').textContent = formatToman(finalEidi); // New
+                document.getElementById('res-sanavat').textContent = formatToman(sanavat); // New
+
                 document.getElementById('salary-results').classList.remove('hidden');
             });
-            
-            const vatForm = document.getElementById('vat-form');
-            vatForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const basePrice = parseFloat(document.getElementById('base-price').value);
-                const vatRate = 0.10;
-                const vatAmount = basePrice * vatRate;
-                const totalPrice = basePrice + vatAmount;
 
-                document.getElementById('vat-amount-result').textContent = formatNumber(Math.round(vatAmount));
-                document.getElementById('total-price-result').textContent = formatNumber(Math.round(totalPrice));
-                document.getElementById('vat-results').classList.remove('hidden');
-            });
+            // 3. LOAN CALCULATOR LOGIC
+            document.getElementById('loan-form').addEventListener('submit', e => { e.preventDefault(); const p = parseFloat(document.getElementById('loan-amount').value), r = parseFloat(document.getElementById('interest-rate').value) / 1200, t = parseInt(document.getElementById('loan-term').value); if (isNaN(p) || isNaN(r) || isNaN(t) || p <= 0 || r < 0 || t <= 0) return; const pay = p * (r * Math.pow(1 + r, t)) / (Math.pow(1 + r, t) - 1), total = pay * t, interest = total - p; document.getElementById('monthly-payment').textContent = formatToman(pay); document.getElementById('total-interest').textContent = formatToman(interest); document.getElementById('total-payment').textContent = formatToman(total); const body = document.getElementById('loan-schedule-body'); body.innerHTML = ''; let rem = p; for (let i = 1; i <= t; i++) { const int = rem * r, prin = pay - int; rem -= prin; body.insertAdjacentHTML('beforeend', `<tr><td>${i}</td><td>${formatToman(pay)}</td><td>${formatToman(int)}</td><td>${formatToman(prin)}</td><td>${formatToman(rem < 1 ? 0 : rem)}</td></tr>`); } document.getElementById('loan-results').classList.remove('hidden'); });
 
-            const bonusForm = document.getElementById('bonus-form');
-            bonusForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const salary = parseFloat(document.getElementById('bonus-salary').value);
-                const months = parseInt(document.getElementById('months-worked').value);
-                const eidi = (salary * 2) * (months / 12);
-                const sanavat = salary * (months / 12);
+            // 4. CURRENCY CONVERTER LOGIC
+            const currencyForm = document.getElementById('currency-form'), fromSelect = document.getElementById('from-currency'), toSelect = document.getElementById('to-currency'); let currencyRates = null; async function fetchRates() { // محتوای داخل تابع fetchRates را با این کد جایگزین کنید
 
-                document.getElementById('eidi-result').textContent = formatNumber(Math.round(eidi));
-                document.getElementById('sanavat-result').textContent = formatNumber(Math.round(sanavat));
-                document.getElementById('bonus-results').classList.remove('hidden');
-            });
+                try {
+                    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+                    const d = await res.json();
+                    if (d.result === 'success') {
+                        currencyRates = d.rates;
+
+                        // پاک کردن گزینه‌های قبلی (اگر وجود داشته باشد)
+                        fromSelect.innerHTML = '';
+                        toSelect.innerHTML = '';
+
+                        // اضافه کردن تمام ارزها با نام کامل
+                        Object.keys(currencyRates).forEach(currency => {
+                            const option1 = document.createElement('option');
+                            const option2 = document.createElement('option');
+
+                            option1.value = currency;
+                            option2.value = currency;
+
+                            // اگر نام کامل ارز در لیست ما بود، آن را نمایش بده، وگرنه فقط کد ارز را نشان بده
+                            const fullName = currencyNames[currency] || currency;
+                            const displayText = `${currency} - ${fullName}`;
+
+                            option1.textContent = displayText;
+                            option2.textContent = displayText;
+
+                            fromSelect.appendChild(option1);
+                            toSelect.appendChild(option2);
+                        });
+
+                        // تنظیم مقادیر پیش‌فرض
+                        fromSelect.value = 'USD'; // دلار آمریکا
+                        toSelect.value = 'IRR';   // ریال ایران
+                    }
+                } catch (e) {
+                    currencyForm.innerHTML = `<p class="text-red-500 text-center">خطا در بارگذاری نرخ ارز</p>`;
+                }
+            } currencyForm.addEventListener('submit', e => { e.preventDefault(); if (!currencyRates) return; const a = parseFloat(document.getElementById('amount').value), f = fromSelect.value, t = toSelect.value, conv = (a / currencyRates[f]) * currencyRates[t]; document.getElementById('currency-result').textContent = `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(conv)} ${t}`; document.getElementById('rate-info').textContent = `1 ${f} = ${(currencyRates[t] / currencyRates[f]).toFixed(4)} ${t}`; document.getElementById('currency-result-container').classList.remove('hidden'); }); fetchRates();
+
+            // 5. DATE CONVERTER LOGIC
+            moment.locale('fa'); document.getElementById('shamsi-to-gregorian-form').addEventListener('submit', e => { e.preventDefault(); const y = document.getElementById('shamsi-year').value, m = document.getElementById('shamsi-month').value, d = document.getElementById('shamsi-day').value, mom = moment(`${y}/${m}/${d}`, 'jYYYY/jMM/jDD'), res = document.getElementById('gregorian-result'); res.textContent = mom.isValid() ? `میلادی: ${mom.format('YYYY-MM-DD')}` : 'تاریخ نامعتبر'; res.classList.remove('hidden'); }); document.getElementById('gregorian-to-shamsi-form').addEventListener('submit', e => { e.preventDefault(); const y = document.getElementById('gregorian-year').value, m = document.getElementById('gregorian-month').value, d = document.getElementById('gregorian-day').value, mom = moment(`${y}-${m}-${d}`, 'YYYY-MM-DD'), res = document.getElementById('shamsi-result'); res.textContent = mom.isValid() ? `شمسی: ${mom.format('jYYYY/jMM/jDD')}` : 'تاریخ نامعتبر'; res.classList.remove('hidden'); });
+
+            // 6. VAT CALCULATOR LOGIC
+            document.getElementById('vat-form').addEventListener('submit', e => { e.preventDefault(); const p = parseFloat(document.getElementById('base-price').value); const v = p * 0.1, t = p + v; document.getElementById('vat-amount-result').textContent = formatToman(v); document.getElementById('total-price-result').textContent = formatToman(t); document.getElementById('vat-results').classList.remove('hidden'); });
         });
     </script>
 </body>
+
 </html>

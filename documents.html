@@ -122,24 +122,35 @@
     </main>
 
     <script>
-        // --- AUTH LOGIC (for header) ---
-        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
-        const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn');
-        _supabase.auth.onAuthStateChange((event, session) => { if(session && session.user){loginBtn.classList.add('hidden'); userMenu.classList.remove('hidden');} else {loginBtn.classList.remove('hidden'); userMenu.classList.add('hidden');}});
-        if(profileToggleBtn){profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });}
-        window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-        if(logoutBtn){logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });}
-
-        // --- ACCOUNTING DOCUMENTS LOGIC ---
+        // --- START: CORRECTED SCRIPT STRUCTURE ---
         document.addEventListener('DOMContentLoaded', () => {
+            // --- SUPABASE & AUTH SETUP ---
+            const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+            const { createClient } = supabase;
+            const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+            
+            // --- ELEMENT SELECTION (Now safely inside DOMContentLoaded) ---
+            const loginBtn = document.getElementById('login-btn');
+            const userMenu = document.getElementById('user-menu');
+            const profileToggleBtn = document.getElementById('profile-toggle-btn');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            const logoutBtn = document.getElementById('logout-btn');
             const authPrompt = document.getElementById('auth-prompt');
             const serviceCard = document.getElementById('service-card');
             const lockedCards = document.querySelectorAll('.card.locked');
             const viewer = document.getElementById('document-viewer');
 
+            // --- HEADER UI LOGIC ---
+            if(profileToggleBtn){
+                profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+            }
+            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
+            if(logoutBtn){
+                logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });
+            }
+
+            // --- DOCUMENT VIEWER LOGIC ---
             async function renderDocuments(typeId, title) {
                 viewer.innerHTML = `<div class="text-center py-12"><i class="fas fa-spinner fa-spin text-4xl text-[var(--gold)]"></i><p class="mt-4">در حال بارگذاری اسناد...</p></div>`;
                 viewer.classList.add('open');
@@ -148,7 +159,7 @@
                 const { data, error } = await _supabase.rpc('get_documents_by_type', { p_type_id: typeId });
                 
                 if (error) {
-                    viewer.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)] text-center text-red-500 py-8">خطا در دریافت اطلاعات از دیتابیس. لطفاً بعداً تلاش کنید.</div>`;
+                    viewer.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)] text-center text-red-500 py-8">خطا در دریافت اطلاعات. لطفاً بعداً تلاش کنید.</div>`;
                     return;
                 }
 
@@ -185,7 +196,7 @@
                         `;
                     });
                 } else {
-                    contentHTML += `<p class="text-center text-slate-500 py-8">هنوز سندی برای این دسته ثبت نشده است. این بخش به زودی تکمیل خواهد شد.</p>`;
+                    contentHTML += `<p class="text-center text-slate-500 py-8">هنوز سندی برای این دسته ثبت نشده است.</p>`;
                 }
                 contentHTML += `</div></div>`;
                 viewer.innerHTML = contentHTML;
@@ -210,16 +221,25 @@
                 }
             }
 
+            // --- SINGLE AUTH STATE CHANGE LISTENER ---
             _supabase.auth.onAuthStateChange((event, session) => {
                 const serviceCardTag = document.getElementById('service-card-tag');
+                
+                // Update Header
+                if (session && session.user) {
+                    loginBtn.classList.add('hidden');
+                    userMenu.classList.remove('hidden');
+                } else {
+                    loginBtn.classList.remove('hidden');
+                    userMenu.classList.add('hidden');
+                }
 
+                // Update Document Cards
                 if (session && session.user) {
                     authPrompt.classList.add('hidden');
                     serviceCard.classList.remove('locked');
                     serviceCard.classList.add('unlocked');
-                    if (serviceCardTag) {
-                        serviceCardTag.classList.add('hidden');
-                    }
+                    if (serviceCardTag) serviceCardTag.classList.add('hidden');
                     
                     serviceCard.onclick = () => {
                         renderDocuments(serviceCard.dataset.typeId, serviceCard.dataset.title);
@@ -228,9 +248,7 @@
                     authPrompt.classList.remove('hidden');
                     serviceCard.classList.add('locked');
                     serviceCard.classList.remove('unlocked');
-                    if (serviceCardTag) {
-                        serviceCardTag.classList.remove('hidden');
-                    }
+                    if (serviceCardTag) serviceCardTag.classList.remove('hidden');
                     serviceCard.onclick = () => { window.location.href = 'login.html'; };
                 }
             });
@@ -243,6 +261,7 @@
                 }
             });
         });
+        // --- END: CORRECTED SCRIPT STRUCTURE ---
     </script>
 </body>
 </html>

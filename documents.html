@@ -42,7 +42,7 @@
             opacity: 0; margin-top: 0;
         }
         #document-viewer.open {
-            max-height: 2000px; /* Adjust if content is longer */
+            max-height: 5000px; /* Increased max-height for more content */
             opacity: 1; margin-top: 3rem;
         }
         .accordion-header { cursor: pointer; transition: background-color 0.2s; }
@@ -60,11 +60,13 @@
                 <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو" class="w-10 h-10 rounded-full">
                 <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
             </div>
-            <div class="hidden md:flex items-center space-x-10 space-x-reverse">
-                <a href="index.html" class="nav-link">نقشه راه</a>
+           <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+                <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
+                <a href="documents.html" class="nav-link">اسناد حسابداری</a> <!-- این خط جدید است -->
                 <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
                 <a href="calculator.html" class="nav-link">ماشین حساب</a>
-                <a href="documents.html" class="nav-link">اسناد حسابداری</a>
+                <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
+                <a href="index.html#about" class="nav-link">درباره من</a>
             </div>
             <div id="profile-section" class="relative">
                 <a href="login.html" id="login-btn" class="btn-gold flex items-center justify-center gap-2 px-4 py-2">
@@ -89,27 +91,27 @@
         <p id="auth-prompt" class="text-center text-slate-500 mb-12 hidden">برای دسترسی به اسناد رایگان، لطفاً <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div id="service-card" class="card locked">
+            <div data-type-id="1" data-title="اسناد حسابداری شرکت‌های خدماتی" id="service-card" class="card locked">
                 <i class="fas fa-concierge-bell card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های خدماتی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد رایج در شرکت‌های ارائه‌دهنده خدمات.</p>
                 <span id="service-card-tag" class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با ثبت‌نام)</span>
             </div>
-            <div class="card locked">
+            <div data-type-id="2" data-title="اسناد حسابداری شرکت‌های بازرگانی" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-store card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های بازرگانی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به خرید، فروش و انبارداری کالا.</p>
                 <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
             </div>
-            <div class="card locked">
+            <div data-type-id="3" data-title="اسناد حسابداری شرکت‌های پیمانکاری" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-hard-hat card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های پیمانکاری</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به صورت وضعیت‌ها و هزینه‌های پروژه.</p>
                 <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
             </div>
-            <div class="card locked">
+            <div data-type-id="4" data-title="اسناد حسابداری شرکت‌های تولیدی" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-industry card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های تولیدی</h2>
@@ -135,20 +137,24 @@
 
         // --- ACCOUNTING DOCUMENTS LOGIC ---
         document.addEventListener('DOMContentLoaded', () => {
-            const documentsData = {
-                service: [],
-                merchandising: [],
-                contracting: [],
-                manufacturing: []
-            };
-
             const authPrompt = document.getElementById('auth-prompt');
             const serviceCard = document.getElementById('service-card');
             const serviceCardTag = document.getElementById('service-card-tag');
-            const lockedCards = document.querySelectorAll('.card.locked:not(#service-card)');
+            const lockedCards = document.querySelectorAll('.card.locked');
             const viewer = document.getElementById('document-viewer');
 
-            function renderDocuments(data, title) {
+            async function renderDocuments(typeId, title) {
+                viewer.innerHTML = `<div class="text-center py-12"><i class="fas fa-spinner fa-spin text-4xl text-[var(--gold)]"></i><p class="mt-4">در حال بارگذاری اسناد...</p></div>`;
+                viewer.classList.add('open');
+                viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                const { data, error } = await _supabase.rpc('get_documents_by_type', { p_type_id: typeId });
+                
+                if (error) {
+                    viewer.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)] text-center text-red-500 py-8">خطا در دریافت اطلاعات از دیتابیس. لطفاً بعداً تلاش کنید.</div>`;
+                    return;
+                }
+
                 let contentHTML = `
                     <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
                         <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
@@ -158,7 +164,7 @@
                         </div>
                         <div class="space-y-2 document-list">
                 `;
-                if (data.length > 0) {
+                if (data && data.length > 0) {
                     data.forEach(doc => {
                         contentHTML += `
                             <div class="document-item border rounded-lg overflow-hidden bg-white">
@@ -170,11 +176,11 @@
                                     <div class="p-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="account-box bg-red-50 text-red-800">
                                             <h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4>
-                                            <ul>${doc.debit.map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
+                                            <ul>${(doc.debit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
                                         </div>
                                         <div class="account-box bg-green-50 text-green-800">
                                             <h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4>
-                                            <ul>${doc.credit.map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
+                                            <ul>${(doc.credit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
                                         </div>
                                     </div>
                                 </div>
@@ -182,32 +188,26 @@
                         `;
                     });
                 } else {
-                    contentHTML += `<p class="text-center text-slate-500 py-8">دیتابیس این بخش در حال آماده‌سازی است و به زودی تکمیل خواهد شد.</p>`;
+                    contentHTML += `<p class="text-center text-slate-500 py-8">هنوز سندی برای این دسته ثبت نشده است. این بخش به زودی تکمیل خواهد شد.</p>`;
                 }
                 contentHTML += `</div></div>`;
                 viewer.innerHTML = contentHTML;
-                viewer.classList.add('open');
-                viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 addEventListenersToViewer();
             }
             
             function addEventListenersToViewer() {
                 document.querySelectorAll('.accordion-header').forEach(header => {
                     header.addEventListener('click', () => {
-                        const content = header.nextElementSibling;
-                        const icon = header.querySelector('i');
-                        content.classList.toggle('open');
-                        icon.classList.toggle('rotate-180');
+                        header.nextElementSibling.classList.toggle('open');
+                        header.querySelector('i').classList.toggle('rotate-180');
                     });
                 });
-
                 const searchBar = document.querySelector('.search-bar');
                 if (searchBar) {
                     searchBar.addEventListener('input', (e) => {
-                        const searchTerm = e.target.value.toLowerCase();
+                        const searchTerm = e.target.value.toLowerCase().trim();
                         document.querySelectorAll('.document-item').forEach(item => {
-                            const description = item.querySelector('h3').textContent.toLowerCase();
-                            item.style.display = description.includes(searchTerm) ? 'block' : 'none';
+                            item.style.display = item.querySelector('h3').textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none';
                         });
                     });
                 }
@@ -221,23 +221,23 @@
                     if (serviceCardTag) serviceCardTag.classList.add('hidden');
                     
                     serviceCard.onclick = () => {
-                        renderDocuments(documentsData.service, 'اسناد حسابداری شرکت‌های خدماتی');
+                        renderDocuments(serviceCard.dataset.typeId, serviceCard.dataset.title);
                     };
                 } else {
                     authPrompt.classList.remove('hidden');
                     serviceCard.classList.add('locked');
                     serviceCard.classList.remove('unlocked');
                     if (serviceCardTag) serviceCardTag.classList.remove('hidden');
-                    serviceCard.onclick = () => {
-                        window.location.href = 'login.html';
-                    };
+                    serviceCard.onclick = () => { window.location.href = 'login.html'; };
                 }
             });
 
             lockedCards.forEach(card => {
-                card.onclick = () => {
-                    alert("برای دسترسی به این بخش نیاز به اشتراک ویژه دارید. این قابلیت به زودی اضافه خواهد شد!");
-                };
+                if (card.id !== 'service-card') {
+                    card.onclick = () => {
+                        alert("برای دسترسی به این بخش نیاز به اشتراک ویژه دارید. این قابلیت به زودی اضافه خواهد شد!");
+                    };
+                }
             });
         });
     </script>

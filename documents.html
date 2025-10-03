@@ -24,11 +24,12 @@
         
         .card {
             background: white; border-radius: 1rem; padding: 2rem; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.07); transition: transform 0.3s, box-shadow 0.3s;
-            position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.07); transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            position: relative; overflow: hidden; border: 2px solid transparent;
         }
         .card.unlocked { cursor: pointer; }
         .card.unlocked:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .card.active { border-color: var(--gold); transform: translateY(-8px); box-shadow: 0 15px 35px rgba(196, 152, 39, 0.2); }
         .card.locked { filter: grayscale(80%); opacity: 0.7; cursor: not-allowed; }
         .card-icon { font-size: 3.5rem; margin-bottom: 1rem; color: var(--gold); }
         .lock-overlay {
@@ -36,15 +37,7 @@
             color: white; border-radius: 50%; width: 40px; height: 40px;
             display: flex; align-items: center; justify-content: center;
         }
-        #document-viewer {
-            max-height: 0; overflow: hidden;
-            transition: max-height 0.7s ease-in-out, opacity 0.5s ease, margin-top 0.7s ease;
-            opacity: 0; margin-top: 0;
-        }
-        #document-viewer.open {
-            max-height: 5000px; /* Increased max-height for more content */
-            opacity: 1; margin-top: 3rem;
-        }
+        #document-viewer { transition: opacity 0.5s ease; }
         .accordion-header { cursor: pointer; transition: background-color 0.2s; }
         .accordion-header:hover { background-color: #f8fafc; }
         .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
@@ -86,10 +79,10 @@
 
     <main class="container mx-auto p-6 mt-8">
         <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-4">بانک اسناد حسابداری</h1>
-        <p id="auth-prompt" class="text-center text-slate-500 mb-12 hidden">برای دسترسی به اسناد رایگان، لطفاً <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
+        <p id="auth-prompt" class="text-center text-slate-500 mb-12">برای دسترسی به اسناد رایگان، لطفاً <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div data-type-id="1" data-title="اسناد حسابداری شرکت‌های خدماتی" id="service-card" class="card locked">
+            <div data-type-id="1" data-title="اسناد حسابداری شرکت‌های خدماتی" id="service-card" class="card">
                 <i class="fas fa-concierge-bell card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های خدماتی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد رایج در شرکت‌های ارائه‌دهنده خدمات.</p>
@@ -118,11 +111,10 @@
             </div>
         </div>
 
-        <div id="document-viewer"></div>
+        <div id="document-viewer" class="mt-12"></div>
     </main>
 
     <script>
-        // --- START: CORRECTED SCRIPT STRUCTURE ---
         document.addEventListener('DOMContentLoaded', () => {
             // --- SUPABASE & AUTH SETUP ---
             const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
@@ -130,102 +122,82 @@
             const { createClient } = supabase;
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
             
-            // --- ELEMENT SELECTION (Now safely inside DOMContentLoaded) ---
-            const loginBtn = document.getElementById('login-btn');
-            const userMenu = document.getElementById('user-menu');
-            const profileToggleBtn = document.getElementById('profile-toggle-btn');
-            const dropdownMenu = document.getElementById('dropdown-menu');
-            const logoutBtn = document.getElementById('logout-btn');
-            const authPrompt = document.getElementById('auth-prompt');
-            const serviceCard = document.getElementById('service-card');
-            const lockedCards = document.querySelectorAll('.card.locked');
-            const viewer = document.getElementById('document-viewer');
-
+            // --- ELEMENT SELECTION ---
+            const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn'), authPrompt = document.getElementById('auth-prompt'), cards = document.querySelectorAll('.card'), viewer = document.getElementById('document-viewer');
+            
             // --- HEADER UI LOGIC ---
-            if(profileToggleBtn){
-                profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
-            }
+            if(profileToggleBtn){ profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); }); }
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-            if(logoutBtn){
-                logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });
-            }
+            if(logoutBtn){ logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); }); }
 
             // --- DOCUMENT VIEWER LOGIC ---
-            async function renderDocuments(typeId, title) {
-                viewer.innerHTML = `<div class="text-center py-12"><i class="fas fa-spinner fa-spin text-4xl text-[var(--gold)]"></i><p class="mt-4">در حال بارگذاری اسناد...</p></div>`;
-                viewer.classList.add('open');
-                viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                const { data, error } = await _supabase.rpc('get_documents_by_type', { p_type_id: typeId });
+            async function searchAndRender(typeId, searchTerm) {
+                const resultsContainer = document.getElementById('document-list');
+                if (!resultsContainer) return;
+                resultsContainer.innerHTML = `<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-slate-400"></i></div>`;
                 
-                if (error) {
-                    viewer.innerHTML = `<div class="bg-white p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)] text-center text-red-500 py-8">خطا در دریافت اطلاعات. لطفاً بعداً تلاش کنید.</div>`;
-                    return;
-                }
+                const { data, error } = await _supabase.rpc('search_documents', { p_type_id: typeId, p_search_term: searchTerm });
 
-                let contentHTML = `
-                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
-                        <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
-                        <div class="relative mb-6">
-                            <input type="search" class="search-bar w-full p-4 pl-12 text-lg bg-slate-100 border-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gold)] focus:border-[var(--gold)]" placeholder="جستجو در شرح اسناد...">
-                            <i class="fas fa-search absolute top-1/2 left-4 -translate-y-1/2 text-slate-500 text-xl"></i>
-                        </div>
-                        <div class="space-y-2 document-list">
-                `;
+                if (error) { resultsContainer.innerHTML = `<p class="text-center text-red-500 py-8">خطا در جستجو.</p>`; return; }
+
                 if (data && data.length > 0) {
-                    data.forEach(doc => {
-                        contentHTML += `
-                            <div class="document-item border rounded-lg overflow-hidden bg-white">
-                                <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
-                                    <h3 class="font-semibold text-slate-800">${doc.description}</h3>
-                                    <i class="fas fa-chevron-down transition-transform duration-300"></i>
-                                </div>
-                                <div class="accordion-content">
-                                    <div class="p-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div class="account-box bg-red-50 text-red-800">
-                                            <h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4>
-                                            <ul>${(doc.debit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
-                                        </div>
-                                        <div class="account-box bg-green-50 text-green-800">
-                                            <h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4>
-                                            <ul>${(doc.credit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul>
-                                        </div>
-                                    </div>
+                    resultsContainer.innerHTML = data.map(doc => `
+                        <div class="document-item border rounded-lg overflow-hidden bg-white">
+                            <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
+                                <h3 class="font-semibold text-slate-800">${doc.description}</h3>
+                                <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="account-box bg-red-50 text-red-800"><h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4><ul>${(doc.debit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
+                                    <div class="account-box bg-green-50 text-green-800"><h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4><ul>${(doc.credit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
                                 </div>
                             </div>
-                        `;
-                    });
+                        </div>`).join('');
                 } else {
-                    contentHTML += `<p class="text-center text-slate-500 py-8">هنوز سندی برای این دسته ثبت نشده است.</p>`;
+                    resultsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">هیچ سندی با این مشخصات یافت نشد.</p>`;
                 }
-                contentHTML += `</div></div>`;
-                viewer.innerHTML = contentHTML;
-                addEventListenersToViewer();
-            }
-            
-            function addEventListenersToViewer() {
+                
                 document.querySelectorAll('.accordion-header').forEach(header => {
                     header.addEventListener('click', () => {
                         header.nextElementSibling.classList.toggle('open');
                         header.querySelector('i').classList.toggle('rotate-180');
                     });
                 });
-                const searchBar = document.querySelector('.search-bar');
-                if (searchBar) {
-                    searchBar.addEventListener('input', (e) => {
-                        const searchTerm = e.target.value.toLowerCase().trim();
-                        document.querySelectorAll('.document-item').forEach(item => {
-                            item.style.display = item.querySelector('h3').textContent.toLowerCase().includes(searchTerm) ? 'block' : 'none';
-                        });
-                    });
-                }
             }
 
-            // --- SINGLE AUTH STATE CHANGE LISTENER ---
-            _supabase.auth.onAuthStateChange((event, session) => {
-                const serviceCardTag = document.getElementById('service-card-tag');
+            function showSearchInterface(typeId, title) {
+                cards.forEach(c => c.classList.remove('active'));
+                document.querySelector(`[data-type-id="${typeId}"]`).classList.add('active');
                 
-                // Update Header
+                viewer.innerHTML = `
+                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
+                        <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
+                        <div class="relative mb-6">
+                            <input type="search" id="search-bar" class="w-full p-4 pl-12 text-lg bg-slate-100 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gold)] focus:border-[var(--gold)]" placeholder="کلمه‌ای کلیدی مانند 'خرید' یا 'شرکا' را جستجو کنید...">
+                            <i class="fas fa-search absolute top-1/2 left-4 -translate-y-1/2 text-slate-500 text-xl"></i>
+                        </div>
+                        <p class="text-center text-sm text-slate-400 mb-6">با تایپ کردن، نتایج به صورت خودکار نمایش داده می‌شوند.</p>
+                        <div id="document-list" class="space-y-2"></div>
+                    </div>
+                `;
+                viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                const searchBar = document.getElementById('search-bar');
+                let debounceTimer;
+                searchBar.addEventListener('input', (e) => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        searchAndRender(typeId, e.target.value);
+                    }, 300);
+                });
+                // Initial empty search to show message if needed
+                searchAndRender(typeId, '');
+            }
+
+            // --- AUTH STATE CHANGE HANDLER ---
+            _supabase.auth.onAuthStateChange((event, session) => {
+                // Update Header UI
                 if (session && session.user) {
                     loginBtn.classList.add('hidden');
                     userMenu.classList.remove('hidden');
@@ -233,35 +205,31 @@
                     loginBtn.classList.remove('hidden');
                     userMenu.classList.add('hidden');
                 }
+                
+                // Update Cards UI
+                cards.forEach(card => {
+                    const typeId = card.dataset.typeId;
+                    const title = card.dataset.title;
+                    const isFree = card.id === 'service-card';
+                    const tag = card.querySelector('span');
 
-                // Update Document Cards
-                if (session && session.user) {
-                    authPrompt.classList.add('hidden');
-                    serviceCard.classList.remove('locked');
-                    serviceCard.classList.add('unlocked');
-                    if (serviceCardTag) serviceCardTag.classList.add('hidden');
-                    
-                    serviceCard.onclick = () => {
-                        renderDocuments(serviceCard.dataset.typeId, serviceCard.dataset.title);
-                    };
-                } else {
-                    authPrompt.classList.remove('hidden');
-                    serviceCard.classList.add('locked');
-                    serviceCard.classList.remove('unlocked');
-                    if (serviceCardTag) serviceCardTag.classList.remove('hidden');
-                    serviceCard.onclick = () => { window.location.href = 'login.html'; };
-                }
-            });
-
-            lockedCards.forEach(card => {
-                if (card.id !== 'service-card') {
-                    card.onclick = () => {
-                        alert("برای دسترسی به این بخش نیاز به اشتراک ویژه دارید. این قابلیت به زودی اضافه خواهد شد!");
-                    };
-                }
+                    if (session && session.user && isFree) {
+                        card.classList.remove('locked');
+                        card.classList.add('unlocked');
+                        if (tag) tag.style.display = 'none';
+                        card.onclick = () => showSearchInterface(typeId, title);
+                    } else if (!isFree) {
+                        card.onclick = () => alert("برای دسترسی به این بخش نیاز به اشتراک ویژه دارید.");
+                    } else {
+                        card.classList.add('locked');
+                        card.classList.remove('unlocked');
+                        if (tag) tag.style.display = 'inline-block';
+                        card.onclick = () => { window.location.href = 'login.html'; };
+                    }
+                });
+                authPrompt.style.display = (session && session.user) ? 'none' : 'block';
             });
         });
-        // --- END: CORRECTED SCRIPT STRUCTURE ---
     </script>
 </body>
 </html>

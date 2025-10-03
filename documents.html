@@ -186,7 +186,7 @@
                 document.querySelector(`[data-type-id="${typeId}"]`).classList.add('active');
                 
                 viewer.innerHTML = `
-                    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
+                    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
                         <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
                         <div class="relative mb-6">
                             <input type="search" id="search-bar" class="w-full p-4 pl-12 text-lg bg-slate-100 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gold)] focus:border-[var(--gold)]" placeholder="کلمه‌ای کلیدی مانند 'خرید' یا 'شرکا' را جستجو کنید...">
@@ -205,10 +205,10 @@
                     clearTimeout(debounceTimer);
                     const searchTerm = e.target.value.trim();
                     
-                    if (searchTerm.length > 1) { // Only search if user types 2 or more characters
+                    if (searchTerm.length > 1) {
                         debounceTimer = setTimeout(() => {
                             searchAndRender(typeId, searchTerm);
-                        }, 300); // Wait 300ms after user stops typing
+                        }, 300);
                     } else if (searchTerm.length === 0) {
                         const resultsContainer = document.getElementById('document-list');
                         resultsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">برای مشاهده اسناد، شروع به تایپ در کادر جستجو کنید.</p>`;

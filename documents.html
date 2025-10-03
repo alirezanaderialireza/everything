@@ -130,13 +130,22 @@
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
             if(logoutBtn){ logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); }); }
 
+            // --- START: NEW UTILITY FUNCTION ---
+            function normalizePersian(str) {
+                if (!str) return '';
+                return str.replace(/ي/g, 'ی').replace(/ك/g, 'ک');
+            }
+            // --- END: NEW UTILITY FUNCTION ---
+
             // --- DOCUMENT VIEWER LOGIC ---
             async function searchAndRender(typeId, searchTerm) {
                 const resultsContainer = document.getElementById('document-list');
                 if (!resultsContainer) return;
                 resultsContainer.innerHTML = `<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-slate-400"></i></div>`;
                 
-                const { data, error } = await _supabase.rpc('search_documents', { p_type_id: typeId, p_search_term: searchTerm });
+                // Use the normalized search term to call the database function
+                const normalizedSearchTerm = normalizePersian(searchTerm);
+                const { data, error } = await _supabase.rpc('search_documents', { p_type_id: typeId, p_search_term: normalizedSearchTerm });
 
                 if (error) { resultsContainer.innerHTML = `<p class="text-center text-red-500 py-8">خطا در جستجو.</p>`; return; }
 
@@ -177,8 +186,9 @@
                             <input type="search" id="search-bar" class="w-full p-4 pl-12 text-lg bg-slate-100 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gold)] focus:border-[var(--gold)]" placeholder="کلمه‌ای کلیدی مانند 'خرید' یا 'شرکا' را جستجو کنید...">
                             <i class="fas fa-search absolute top-1/2 left-4 -translate-y-1/2 text-slate-500 text-xl"></i>
                         </div>
-                        <p class="text-center text-sm text-slate-400 mb-6">با تایپ کردن، نتایج به صورت خودکار نمایش داده می‌شوند.</p>
-                        <div id="document-list" class="space-y-2"></div>
+                        <div id="document-list" class="space-y-2">
+                            <p class="text-center text-slate-500 py-8">برای مشاهده اسناد، شروع به تایپ در کادر جستجو کنید.</p>
+                        </div>
                     </div>
                 `;
                 viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -187,12 +197,17 @@
                 let debounceTimer;
                 searchBar.addEventListener('input', (e) => {
                     clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        searchAndRender(typeId, e.target.value);
-                    }, 300);
+                    const searchTerm = e.target.value.trim();
+                    
+                    if (searchTerm.length > 1) {
+                        debounceTimer = setTimeout(() => {
+                            searchAndRender(typeId, searchTerm);
+                        }, 300);
+                    } else if (searchTerm.length === 0) {
+                        const resultsContainer = document.getElementById('document-list');
+                        resultsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">برای مشاهده اسناد، شروع به تایپ در کادر جستجو کنید.</p>`;
+                    }
                 });
-                // Initial empty search to show message if needed
-                searchAndRender(typeId, '');
             }
 
             // --- AUTH STATE CHANGE HANDLER ---
@@ -207,6 +222,8 @@
                 }
                 
                 // Update Cards UI
+                authPrompt.style.display = (session && session.user) ? 'none' : 'block';
+
                 cards.forEach(card => {
                     const typeId = card.dataset.typeId;
                     const title = card.dataset.title;
@@ -227,7 +244,6 @@
                         card.onclick = () => { window.location.href = 'login.html'; };
                     }
                 });
-                authPrompt.style.display = (session && session.user) ? 'none' : 'block';
             });
         });
     </script>

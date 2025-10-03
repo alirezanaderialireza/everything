@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,50 +8,153 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
-            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
-            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+            --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --gold: #c49827;
+            --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
         }
-        body { font-family: var(--font-body); background-color: var(--slate-100); }
-        h1, h2, .font-display { font-family: var(--font-display); }
-        .main-header { background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #e2e8f0; }
-        .nav-link { transition: color 0.3s ease; color: var(--slate-800); font-weight: 500; position: relative; padding-bottom: 4px; }
-        .nav-link:hover { color: var(--navy); }
-        .btn-gold { background-color: var(--gold); color: var(--navy); transition: all 0.3s; border-radius: 0.5rem; font-weight: 600; }
-        .btn-gold:hover { background-color: #b98d1e; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--slate-100);
+        }
+
+        h1,
+        h2,
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .main-header {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-link {
+            transition: color 0.3s ease;
+            color: var(--slate-800);
+            font-weight: 500;
+            position: relative;
+            padding-bottom: 4px;
+        }
+
+        .nav-link:hover {
+            color: var(--navy);
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: var(--navy);
+            transition: all 0.3s;
+            border-radius: 0.5rem;
+            font-weight: 600;
+        }
+
+        .btn-gold:hover {
+            background-color: #b98d1e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
         .card {
-            background: white; border-radius: 1rem; padding: 2rem; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.07); transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-            position: relative; overflow: hidden; border: 2px solid transparent;
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
         }
-        .card.unlocked { cursor: pointer; }
-        .card.unlocked:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-        .card.active { border-color: var(--gold); transform: translateY(-8px); box-shadow: 0 15px 35px rgba(196, 152, 39, 0.2); }
-        .card.locked { filter: grayscale(80%); opacity: 0.7; cursor: not-allowed; }
-        .card-icon { font-size: 3.5rem; margin-bottom: 1rem; color: var(--gold); }
+
+        .card.unlocked {
+            cursor: pointer;
+        }
+
+        .card.unlocked:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .card.active {
+            border-color: var(--gold);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(196, 152, 39, 0.2);
+        }
+
+        .card.locked {
+            filter: grayscale(80%);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--gold);
+        }
+
         .lock-overlay {
-            position: absolute; top: 1rem; left: 1rem; background-color: rgba(0,0,0,0.6);
-            color: white; border-radius: 50%; width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        #document-viewer { transition: opacity 0.5s ease; }
-        .accordion-header { cursor: pointer; transition: background-color 0.2s; }
-        .accordion-header:hover { background-color: #f8fafc; }
-        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
-        .accordion-content.open { max-height: 500px; }
-        .account-box { border-radius: 0.5rem; padding: 1rem; }
+
+        #document-viewer {
+            transition: opacity 0.5s ease;
+        }
+
+        .accordion-header {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .accordion-header:hover {
+            background-color: #f8fafc;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .accordion-content.open {
+            max-height: 500px;
+        }
+
+        .account-box {
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
     </style>
 </head>
+
 <body class="bg-slate-100">
 
     <header class="main-header sticky top-0 z-50">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو" class="w-10 h-10 rounded-full">
+                <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو"
+                    class="w-10 h-10 rounded-full">
                 <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
             </div>
             <div class="hidden md:flex items-center space-x-10 space-x-reverse">
@@ -65,12 +169,16 @@
                     <span>ورود / ثبت‌نام</span>
                 </a>
                 <div id="user-menu" class="hidden">
-                    <button id="profile-toggle-btn" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
+                    <button id="profile-toggle-btn"
+                        class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
                         <i class="fa-solid fa-user text-slate-600"></i>
                     </button>
-                    <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
-                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
+                    <div id="dropdown-menu"
+                        class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات
+                            پروفایل</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج
+                            از حساب</a>
                     </div>
                 </div>
             </div>
@@ -79,14 +187,18 @@
 
     <main class="container mx-auto p-6 mt-8">
         <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-4">بانک اسناد حسابداری</h1>
-        <p id="auth-prompt" class="text-center text-slate-500 mb-12">برای دسترسی به اسناد رایگان، لطفاً <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
+        <p id="auth-prompt" class="text-center text-slate-500 mb-12">برای دسترسی به اسناد رایگان، لطفاً <a
+                href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a
+                href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div data-type-id="1" data-title="اسناد حسابداری شرکت‌های خدماتی" id="service-card" class="card">
                 <i class="fas fa-concierge-bell card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های خدماتی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد رایج در شرکت‌های ارائه‌دهنده خدمات.</p>
-                <span id="service-card-tag" class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با ثبت‌نام)</span>
+                <span id="service-card-tag"
+                    class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با
+                    ثبت‌نام)</span>
             </div>
             <div data-type-id="2" data-title="اسناد حسابداری شرکت‌های بازرگانی" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
@@ -121,20 +233,37 @@
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
             const { createClient } = supabase;
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
-            
+
             // --- ELEMENT SELECTION ---
             const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn'), authPrompt = document.getElementById('auth-prompt'), cards = document.querySelectorAll('.card'), viewer = document.getElementById('document-viewer');
-            
+
             // --- HEADER UI LOGIC ---
-            if(profileToggleBtn){ profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); }); }
+            if (profileToggleBtn) { profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); }); }
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-            if(logoutBtn){ logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); }); }
+            if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); }); }
 
             // --- START: NEW UTILITY FUNCTION ---
             function normalizePersian(str) {
                 if (!str) return '';
                 return str.replace(/ي/g, 'ی').replace(/ك/g, 'ک');
             }
+            // --- START: NEW UTILITY FUNCTION ---
+            // این تابع کلمه جستجو شده را در متن پیدا کرده و آن را برجسته می‌کند
+            function highlightText(text, searchTerm) {
+                if (!searchTerm || !text) {
+                    return text; // اگر متن یا کلمه جستجو خالی بود، متن اصلی را برگردان
+                }
+                // هر دو متن را نرمال‌سازی می‌کنیم تا جستجو هوشمند باشد
+                const normalizedText = normalizePersian(text);
+                const normalizedSearchTerm = normalizePersian(searchTerm);
+
+                // با استفاده از یک عبارت منظم، کلمه جستجو شده را بدون حساسیت به حروف بزرگ و کوچک پیدا می‌کنیم
+                const regex = new RegExp(`(${normalizedSearchTerm})`, 'gi');
+
+                // کلمه پیدا شده را با یک تگ <strong> که استایل دارد، جایگزین می‌کنیم
+                return normalizedText.replace(regex, `<strong class="text-[var(--navy)] bg-yellow-200 px-1 rounded">$1</strong>`);
+            }
+            // --- END: NEW UTILITY FUNCTION ---
             // --- END: NEW UTILITY FUNCTION ---
 
             // --- DOCUMENT VIEWER LOGIC ---
@@ -142,7 +271,7 @@
                 const resultsContainer = document.getElementById('document-list');
                 if (!resultsContainer) return;
                 resultsContainer.innerHTML = `<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-slate-400"></i></div>`;
-                
+
                 // Use the normalized search term to call the database function
                 const normalizedSearchTerm = normalizePersian(searchTerm);
                 const { data, error } = await _supabase.rpc('search_documents', { p_type_id: typeId, p_search_term: normalizedSearchTerm });
@@ -153,7 +282,8 @@
                     resultsContainer.innerHTML = data.map(doc => `
                         <div class="document-item border rounded-lg overflow-hidden bg-white">
                             <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
-                                <h3 class="font-semibold text-slate-800">${doc.description}</h3>
+                                // این خط را جایگزین خط بالا کنید
+<h3 class="font-semibold text-slate-800">${highlightText(doc.description, searchTerm)}</h3>
                                 <i class="fas fa-chevron-down transition-transform duration-300"></i>
                             </div>
                             <div class="accordion-content">
@@ -166,7 +296,7 @@
                 } else {
                     resultsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">هیچ سندی با این مشخصات یافت نشد.</p>`;
                 }
-                
+
                 document.querySelectorAll('.accordion-header').forEach(header => {
                     header.addEventListener('click', () => {
                         header.nextElementSibling.classList.toggle('open');
@@ -178,7 +308,7 @@
             function showSearchInterface(typeId, title) {
                 cards.forEach(c => c.classList.remove('active'));
                 document.querySelector(`[data-type-id="${typeId}"]`).classList.add('active');
-                
+
                 viewer.innerHTML = `
                     <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
                         <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
@@ -198,7 +328,7 @@
                 searchBar.addEventListener('input', (e) => {
                     clearTimeout(debounceTimer);
                     const searchTerm = e.target.value.trim();
-                    
+
                     if (searchTerm.length > 1) {
                         debounceTimer = setTimeout(() => {
                             searchAndRender(typeId, searchTerm);
@@ -220,7 +350,7 @@
                     loginBtn.classList.remove('hidden');
                     userMenu.classList.add('hidden');
                 }
-                
+
                 // Update Cards UI
                 authPrompt.style.display = (session && session.user) ? 'none' : 'block';
 
@@ -248,5 +378,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>

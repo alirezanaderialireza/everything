@@ -27,7 +27,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.07); transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
             position: relative; overflow: hidden; border: 2px solid transparent; cursor: pointer;
         }
-        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .card.unlocked:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .card.active { border-color: var(--gold); transform: translateY(-8px); box-shadow: 0 15px 35px rgba(196, 152, 39, 0.2); }
         .card-icon { font-size: 3.5rem; margin-bottom: 1rem; color: var(--gold); }
         .lock-overlay {
@@ -113,7 +113,7 @@
 
         <div id="document-viewer" class="mt-12"></div>
     </main>
-
+    
     <div id="payment-modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden opacity-0">
         <div id="payment-modal" class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform scale-95 opacity-0">
             <i class="fas fa-gem text-5xl text-[var(--gold)] mb-4"></i>
@@ -130,17 +130,21 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- SUPABASE & AUTH SETUP ---
             const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
             const { createClient } = supabase;
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
             
+            // --- ELEMENT SELECTION ---
             const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn'), authPrompt = document.getElementById('auth-prompt'), cards = document.querySelectorAll('.card'), viewer = document.getElementById('document-viewer');
             
+            // --- HEADER UI LOGIC ---
             if(profileToggleBtn){ profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); }); }
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
             if(logoutBtn){ logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); }); }
-
+            
+            // --- PAYMENT MODAL LOGIC ---
             const paymentOverlay = document.getElementById('payment-modal-overlay'), paymentModal = document.getElementById('payment-modal'), closeModalBtn = document.getElementById('close-modal-btn'), purchaseBtn = document.getElementById('purchase-btn'), modalTitle = document.getElementById('modal-title'), modalPrice = document.getElementById('modal-price');
             let currentPurchaseTypeId = null;
 
@@ -160,6 +164,7 @@
             paymentOverlay.addEventListener('click', (e) => { if (e.target === paymentOverlay) closeModal(); });
             purchaseBtn.addEventListener('click', () => { alert(`در حال انتقال به درگاه پرداخت برای محصول شماره ${currentPurchaseTypeId}... (نیازمند بک‌اند)`); });
 
+            // --- UTILITY FUNCTIONS ---
             function normalizePersian(str) { if (!str) return ''; return str.replace(/ي/g, 'ی').replace(/ك/g, 'ک'); }
             function highlightText(text, searchTerm) { if (!searchTerm || !text) return text; const normText = normalizePersian(text); const normSearch = normalizePersian(searchTerm); const regex = new RegExp(`(${normSearch})`, 'gi'); return normText.replace(regex, `<strong class="text-[var(--navy)] bg-yellow-200 px-1 rounded">$1</strong>`); }
 
@@ -191,7 +196,7 @@
                     });
                 });
             }
-
+            
             async function renderAllDocuments(typeId) {
                 const detailsContainer = document.getElementById('document-details');
                 if (!detailsContainer) return;
@@ -254,22 +259,24 @@
                     const hasAccess = (session && session.user && isFree) || purchasedIds.includes(typeId);
 
                     if (hasAccess) {
-                        card.classList.remove('locked'); card.classList.add('unlocked');
+                        card.classList.remove('locked');
+                        card.classList.add('unlocked');
                         if (lockOverlay) lockOverlay.style.display = 'none';
                         if (purchaseButton) purchaseButton.style.display = 'none';
                         if (tag && isFree) tag.style.display = 'none';
                         card.onclick = () => showSearchInterface(typeId, title);
                     } else {
-                        card.classList.add('locked'); card.classList.remove('unlocked');
-                        if (lockOverlay) lockOverlay.style.display = 'flex';
                         if (purchaseButton) purchaseButton.style.display = 'block';
+                        if (lockOverlay) lockOverlay.style.display = 'flex';
                         if (tag && isFree) tag.style.display = 'inline-block';
                         
-                        if (!session || !session.user) {
-                             card.onclick = () => { window.location.href = 'login.html'; };
-                        } else {
-                             card.onclick = () => openModal(title, price, typeId);
-                        }
+                        card.onclick = () => {
+                            if (!session || !session.user) {
+                                 window.location.href = 'login.html';
+                            } else {
+                                 openModal(title, price, typeId);
+                            }
+                        };
                     }
                 });
             });

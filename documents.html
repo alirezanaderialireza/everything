@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -54,10 +54,12 @@
                 <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
             </div>
             <div class="hidden md:flex items-center space-x-10 space-x-reverse">
-                <a href="index.html" class="nav-link">نقشه راه</a>
+                <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
+                <a href="documents.html" class="nav-link">اسناد حسابداری</a> <!-- این خط جدید است -->
                 <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
                 <a href="calculator.html" class="nav-link">ماشین حساب</a>
-                <a href="documents.html" class="nav-link">اسناد حسابداری</a>
+                <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
+                <a href="index.html#about" class="nav-link">درباره من</a>
             </div>
             <div id="profile-section" class="relative">
                 <a href="login.html" id="login-btn" class="btn-gold flex items-center justify-center gap-2 px-4 py-2">
@@ -182,6 +184,40 @@
                     });
                 });
             }
+            
+            async function renderAllDocuments(typeId) {
+                const detailsContainer = document.getElementById('document-details');
+                detailsContainer.innerHTML = `<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-slate-400"></i></div>`;
+
+                const { data, error } = await _supabase.rpc('get_documents_by_type', { p_type_id: typeId });
+
+                if (error || !data || data.length === 0) {
+                    detailsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">هیچ سندی یافت نشد.</p>`;
+                    return;
+                }
+                
+                detailsContainer.innerHTML = `<div class="space-y-2 mt-6 border-t pt-6">${data.map(doc => `
+                    <div class="document-item border rounded-lg overflow-hidden bg-white">
+                        <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
+                            <h3 class="font-semibold text-slate-800">${doc.description}</h3>
+                            <i class="fas fa-chevron-down transition-transform duration-300"></i>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="p-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="account-box bg-red-50 text-red-800"><h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4><ul>${(doc.debit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
+                                <div class="account-box bg-green-50 text-green-800"><h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4><ul>${(doc.credit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}</div>`;
+
+                document.querySelectorAll('.accordion-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        header.nextElementSibling.classList.toggle('open');
+                        header.querySelector('i').classList.toggle('rotate-180');
+                    });
+                });
+            }
 
             function showSearchInterface(typeId, title) {
                 cards.forEach(c => c.classList.remove('active'));
@@ -197,19 +233,31 @@
                             </div>
                             <div id="search-suggestions" class="absolute top-full left-0 right-0 bg-white border border-t-0 rounded-b-lg shadow-lg z-10 hidden max-h-64 overflow-y-auto"></div>
                         </div>
+                        <div class="text-center my-4">
+                            <span class="text-sm text-slate-400">یا</span>
+                            <button id="show-all-btn" class="text-[var(--gold)] font-semibold hover:underline px-2">نمایش همه اسناد</button>
+                        </div>
                         <div id="document-details" class="mt-4"></div>
                     </div>
                 `;
                 viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                 const searchBar = document.getElementById('search-bar');
+                const showAllBtn = document.getElementById('show-all-btn');
                 let debounceTimer;
+
                 searchBar.addEventListener('input', (e) => {
                     clearTimeout(debounceTimer);
                     document.getElementById('document-details').innerHTML = '';
                     debounceTimer = setTimeout(() => {
                         fetchAndShowSuggestions(typeId, e.target.value);
                     }, 300);
+                });
+
+                showAllBtn.addEventListener('click', () => {
+                    document.getElementById('search-suggestions').classList.add('hidden');
+                    searchBar.value = '';
+                    renderAllDocuments(typeId);
                 });
             }
 

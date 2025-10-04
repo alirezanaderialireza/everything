@@ -99,13 +99,13 @@
         }
         
         .card.purchased {
-            border-color: #16a34a; /* green-600 */
+            border-color: var(--gold);
             filter: grayscale(0);
             opacity: 1;
         }
 
         .card.purchased .card-icon {
-            color: #16a34a;
+            color: var(--gold);
         }
 
         .card-icon {
@@ -179,29 +179,23 @@
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
-
-        .btn-purchase {
-            background-color: #16a34a; /* green-600 */
-            color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
-            animation: pulse 2s infinite;
+        
+        .purchase-animation {
+            animation: pulse-gold 2s infinite;
         }
-        .btn-purchase:hover {
-            background-color: #15803d; /* green-700 */
+
+        .purchase-animation:hover {
             animation-play-state: paused;
         }
-
-        @keyframes pulse {
+        
+        @keyframes pulse-gold {
           0%, 100% {
             transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+            box-shadow: 0 0 0 0 rgba(196, 152, 39, 0.7);
           }
           70% {
             transform: scale(1.05);
-            box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
+            box-shadow: 0 0 0 10px rgba(196, 152, 39, 0);
           }
         }
 
@@ -267,21 +261,21 @@
                 <i class="fas fa-store card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های بازرگانی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به خرید، فروش و انبارداری کالا.</p>
-                <button data-price="100000" class="btn-gold btn-purchase w-full">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="3" data-title="اسناد حسابداری شرکت‌های پیمانکاری" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-hard-hat card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های پیمانکاری</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به صورت وضعیت‌ها و هزینه‌های پروژه.</p>
-                <button data-price="100000" class="btn-gold btn-purchase w-full">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="4" data-title="اسناد حسابداری شرکت‌های تولیدی" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-industry card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های تولیدی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به بهای تمام شده و جریان تولید.</p>
-                <button data-price="100000" class="btn-gold btn-purchase w-full">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
         </div>
 

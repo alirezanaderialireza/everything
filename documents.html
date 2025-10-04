@@ -97,6 +97,16 @@
             opacity: 0.7;
             cursor: not-allowed;
         }
+        
+        .card.purchased {
+            border-color: #16a34a; /* green-600 */
+            filter: grayscale(0);
+            opacity: 1;
+        }
+
+        .card.purchased .card-icon {
+            color: #16a34a;
+        }
 
         .card-icon {
             font-size: 3.5rem;
@@ -152,7 +162,6 @@
             }
         }
 
-        /* Styles for smooth accordion animation */
         .accordion-header {
             cursor: pointer;
         }
@@ -161,15 +170,41 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s ease-out, padding 0.4s ease-out;
-            padding: 0 1rem; /* No vertical padding when closed */
+            padding: 0 1rem;
         }
 
         .accordion-content.open {
-            max-height: 1000px; /* Large enough to fit content */
+            max-height: 1000px;
             transition: max-height 0.5s ease-in, padding 0.5s ease-in;
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
+
+        .btn-purchase {
+            background-color: #16a34a; /* green-600 */
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            animation: pulse 2s infinite;
+        }
+        .btn-purchase:hover {
+            background-color: #15803d; /* green-700 */
+            animation-play-state: paused;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+          }
+          70% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(22, 163, 74, 0);
+          }
+        }
+
     </style>
 </head>
 
@@ -232,21 +267,21 @@
                 <i class="fas fa-store card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های بازرگانی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به خرید، فروش و انبارداری کالا.</p>
-                <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
+                <button data-price="100000" class="btn-gold btn-purchase w-full">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="3" data-title="اسناد حسابداری شرکت‌های پیمانکاری" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-hard-hat card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های پیمانکاری</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به صورت وضعیت‌ها و هزینه‌های پروژه.</p>
-                <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
+                <button data-price="100000" class="btn-gold btn-purchase w-full">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="4" data-title="اسناد حسابداری شرکت‌های تولیدی" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-industry card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های تولیدی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به بهای تمام شده و جریان تولید.</p>
-                <button class="btn-gold px-6 py-2">فعالسازی اشتراک</button>
+                <button data-price="100000" class="btn-gold btn-purchase w-full">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
         </div>
 
@@ -271,10 +306,35 @@
 
             let searchResults = [];
 
+            async function handlePurchase(typeId, title, price) {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) {
+                    alert('برای خرید ابتدا باید وارد حساب کاربری خود شوید.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                const confirmed = confirm(`آیا مایل به خرید مجموعه "${title}" با قیمت ${price.toLocaleString('fa-IR')} تومان هستید؟\n(در مرحله بعد به درگاه پرداخت زرین‌پال متصل خواهید شد)`);
+                if (confirmed) {
+                    // TODO: Redirect to Zarinpal in the next step
+                    // For now, we simulate a successful payment and update the database.
+                    const { error } = await _supabase
+                        .from('user_purchases')
+                        .insert({ user_id: user.id, document_type_id: typeId });
+
+                    if (error) {
+                        if (error.code === '23505') { alert('شما قبلاً این مجموعه را خریداری کرده‌اید.'); } 
+                        else { alert('خطایی در ثبت خرید رخ داد: ' + error.message); }
+                    } else {
+                        alert('خرید شما با موفقیت ثبت شد!');
+                        const { data: { session } } = await _supabase.auth.getSession();
+                        updateCardsUI(session); // Refresh UI
+                    }
+                }
+            }
+
             function renderSingleDocument(doc) {
                 const detailsContainer = document.getElementById('document-details');
                 if (!detailsContainer) return;
-
                 detailsContainer.innerHTML = `
                     <div class="fade-in mt-6 border-t pt-6">
                         <h3 class="font-semibold text-lg text-slate-800 mb-4">${doc.description}</h3>
@@ -282,8 +342,7 @@
                             <div class="account-box bg-red-50 text-red-800"><h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4><ul>${(doc.debit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
                             <div class="account-box bg-green-50 text-green-800"><h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4><ul>${(doc.credit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }
 
             async function fetchAndShowSuggestions(typeId, searchTerm) {
@@ -293,24 +352,19 @@
                     suggestionsContainer.classList.add('hidden');
                     return;
                 }
-
                 const normalizedSearchTerm = normalizePersian(searchTerm);
                 const { data, error } = await _supabase.rpc('search_documents', { p_type_id: typeId, p_search_term: normalizedSearchTerm });
-
                 if (error || !data || data.length === 0) {
                     suggestionsContainer.innerHTML = `<div class="p-3 text-center text-slate-500">نتیجه‌ای یافت نشد.</div>`;
                     suggestionsContainer.classList.remove('hidden');
                     return;
                 }
-
                 searchResults = data;
                 suggestionsContainer.innerHTML = searchResults.map((doc, index) => `
                     <div class="suggestion-item p-3 border-b" data-index="${index}">
                         ${highlightText(doc.description, searchTerm)}
-                    </div>
-                `).join('');
+                    </div>`).join('');
                 suggestionsContainer.classList.remove('hidden');
-
                 document.querySelectorAll('.suggestion-item').forEach(item => {
                     item.addEventListener('click', () => {
                         const index = parseInt(item.dataset.index);
@@ -325,16 +379,12 @@
             async function renderAllDocuments(typeId) {
                 const detailsContainer = document.getElementById('document-details');
                 if (!detailsContainer) return;
-
                 detailsContainer.innerHTML = `<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-slate-400"></i></div>`;
-
                 const { data, error } = await _supabase.rpc('get_documents_by_type', { p_type_id: typeId });
-
                 if (error || !data || data.length === 0) {
                     detailsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">هیچ سندی یافت نشد.</p>`;
                     return;
                 }
-
                 let documentsHTML = `
                     <div class="flex justify-between items-center mt-6 border-t pt-6 mb-4">
                         <h3 class="text-xl font-bold text-slate-700">تمام اسناد</h3>
@@ -342,9 +392,7 @@
                             <i class="fas fa-times"></i> بستن
                         </button>
                     </div>
-                    <div class="space-y-2">
-                `;
-                
+                    <div class="space-y-2">`;
                 documentsHTML += data.map(doc => `
                     <div class="document-item border rounded-lg overflow-hidden bg-white">
                         <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
@@ -352,23 +400,19 @@
                             <i class="fas fa-chevron-down transition-transform duration-300"></i>
                         </div>
                         <div class="accordion-content">
-                            <div class="p-4 border-t grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="account-box bg-red-50 text-red-800"><h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4><ul>${(doc.debit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
                                 <div class="account-box bg-green-50 text-green-800"><h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4><ul>${(doc.credit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
                             </div>
                         </div>
-                    </div>
-                `).join('');
-
+                    </div>`).join('');
                 documentsHTML += `</div>`;
                 detailsContainer.innerHTML = documentsHTML;
-
                 document.getElementById('close-all-view-btn').addEventListener('click', () => {
                     const searchBar = document.getElementById('search-bar');
                     if (searchBar) searchBar.value = ''; 
                     detailsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">برای مشاهده اسناد، شروع به تایپ در کادر جستجو کنید یا روی "نمایش همه" کلیک کنید.</p>`;
                 });
-                
                 document.querySelectorAll('.accordion-header').forEach(header => {
                     header.addEventListener('click', () => {
                         header.nextElementSibling.classList.toggle('open');
@@ -380,7 +424,6 @@
             function showSearchInterface(typeId, title) {
                 cards.forEach(c => c.classList.remove('active'));
                 document.querySelector(`[data-type-id="${typeId}"]`).classList.add('active');
-
                 viewer.innerHTML = `
                     <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
                         <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
@@ -398,50 +441,74 @@
                         <div id="document-details" class="mt-4">
                             <p class="text-center text-slate-500 py-8">برای مشاهده اسناد، شروع به تایپ در کادر جستجو کنید یا روی "نمایش همه" کلیک کنید.</p>
                         </div>
-                    </div>
-                `;
+                    </div>`;
                 viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-                const searchBar = document.getElementById('search-bar');
-                const showAllBtn = document.getElementById('show-all-btn');
+                const searchBar = document.getElementById('search-bar'), showAllBtn = document.getElementById('show-all-btn');
                 let debounceTimer;
-
                 searchBar.addEventListener('input', (e) => {
                     clearTimeout(debounceTimer);
                     document.getElementById('document-details').innerHTML = '';
-                    debounceTimer = setTimeout(() => {
-                        fetchAndShowSuggestions(typeId, e.target.value);
-                    }, 300);
+                    debounceTimer = setTimeout(() => { fetchAndShowSuggestions(typeId, e.target.value); }, 300);
                 });
-
                 showAllBtn.addEventListener('click', () => {
                     document.getElementById('search-suggestions').classList.add('hidden');
                     searchBar.value = '';
                     renderAllDocuments(typeId);
                 });
             }
-
-            _supabase.auth.onAuthStateChange((event, session) => {
+            
+            async function updateCardsUI(session) {
                 authPrompt.style.display = (session && session.user) ? 'none' : 'block';
+                let purchasedIds = [];
+                if (session && session.user) {
+                    const { data: purchases } = await _supabase.from('user_purchases').select('document_type_id').eq('user_id', session.user.id);
+                    if (purchases) { purchasedIds = purchases.map(p => p.document_type_id); }
+                }
+
                 cards.forEach(card => {
-                    const typeId = card.dataset.typeId, title = card.dataset.title, isFree = card.id === 'service-card', tag = card.querySelector('span');
-                    if (session && session.user && isFree) {
-                        card.classList.remove('locked'); card.classList.add('unlocked');
-                        if (tag) tag.style.display = 'none';
-                        card.onclick = () => showSearchInterface(typeId, title);
-                    } else if (!isFree) {
-                        card.onclick = () => alert("برای دسترسی به این بخش نیاز به اشتراک ویژه دارید.");
-                    } else {
+                    const typeId = parseInt(card.dataset.typeId), title = card.dataset.title, isFree = card.id === 'service-card', tag = card.querySelector('span'), purchaseBtn = card.querySelector('button'), lockOverlay = card.querySelector('.lock-overlay'), p = card.querySelector('p');
+                    const isPurchased = purchasedIds.includes(typeId);
+
+                    card.onclick = null; // Reset click handler
+
+                    if (session && session.user) { // USER LOGGED IN
+                        if (isFree) {
+                            card.classList.remove('locked'); card.classList.add('unlocked');
+                            if (tag) tag.style.display = 'none';
+                            card.onclick = () => showSearchInterface(typeId, title);
+                        } else if (isPurchased) {
+                            card.classList.remove('locked'); card.classList.add('unlocked', 'purchased');
+                            if(p) p.textContent = "این مجموعه با موفقیت خریداری شده است.";
+                            if (purchaseBtn) purchaseBtn.remove();
+                            if (lockOverlay) lockOverlay.remove();
+                            card.onclick = () => showSearchInterface(typeId, title);
+                        } else { // NOT FREE, NOT PURCHASED
+                            card.classList.add('locked'); card.classList.remove('unlocked', 'purchased');
+                            if (purchaseBtn) {
+                                purchaseBtn.onclick = (e) => { e.stopPropagation(); handlePurchase(typeId, title, parseInt(purchaseBtn.dataset.price)); };
+                            }
+                        }
+                    } else { // USER LOGGED OUT
                         card.classList.add('locked'); card.classList.remove('unlocked');
-                        if (tag) tag.style.display = 'inline-block';
-                        card.onclick = () => { window.location.href = 'login.html'; };
+                        if(isFree) {
+                            if (tag) tag.style.display = 'inline-block';
+                            card.onclick = () => { window.location.href = 'login.html'; };
+                        } else {
+                            card.onclick = () => { window.location.href = 'login.html'; };
+                        }
                     }
                 });
+
                 if (loginBtn) { loginBtn.style.display = (session && session.user) ? 'none' : 'flex'; }
                 if (userMenu) { userMenu.style.display = (session && session.user) ? 'block' : 'none'; }
+            }
+            
+            _supabase.auth.onAuthStateChange((event, session) => {
+                updateCardsUI(session);
             });
         });
     </script>
 </body>
 
 </html>
+

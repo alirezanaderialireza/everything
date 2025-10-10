@@ -1,70 +1,113 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// supabase/functions/verify-zibal-payment/index.ts
+
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { corsHeaders } from "../_shared/cors.ts";
 
-const ZIBAL_MERCHANT_CODE = Deno.env.get("ZIBAL_MERCHANT_CODE");
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SERVICE_ROLE_KEY = Deno.env.get("SERVICE_ROLE_KEY");
+// آدرس صفحه اسناد در سایت شما
+const DOCUMENTS_PAGE_URL = "https://aidashirazi.ir/documents.html";
 
-serve(async (req: Request) => {
+serve(async (req) => {
+  // مدیریت درخواست پیش‌بررسی (preflight)
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
   try {
-    const url = new URL(req.url);
-    const trackId = url.searchParams.get("trackId");
-    const success = url.searchParams.get("success");
-    const pendingId = url.searchParams.get("pending_id");
+    const { orderId, success, trackId } = await req.json();
 
-    // If Zibal redirect indicates failure, redirect the user immediately
-    if (success !== "1") {
-      return Response.redirect("https://aidashirazi.ir/documents?payment=failed&reason=cancelled", 302);
+    // بررسی وجود پارامترهای ضروری
+    if (!orderId || !success || !trackId) {
+      throw new Error("اطلاعات بازگشتی از درگاه پرداخت ناقص است.");
     }
-    if (!trackId || !pendingId) {
-      throw new Error("اطلاعات بازگشتی از درگاه ناقص است.");
-    }
-    
-    // Create a Supabase client with the service role key to securely access the database
-    const supabase = createClient(SUPABASE_URL!, SERVICE_ROLE_KEY!);
 
-    // 1. Verify the payment with Zibal's server
-    const zibalPayload = { merchant: ZIBAL_MERCHANT_CODE, trackId };
-    const zibalResponse = await fetch("https://gateway.zibal.ir/v1/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(zibalPayload),
-    });
-    const zibalResult = await zibalResponse.json();
-    if (zibalResult.result !== 100) {
-      return Response.redirect(`https://aidashirazi.ir/documents?payment=failed&reason=${zibalResult.message}`, 302);
+    // اگر پرداخت ناموفق بود، کاربر به صفحه اسناد بازگردانده می‌شود
+    if (success.toString() !== "1") {
+      return Response.redirect(
+        `${DOCUMENTS_PAGE_URL}?payment=failed`,
+        303,
+      );
     }
-    
-    // 2. Retrieve the pending transaction details from your database using the unique ID
-    const { data: pendingTx, error: pendingTxError } = await supabase
-      .from('pending_transactions')
-      .select('user_id, document_type_id')
-      .eq('id', pendingId)
+
+    // ایجاد یک کلاینت سوپابیس با دسترسی کامل
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SERVICE_ROLE_KEY") ?? "",
+    );
+
+    // 1. پیدا کردن تراکنش در حال انتظار با استفاده از orderId
+    const { data: transaction, error: transactionError } = await supabaseAdmin
+      .from("pending_transactions")
+      .select("*")
+      .eq("id", orderId)
       .single();
 
-    if (pendingTxError || !pendingTx) {
-      throw new Error(`تراکنش در حال انتظار با شناسه ${pendingId} یافت نشد.`);
+    if (transactionError || !transaction) {
+      throw new Error("تراکنش در سیستم یافت نشد.");
     }
 
-    // 3. Insert the successful purchase into the final user_purchases table
-    const { error: dbError } = await supabase
+    // 2. ارسال درخواست به زیبال برای تایید نهایی پرداخت
+    const verifyResponse = await fetch(
+      "https://gateway.zibal.ir/v1/verify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchant: Deno.env.get("ZIBAL_MERCHANT_CODE"),
+          trackId: trackId,
+        }),
+      },
+    );
+
+    const verifyResult = await verifyResponse.json();
+
+    // اگر تایید پرداخت با خطا مواجه شد
+    if (verifyResult.result !== 100) {
+      // به‌روزرسانی وضعیت تراکنش به "failed"
+      await supabaseAdmin
+        .from("pending_transactions")
+        .update({ status: "failed", error_message: verifyResult.message })
+        .eq("id", orderId);
+      throw new Error(`خطا در تایید پرداخت: ${verifyResult.message}`);
+    }
+
+    // 3. اگر پرداخت موفق بود، ثبت خرید در جدول `user_purchases`
+    const { error: purchaseError } = await supabaseAdmin
       .from("user_purchases")
-      .insert({ user_id: pendingTx.user_id, document_type_id: pendingTx.document_type_id });
+      .insert({
+        user_id: transaction.user_id,
+        document_type_id: transaction.document_type_id,
+      });
 
-    // We can safely ignore 'duplicate key' errors, but we should handle other potential errors.
-    if (dbError && dbError.code !== '23505') { 
-      throw dbError;
+    if (purchaseError) {
+      // اگر در ثبت خرید نهایی خطایی رخ داد، آن را در تراکنش ثبت می‌کنیم
+      await supabaseAdmin
+        .from("pending_transactions")
+        .update({ status: "failed", error_message: purchaseError.message })
+        .eq("id", orderId);
+      throw purchaseError;
     }
 
-    // 4. (Optional but recommended) Clean up by deleting the pending transaction record
-    await supabase.from('pending_transactions').delete().eq('id', pendingId);
+    // 4. به‌روزرسانی وضعیت تراکنش به "completed"
+    await supabaseAdmin
+      .from("pending_transactions")
+      .update({ status: "completed", track_id: trackId })
+      .eq("id", orderId);
 
-    // 5. All successful, redirect the user's browser to a success page
-    return Response.redirect("https://aidashirazi.ir/documents?payment=success", 302);
-
+    // 5. هدایت کاربر به صفحه اسناد با پیام موفقیت
+    return Response.redirect(
+      `${DOCUMENTS_PAGE_URL}?payment=success`,
+      303,
+    );
   } catch (error) {
-    // For any other unexpected errors, redirect the user to a generic failure page
-    return Response.redirect(`https://aidashirazi.ir/documents?payment=failed&reason=${error.message}`, 302);
+    console.error("Verify Error:", error);
+    // در صورت بروز هرگونه خطا، کاربر به صفحه اسناد با پیام خطا هدایت می‌شود
+    return Response.redirect(
+      `${DOCUMENTS_PAGE_URL}?payment=error&message=${
+        encodeURIComponent(error.message)
+      }`,
+      303,
+    );
   }
 });
 

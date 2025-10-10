@@ -4,23 +4,22 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
 const BITPAY_VERIFY_API_URL = "https://bitpay.ir/api/v2/verify";
-const DOCUMENTS_PAGE_URL = "https://aidashirazi.ir/documents.html";
 
 serve(async (req) => {
   try {
+    // اطلاعات از وب‌هوک بیت‌پی به صورت JSON دریافت می‌شود
     const { id, order_id } = await req.json();
 
     if (!id || !order_id) {
-      throw new Error("اطلاعات بازگشتی از درگاه پرداخت ناقص است.");
+      throw new Error("اطلاعات وب‌هوک ناقص است.");
     }
     
-    // ایجاد یک کلاینت سوپابیس با دسترسی کامل
     const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SERVICE_ROLE_KEY") ?? "",
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SERVICE_ROLE_KEY")!
     );
 
-    // 1. پیدا کردن تراکنش در حال انتظار
+    // ۱. پیدا کردن تراکنش
     const { data: transaction, error: transactionError } = await supabaseAdmin
       .from("pending_transactions")
       .select("*")
@@ -31,25 +30,24 @@ serve(async (req) => {
       throw new Error("تراکنش در سیستم یافت نشد.");
     }
     
-     if (transaction.status === 'completed') {
-       return Response.redirect(`${DOCUMENTS_PAGE_URL}?payment=success&reason=already_verified`, 303);
+    if (transaction.status === 'completed') {
+      // اگر تراکنش قبلا کامل شده، پاسخی موفقیت‌آمیز برگردان
+      return new Response("ok", { status: 200 });
     }
     
-    // 2. تایید پرداخت با سرور بیت‌پی
+    // ۲. تایید پرداخت با سرور بیت‌پی
     const verifyResponse = await fetch(BITPAY_VERIFY_API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-KEY": Deno.env.get("BITPAY_API_KEY"),
-        },
-        body: JSON.stringify({ id, order_id }),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-KEY": Deno.env.get("BITPAY_API_KEY")!,
       },
-    );
+      body: JSON.stringify({ id, order_id }),
+    });
 
     const verifyResult = await verifyResponse.json();
     
-    // status 11 means payment is complete
-    if (verifyResult.status !== 11) {
+    if (verifyResult.status !== 11) { // 11 یعنی پرداخت کامل
       await supabaseAdmin
         .from("pending_transactions")
         .update({ status: "failed", error_message: `BitPay status: ${verifyResult.status}` })
@@ -57,7 +55,7 @@ serve(async (req) => {
       throw new Error(`پرداخت توسط بیت‌پی تایید نشد. وضعیت: ${verifyResult.status}`);
     }
 
-    // 3. ثبت خرید در جدول user_purchases
+    // ۳. ثبت خرید
     const { error: purchaseError } = await supabaseAdmin
       .from("user_purchases")
       .insert({
@@ -65,7 +63,7 @@ serve(async (req) => {
         document_type_id: transaction.document_type_id,
       });
 
-    if (purchaseError) {
+    if (purchaseError && purchaseError.code !== '23505') {
       await supabaseAdmin
         .from("pending_transactions")
         .update({ status: "failed", error_message: purchaseError.message })
@@ -73,20 +71,24 @@ serve(async (req) => {
       throw purchaseError;
     }
 
-    // 4. به‌روزرسانی وضعیت تراکنش به "completed"
+    // ۴. به‌روزرسانی وضعیت تراکنش
     await supabaseAdmin
       .from("pending_transactions")
-      .update({ status: "completed", track_id: id.toString() }) // Use BitPay's ID as track_id
+      .update({ status: "completed", track_id: id.toString() })
       .eq("id", order_id);
 
-    // 5. هدایت کاربر به صفحه اسناد
-    return Response.redirect(`${DOCUMENTS_PAGE_URL}?payment=success`, 303);
+    // ۵. ارسال پاسخ موفقیت‌آمیز به سرور بیت‌پی
+    return new Response(JSON.stringify({ status: "ok" }), {
+        headers: { "Content-Type": "application/json" },
+        status: 200,
+    });
     
   } catch (error) {
-    console.error("BitPay Verify Error:", error);
-    return Response.redirect(
-      `${DOCUMENTS_PAGE_URL}?payment=error&message=${encodeURIComponent(error.message)}`,
-      303,
-    );
+    console.error("BitPay Webhook Error:", error);
+    // در صورت خطا، یک پاسخ خطا به سرور بیت‌پی برگردان
+    return new Response(JSON.stringify({ error: error.message }), {
+        headers: { "Content-Type": "application/json" },
+        status: 400,
+    });
   }
 });

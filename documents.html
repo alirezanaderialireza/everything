@@ -34,6 +34,22 @@
             font-family: var(--font-display);
         }
 
+        /* Styles for Payment Modal */
+        #payment-modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        #payment-modal {
+            transition: all 0.3s ease;
+        }
+
+        .gateway-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .gateway-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        /* Other existing styles */
         .main-header {
             background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -277,6 +293,28 @@
         <div id="document-viewer" class="mt-12"></div>
     </main>
 
+    <!-- Payment Modal -->
+    <div id="payment-modal-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+        <div id="payment-modal" class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md transform scale-95 opacity-0">
+            <div class="flex justify-between items-center border-b pb-4 mb-6">
+                <h2 class="text-2xl font-display text-slate-800">انتخاب درگاه پرداخت</h2>
+                <button id="close-modal-btn" class="text-2xl text-slate-500 hover:text-red-500">&times;</button>
+            </div>
+            <p id="modal-product-title" class="text-center text-slate-600 mb-6"></p>
+            <div class="space-y-4">
+                <button id="pay-with-zibal-btn" class="gateway-btn w-full flex items-center justify-center gap-4 p-4 bg-blue-500 text-white rounded-lg font-bold text-lg">
+                    <img src="https://zibal.ir/images/zibal-logo-colored.png" alt="Zibal" class="w-8 h-8">
+                    <span>پرداخت با زیبال</span>
+                </button>
+                <button id="pay-with-bitpay-btn" class="gateway-btn w-full flex items-center justify-center gap-4 p-4 bg-gray-800 text-white rounded-lg font-bold text-lg">
+                    <img src="https://bitpay.ir/images/logo/bitpay-logo-white.svg" alt="BitPay" class="w-24">
+                    <span>پرداخت با بیت پی</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
@@ -285,34 +323,72 @@
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
             const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn'), authPrompt = document.getElementById('auth-prompt'), cardsContainer = document.getElementById('cards-container'), viewer = document.getElementById('document-viewer');
+            
+            // Modal Elements
+            const modalOverlay = document.getElementById('payment-modal-overlay');
+            const modal = document.getElementById('payment-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const zibalBtn = document.getElementById('pay-with-zibal-btn');
+            const bitpayBtn = document.getElementById('pay-with-bitpay-btn');
+            const modalProductTitle = document.getElementById('modal-product-title');
 
             if (profileToggleBtn) { profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); }); }
-            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
+            window.addEventListener('click', (e) => { 
+                if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { 
+                    dropdownMenu.classList.add('hidden'); 
+                }
+                if (e.target === modalOverlay) {
+                    hidePaymentModal();
+                }
+            });
             if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
             
-            // --- MERGED PAYMENT LOGIC ---
-            async function handlePurchase(typeId, title) {
-                const purchaseButton = document.querySelector(`[data-type-id='${typeId}'] button`);
-                if (!confirm(`آیا از خرید "${title}" به مبلغ ۱۰۰,۰۰۰ تومان مطمئن هستید؟`)) return;
+            // --- MODAL FUNCTIONS ---
+            function showPaymentModal(typeId, title) {
+                modalProductTitle.textContent = `در حال خرید: "${title}"`;
+                // Store data on buttons to be used by the payment function
+                zibalBtn.dataset.typeId = typeId;
+                zibalBtn.dataset.title = title;
+                bitpayBtn.dataset.typeId = typeId;
+                bitpayBtn.dataset.title = title;
 
-                if(purchaseButton) {
-                    purchaseButton.disabled = true;
-                    purchaseButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> در حال انتقال...`;
-                }
+                modalOverlay.classList.remove('hidden');
+                modalOverlay.classList.add('flex');
+                setTimeout(() => {
+                    modal.classList.remove('scale-95', 'opacity-0');
+                    modal.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+
+            function hidePaymentModal() {
+                 modal.classList.add('scale-95', 'opacity-0');
+                 modal.classList.remove('scale-100', 'opacity-100');
+                 setTimeout(() => {
+                    modalOverlay.classList.add('hidden');
+                    modalOverlay.classList.remove('flex');
+                 }, 300);
+            }
+            
+            closeModalBtn.addEventListener('click', hidePaymentModal);
+            zibalBtn.addEventListener('click', () => initiatePayment('zibal'));
+            bitpayBtn.addEventListener('click', () => initiatePayment('bitpay'));
+
+
+            async function initiatePayment(gateway) {
+                 const btn = gateway === 'zibal' ? zibalBtn : bitpayBtn;
+                 const { typeId, title } = btn.dataset;
+
+                 btn.disabled = true;
+                 btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> در حال انتقال...`;
+                 
+                 const functionName = gateway === 'zibal' ? 'create-zibal-request' : 'create-bitpay-request';
 
                 try {
-                    const { data, error } = await _supabase.functions.invoke('create-zibal-request', {
+                    const { data, error } = await _supabase.functions.invoke(functionName, {
                         body: { documentTypeId: typeId },
                     });
 
-                    if (error) {
-                        if (error.context?.status === 409) {
-                            alert('شما قبلاً این مجموعه را خریداری کرده‌اید.');
-                             _supabase.auth.getSession().then(({ data: { session } }) => updateCardsUI(session?.user));
-                            return;
-                        }
-                        throw new Error(error.message);
-                    }
+                    if (error) throw new Error(error.message);
                     
                     if (data && data.error) throw new Error(data.error);
                     if (data && data.paymentUrl) {
@@ -322,16 +398,15 @@
                     }
 
                 } catch (error) {
-                    console.error('An error occurred during the purchase process:', error);
+                    console.error(`An error occurred during the ${gateway} purchase process:`, error);
                     alert(`خطا در فرآیند خرید: ${error.message}`);
-                    if(purchaseButton) {
-                        purchaseButton.disabled = false;
-                        purchaseButton.textContent = 'خرید تکی: ۱۰۰,۰۰۰ تومان';
-                    }
+                    btn.disabled = false;
+                    btn.innerHTML = gateway === 'zibal' 
+                        ? '<img src="https://zibal.ir/images/zibal-logo-colored.png" alt="Zibal" class="w-8 h-8"> <span>پرداخت با زیبال</span>'
+                        : '<img src="https://bitpay.ir/images/logo/bitpay-logo-white.svg" alt="BitPay" class="w-24"> <span>پرداخت با بیت پی</span>';
                 }
             }
             
-            // --- SEARCH AND DISPLAY LOGIC (FROM YOUR 500-LINE CODE) ---
             function normalizePersian(str) { if (!str) return ''; return str.replace(/ي/g, 'ی').replace(/ك/g, 'ک'); }
             function highlightText(text, searchTerm) { if (!searchTerm || !text) return text; const normText = normalizePersian(text); const normSearch = normalizePersian(searchTerm); const regex = new RegExp(`(${normSearch})`, 'gi'); return normText.replace(regex, `<strong class="text-[var(--navy)] bg-yellow-200 px-1 rounded">$1</strong>`); }
             
@@ -462,7 +537,6 @@
                 });
             }
             
-            // --- MERGED UI UPDATE LOGIC ---
             async function updateCardsUI(user) {
                 authPrompt.style.display = user ? 'none' : 'block';
                 loginBtn.style.display = user ? 'none' : 'flex';
@@ -488,9 +562,9 @@
                     const tag = card.querySelector('span');
                     const p = card.querySelector('p');
                     
-                    card.onclick = null; // Reset click handler
+                    card.onclick = null; 
 
-                    if (isFree || isPurchased) {
+                    if (user && (isFree || isPurchased)) {
                         card.classList.remove('locked');
                         card.classList.add('unlocked');
                         if(lockOverlay) lockOverlay.style.display = 'none';
@@ -499,21 +573,28 @@
                             if(p) p.textContent = "این مجموعه خریداری شده است.";
                         }
                         if (purchaseBtn) purchaseBtn.style.display = 'none';
-                        if (isFree && !isPurchased) {
-                            if (tag) tag.style.display = 'inline-block';
-                        }
+                        if (isFree && tag) tag.style.display = 'none';
+                        
                         card.onclick = () => showSearchInterface(typeId, title);
-                    } else { // Not free and not purchased
+                    } else { 
                         card.classList.add('locked');
                         card.classList.remove('unlocked', 'purchased');
-                         if(lockOverlay) lockOverlay.style.display = 'flex';
+                        if(lockOverlay) lockOverlay.style.display = 'flex';
+                        if (isFree && tag) tag.style.display = 'inline-block';
+
                         if (purchaseBtn) {
                             purchaseBtn.style.display = 'block';
-                            if (user) {
-                                purchaseBtn.onclick = (e) => { e.stopPropagation(); handlePurchase(typeId, title); };
+                             if (user) {
+                                purchaseBtn.onclick = (e) => { 
+                                    e.stopPropagation(); 
+                                    showPaymentModal(typeId, title); // Show modal instead of direct purchase
+                                };
                             } else {
+                                card.onclick = () => { window.location.href = 'login.html'; };
                                 purchaseBtn.onclick = (e) => { e.stopPropagation(); window.location.href = 'login.html'; };
                             }
+                        } else {
+                             card.onclick = () => { window.location.href = 'login.html'; };
                         }
                     }
                 });
@@ -521,29 +602,29 @@
 
             _supabase.auth.onAuthStateChange((event, session) => {
                 updateCardsUI(session?.user);
-            });
-
-            // --- PAYMENT VERIFICATION LOGIC ---
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.has('trackId') && urlParams.has('success')) {
-                const trackId = urlParams.get('trackId');
-                const success = urlParams.get('success');
-                const typeId = urlParams.get('type_id');
-
-                alert('در حال تایید پرداخت...');
-
-                _supabase.functions.invoke('verify-zibal-payment', {
-                    body: { trackId, success, documentTypeId: typeId },
-                }).then(({ data, error }) => {
-                    if (error || (data && data.error)) {
-                        alert(`خطا در تایید پرداخت: ${error?.message || data.error}`);
-                    } else {
-                        alert('خرید شما با موفقیت تایید و ثبت شد!');
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('payment')) {
+                    const status = urlParams.get('payment');
+                    const reason = urlParams.get('reason');
+                    const message = urlParams.get('message');
+                    
+                    if (status === 'success') {
+                        if (reason === 'already_verified') {
+                             alert('این تراکنش قبلاً تایید شده بود.');
+                        } else {
+                             alert('خرید شما با موفقیت تایید و ثبت شد!');
+                        }
+                    } else if (status === 'failed') {
+                        alert('پرداخت ناموفق بود یا توسط شما لغو شد.');
+                    } else if (status === 'error') {
+                        alert(`خطایی در فرآیند پرداخت رخ داد: ${message || 'نامشخص'}`);
                     }
+                    
                     window.history.replaceState({}, document.title, "/documents.html");
-                     _supabase.auth.getSession().then(({ data: { session } }) => updateCardsUI(session?.user));
-                });
-            }
+                    if (session) updateCardsUI(session.user);
+                }
+            });
         });
     </script>
 </body>

@@ -1,57 +1,64 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// Headers for CORS
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': '*', // For production, you should lock this to your domain: 'https://aidashirazi.ir'
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
 serve(async (req) => {
+  // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { amount, documentTypeId } = await req.json();
+    const { document_type_id } = await req.json()
+    if (!document_type_id) throw new Error('Document type ID is required.')
 
-    // مهم: آدرس دامنه خود را اینجا وارد کنید
-    const callback_url = `https://aidashirazi.ir/documents.html`;
-    
-    // دریافت کد مرچنت زیبال از متغیرهای محرمانه
-    const merchant_code = Deno.env.get("ZIBAL_MERCHANT_CODE");
-    if (!merchant_code) {
-        throw new Error("Zibal Merchant Code not set in Supabase secrets.");
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    const { data: { user } } = await supabaseAdmin.auth.getUser()
+    if (!user) throw new Error('User not authenticated.')
+
+    const merchantCode = Deno.env.get('ZIBAL_MERCHANT_CODE')
+    if (!merchantCode) throw new Error('Zibal merchant code not configured.')
+
+    // In a real app, you would fetch the price from the database based on document_type_id
+    const amount = 1000000; // 100,000 Toman in Rials
+
+    const payload = {
+      merchant: merchantCode,
+      amount: amount,
+      callbackUrl: `https://aidashirazi.ir/documents?payment_status=success&doc_id=${document_type_id}`,
+      description: `خرید سند شماره ${document_type_id}`,
+      orderId: `uid-${user.id}-dtid-${document_type_id}-ts-${Date.now()}`
     }
 
-    const zibal_req_url = "https://gateway.zibal.ir/v1/request";
+    const zibalResponse = await fetch('https://gateway.zibal.ir/v1/request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).then(res => res.json())
 
-    const response = await fetch(zibal_req_url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            merchant: merchant_code,
-            amount: amount * 10, // مبلغ به ریال است
-            callbackUrl: callback_url,
-            orderId: documentTypeId.toString(),
-            description: `خرید مجموعه اسناد شماره ${documentTypeId}`,
-        }),
-    });
-
-    const data = await response.json();
-
-    if (data.result !== 100) {
-        throw new Error(`Zibal Error: ${data.message} (Code: ${data.result})`);
+    if (zibalResponse.result !== 100) {
+      throw new Error(`Zibal API error: ${zibalResponse.message} (code: ${zibalResponse.result})`)
     }
-    
-    const paymentUrl = `https://gateway.zibal.ir/start/${data.trackId}`;
-    return new Response(JSON.stringify({ paymentUrl }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-    });
+
+    return new Response(JSON.stringify({ payment_url: `https://gateway.zibal.ir/start/${zibalResponse.trackId}` }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    })
 
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 400,
-    });
+    })
   }
-});
+})
+

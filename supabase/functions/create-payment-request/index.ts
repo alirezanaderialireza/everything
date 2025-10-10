@@ -6,10 +6,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 // هدرهای CORS را به صورت کامل و مستقیم در همین فایل تعریف می‌کنیم
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://aidashirazi.ir",
-  "Access-Control-Allow-Methods": "POST, OPTIONS", // این خط جدید و مهم است
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
-
 
 // تابع اصلی که با هر درخواست اجرا می‌شود
 serve(async (req) => {

@@ -2,19 +2,17 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { corsHeaders } from "../_shared/cors.ts";
 
 // آدرس صفحه اسناد در سایت شما
 const DOCUMENTS_PAGE_URL = "https://aidashirazi.ir/documents.html";
 
 serve(async (req) => {
-  // مدیریت درخواست پیش‌بررسی (preflight)
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
   try {
-    const { orderId, success, trackId } = await req.json();
+    // URL را برای گرفتن پارامترها می‌خوانیم
+    const url = new URL(req.url);
+    const orderId = url.searchParams.get("orderId");
+    const success = url.searchParams.get("success");
+    const trackId = url.searchParams.get("trackId");
 
     // بررسی وجود پارامترهای ضروری
     if (!orderId || !success || !trackId) {
@@ -23,8 +21,9 @@ serve(async (req) => {
 
     // اگر پرداخت ناموفق بود، کاربر به صفحه اسناد بازگردانده می‌شود
     if (success.toString() !== "1") {
+      // اینجا می‌توان در آینده تراکنش را در دیتابیس به عنوان ناموفق ثبت کرد
       return Response.redirect(
-        `${DOCUMENTS_PAGE_URL}?payment=failed`,
+        `${DOCUMENTS_PAGE_URL}?payment=failed&reason=cancelled`,
         303,
       );
     }
@@ -44,6 +43,14 @@ serve(async (req) => {
 
     if (transactionError || !transaction) {
       throw new Error("تراکنش در سیستم یافت نشد.");
+    }
+
+    // اگر تراکنش قبلاً کامل شده بود، جلوی پردازش مجدد را می‌گیریم
+    if (transaction.status === 'completed') {
+       return Response.redirect(
+        `${DOCUMENTS_PAGE_URL}?payment=success&reason=already_verified`,
+        303,
+      );
     }
 
     // 2. ارسال درخواست به زیبال برای تایید نهایی پرداخت

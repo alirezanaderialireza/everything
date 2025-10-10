@@ -1,64 +1,62 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { corsHeaders } from "../_shared/cors.ts";
 
-// Headers for CORS
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*', // For production, you should lock this to your domain: 'https://aidashirazi.ir'
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+const ZIBAL_MERCHANT_CODE = Deno.env.get("ZIBAL_MERCHANT_CODE");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
 
-serve(async (req) => {
-  // Handle preflight OPTIONS request
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+serve(async (req: Request) => {
+  // This is needed if you're planning to invoke your function from a browser.
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const { document_type_id } = await req.json()
-    if (!document_type_id) throw new Error('Document type ID is required.')
+    const { documentTypeId } = await req.json();
 
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    if (!documentTypeId) {
+      throw new Error("Document Type ID is required.");
+    }
+    
+    // In a real app, you might fetch the price from the database
+    // For now, we use a fixed price of 100,000 Toman (1,000,000 Rials)
+    const amount = 1000000; 
 
-    const { data: { user } } = await supabaseAdmin.auth.getUser()
-    if (!user) throw new Error('User not authenticated.')
+    // Construct the callback URL
+    const callbackUrl = `${req.headers.get("origin")}/documents.html?type_id=${documentTypeId}`;
 
-    const merchantCode = Deno.env.get('ZIBAL_MERCHANT_CODE')
-    if (!merchantCode) throw new Error('Zibal merchant code not configured.')
-
-    // In a real app, you would fetch the price from the database based on document_type_id
-    const amount = 1000000; // 100,000 Toman in Rials
-
-    const payload = {
-      merchant: merchantCode,
+    const zibalPayload = {
+      merchant: ZIBAL_MERCHANT_CODE,
       amount: amount,
-      callbackUrl: `https://aidashirazi.ir/documents?payment_status=success&doc_id=${document_type_id}`,
-      description: `خرید سند شماره ${document_type_id}`,
-      orderId: `uid-${user.id}-dtid-${document_type_id}-ts-${Date.now()}`
+      callbackUrl: callbackUrl,
+      description: `خرید اسناد حسابداری - نوع: ${documentTypeId}`,
+    };
+
+    const zibalResponse = await fetch("https://gateway.zibal.ir/v1/request", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(zibalPayload),
+    });
+
+    const zibalResult = await zibalResponse.json();
+
+    if (zibalResult.result !== 100) {
+      throw new Error(`خطا از درگاه پرداخت زیبال: ${zibalResult.message}`);
     }
 
-    const zibalResponse = await fetch('https://gateway.zibal.ir/v1/request', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    }).then(res => res.json())
+    const paymentUrl = `https://gateway.zibal.ir/start/${zibalResult.trackId}`;
 
-    if (zibalResponse.result !== 100) {
-      throw new Error(`Zibal API error: ${zibalResponse.message} (code: ${zibalResponse.result})`)
-    }
-
-    return new Response(JSON.stringify({ payment_url: `https://gateway.zibal.ir/start/${zibalResponse.trackId}` }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(JSON.stringify({ paymentUrl }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
-    })
-
+    });
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
-    })
+    });
   }
-})
+});
 

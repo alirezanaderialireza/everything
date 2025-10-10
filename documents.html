@@ -7,10 +7,10 @@
     <title>اسناد حسابداری - آیدا شیرازی</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <style>
         :root {
             --navy: #0A192F;
@@ -60,10 +60,25 @@
             font-weight: 600;
         }
 
-        .btn-gold:hover {
+        .btn-gold:hover:not(:disabled) {
             background-color: #b98d1e;
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-gold.pulse:hover:not(:disabled) {
+            animation: pulse 1.5s infinite;
+        }
+
+        .btn-gold:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(196, 152, 39, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 8px 25px rgba(196, 152, 39, 0.4); }
+            100% { transform: scale(1); box-shadow: 0 4px 15px rgba(196, 152, 39, 0.2); }
         }
 
         .card {
@@ -86,6 +101,11 @@
             transform: translateY(-8px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
+        
+        .card.purchased {
+             border-color: var(--gold);
+             box-shadow: 0 15px 35px rgba(196, 152, 39, 0.2);
+        }
 
         .card.active {
             border-color: var(--gold);
@@ -96,111 +116,16 @@
         .card.locked {
             filter: grayscale(80%);
             opacity: 0.7;
-            cursor: not-allowed;
         }
-
-        .card.purchased {
-            border-color: var(--gold);
-            filter: grayscale(0);
-            opacity: 1;
-        }
-
-        .card.purchased .card-icon {
-            color: var(--gold);
-        }
-
+        
         .card-icon {
             font-size: 3.5rem;
             margin-bottom: 1rem;
             color: var(--gold);
         }
 
-        .lock-overlay {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background-color: rgba(0, 0, 0, 0.6);
-            color: white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         #document-viewer {
             transition: opacity 0.5s ease;
-        }
-
-        .suggestion-item {
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .suggestion-item:hover {
-            background-color: var(--light-gold);
-        }
-
-        .account-box {
-            border-radius: 0.5rem;
-            padding: 1rem;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .accordion-header {
-            cursor: pointer;
-        }
-
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
-            padding: 0 1rem;
-        }
-
-        .accordion-content.open {
-            max-height: 1000px;
-            transition: max-height 0.5s ease-in, padding 0.5s ease-in;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-        }
-
-        .purchase-animation {
-            animation: pulse-gold 2s infinite;
-        }
-
-        .purchase-animation:hover {
-            animation-play-state: paused;
-        }
-
-        @keyframes pulse-gold {
-
-            0%,
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(196, 152, 39, 0.7);
-            }
-
-            70% {
-                transform: scale(1.05);
-                box-shadow: 0 0 0 10px rgba(196, 152, 39, 0);
-            }
         }
     </style>
 </head>
@@ -246,42 +171,34 @@
 
     <main class="container mx-auto p-6 mt-8">
         <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-4">بانک اسناد حسابداری</h1>
-        <p id="auth-prompt" class="text-center text-slate-500 mb-12">برای دسترسی به اسناد رایگان، لطفاً <a
+        <p id="auth-prompt" class="text-center text-slate-500 mb-12">برای دسترسی به اسناد، لطفاً <a
                 href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a
                 href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div data-type-id="1" data-title="اسناد حسابداری شرکت‌های خدماتی" id="service-card" class="card">
+        <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+             <div data-type-id="1" data-title="اسناد حسابداری شرکت‌های خدماتی" id="service-card" class="card unlocked">
                 <i class="fas fa-concierge-bell card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های خدماتی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد رایج در شرکت‌های ارائه‌دهنده خدمات.</p>
-                <span id="service-card-tag"
-                    class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با
-                    ثبت‌نام)</span>
+                <span class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان</span>
             </div>
             <div data-type-id="2" data-title="اسناد حسابداری شرکت‌های بازرگانی" class="card locked">
-                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-store card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های بازرگانی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به خرید، فروش و انبارداری کالا.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
-                    تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button class="btn-gold px-6 py-2">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="3" data-title="اسناد حسابداری شرکت‌های پیمانکاری" class="card locked">
-                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-hard-hat card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های پیمانکاری</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به صورت وضعیت‌ها و هزینه‌های پروژه.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
-                    تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button class="btn-gold px-6 py-2">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="4" data-title="اسناد حسابداری شرکت‌های تولیدی" class="card locked">
-                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-industry card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های تولیدی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به بهای تمام شده و جریان تولید.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
-                    تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button class="btn-gold px-6 py-2">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
         </div>
 
@@ -289,225 +206,150 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
             const { createClient } = supabase;
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
-            const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn'), authPrompt = document.getElementById('auth-prompt'), cards = document.querySelectorAll('.card'), viewer = document.getElementById('document-viewer');
+            const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn'), authPrompt = document.getElementById('auth-prompt'), cardsContainer = document.getElementById('cards-container');
 
             if (profileToggleBtn) { profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); }); }
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-            if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); }); }
-
-            function normalizePersian(str) { if (!str) return ''; return str.replace(/ي/g, 'ی').replace(/ك/g, 'ک'); }
-            function highlightText(text, searchTerm) { if (!searchTerm || !text) return text; const normText = normalizePersian(text); const normSearch = normalizePersian(searchTerm); const regex = new RegExp(`(${normSearch})`, 'gi'); return normText.replace(regex, `<strong class="text-[var(--navy)] bg-yellow-200 px-1 rounded">$1</strong>`); }
-
-            let searchResults = [];
-
-            async function handlePurchase(typeId, title, price) {
-                const { data: { user } } = await _supabase.auth.getUser();
-                if (!user) {
-                    alert('برای خرید ابتدا باید وارد حساب کاربری خود شوید.');
-                    window.location.href = 'login.html';
+            if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
+            
+            async function handlePurchase(typeId, title) {
+                const purchaseButton = document.querySelector(`[data-type-id='${typeId}'] button`);
+                
+                if (!confirm(`آیا از خرید "${title}" به مبلغ ۱۰۰,۰۰۰ تومان مطمئن هستید؟`)) {
                     return;
                 }
-                const confirmed = confirm(`آیا مایل به خرید مجموعه "${title}" با قیمت ${price.toLocaleString('fa-IR')} تومان هستید؟\n(در مرحله بعد به درگاه پرداخت زرین‌پال متصل خواهید شد)`);
-                if (confirmed) {
-                    // TODO: Redirect to Zarinpal in the next step
-                    // For now, we simulate a successful payment and update the database.
-                    const { error } = await _supabase
-                        .from('user_purchases')
-                        .insert({ user_id: user.id, document_type_id: typeId });
 
+                if(purchaseButton) {
+                    purchaseButton.disabled = true;
+                    purchaseButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> در حال انتقال...`;
+                }
+
+                try {
+                    const { data, error } = await _supabase.functions.invoke('create-zibal-request', {
+                        body: { documentTypeId: typeId },
+                    });
+
+                    // START: SMART ERROR HANDLING
                     if (error) {
-                        if (error.code === '23505') { alert('شما قبلاً این مجموعه را خریداری کرده‌اید.'); }
-                        else { alert('خطایی در ثبت خرید رخ داد: ' + error.message); }
+                        if (error.context?.status === 409) {
+                            // This is the "already purchased" error. Handle it gracefully.
+                            alert('شما قبلاً این مجموعه را خریداری کرده‌اید.');
+                            const card = document.querySelector(`[data-type-id='${typeId}']`);
+                            if (card) {
+                                card.classList.remove('locked');
+                                card.classList.add('unlocked', 'purchased');
+                                if(purchaseButton) purchaseButton.style.display = 'none';
+                                card.onclick = () => alert(`شما به "${title}" دسترسی دارید.`);
+                            }
+                            return; // Stop the function here
+                        }
+                        // For all other errors, throw them to be caught by the catch block
+                        throw new Error(error.message);
+                    }
+                    // END: SMART ERROR HANDLING
+                    
+                    if (data && data.error) {
+                         throw new Error(data.error);
+                    }
+
+                    if (data && data.paymentUrl) {
+                        window.location.href = data.paymentUrl;
                     } else {
-                        alert('خرید شما با موفقیت ثبت شد!');
-                        const { data: { session } } = await _supabase.auth.getSession();
-                        updateCardsUI(session); // Refresh UI
+                        throw new Error('پاسخ معتبری از سرور پرداخت دریافت نشد.');
+                    }
+
+                } catch (error) {
+                    console.error('An error occurred during the purchase process:', error);
+                    alert(`خطا در فرآیند خرید: ${error.message}`);
+                    if(purchaseButton) {
+                        purchaseButton.disabled = false;
+                        purchaseButton.textContent = 'خرید تکی: ۱۰۰,۰۰۰ تومان';
                     }
                 }
             }
 
-            function renderSingleDocument(doc) {
-                const detailsContainer = document.getElementById('document-details');
-                if (!detailsContainer) return;
-                detailsContainer.innerHTML = `
-                    <div class="fade-in mt-6 border-t pt-6">
-                        <h3 class="font-semibold text-lg text-slate-800 mb-4">${doc.description}</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="account-box bg-red-50 text-red-800"><h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4><ul>${(doc.debit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
-                            <div class="account-box bg-green-50 text-green-800"><h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4><ul>${(doc.credit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
-                        </div>
-                    </div>`;
-            }
+            const updateUserInterface = async (user) => {
+                authPrompt.style.display = user ? 'none' : 'block';
+                loginBtn.style.display = user ? 'none' : 'flex';
+                userMenu.style.display = user ? 'block' : 'none';
 
-            async function fetchAndShowSuggestions(typeId, searchTerm) {
-                const suggestionsContainer = document.getElementById('search-suggestions');
-                if (!searchTerm || searchTerm.length < 2) {
-                    suggestionsContainer.innerHTML = '';
-                    suggestionsContainer.classList.add('hidden');
-                    return;
-                }
-                const normalizedSearchTerm = normalizePersian(searchTerm);
-                const { data, error } = await _supabase.rpc('search_documents', { p_type_id: typeId, p_search_term: normalizedSearchTerm });
-                if (error || !data || data.length === 0) {
-                    suggestionsContainer.innerHTML = `<div class="p-3 text-center text-slate-500">نتیجه‌ای یافت نشد.</div>`;
-                    suggestionsContainer.classList.remove('hidden');
-                    return;
-                }
-                searchResults = data;
-                suggestionsContainer.innerHTML = searchResults.map((doc, index) => `
-                    <div class="suggestion-item p-3 border-b" data-index="${index}">
-                        ${highlightText(doc.description, searchTerm)}
-                    </div>`).join('');
-                suggestionsContainer.classList.remove('hidden');
-                document.querySelectorAll('.suggestion-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        const index = parseInt(item.dataset.index);
-                        const selectedDoc = searchResults[index];
-                        document.getElementById('search-bar').value = selectedDoc.description;
-                        suggestionsContainer.classList.add('hidden');
-                        renderSingleDocument(selectedDoc);
-                    });
-                });
-            }
-
-            async function renderAllDocuments(typeId) {
-                const detailsContainer = document.getElementById('document-details');
-                if (!detailsContainer) return;
-                detailsContainer.innerHTML = `<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-3xl text-slate-400"></i></div>`;
-                const { data, error } = await _supabase.rpc('get_documents_by_type', { p_type_id: typeId });
-                if (error || !data || data.length === 0) {
-                    detailsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">هیچ سندی یافت نشد.</p>`;
-                    return;
-                }
-                let documentsHTML = `
-                    <div class="flex justify-between items-center mt-6 border-t pt-6 mb-4">
-                        <h3 class="text-xl font-bold text-slate-700">تمام اسناد</h3>
-                        <button id="close-all-view-btn" class="text-sm text-red-500 hover:text-red-700 font-semibold flex items-center gap-1">
-                            <i class="fas fa-times"></i> بستن
-                        </button>
-                    </div>
-                    <div class="space-y-2">`;
-                documentsHTML += data.map(doc => `
-                    <div class="document-item border rounded-lg overflow-hidden bg-white">
-                        <div class="accordion-header p-4 flex justify-between items-center bg-slate-50">
-                            <h3 class="font-semibold text-slate-800">${doc.description}</h3>
-                            <i class="fas fa-chevron-down transition-transform duration-300"></i>
-                        </div>
-                        <div class="accordion-content">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="account-box bg-red-50 text-red-800"><h4 class="font-bold border-b border-red-200 pb-2 mb-2">حساب بدهکار</h4><ul>${(doc.debit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
-                                <div class="account-box bg-green-50 text-green-800"><h4 class="font-bold border-b border-green-200 pb-2 mb-2">حساب بستانکار</h4><ul>${(doc.credit_accounts || []).map(acc => `<li class="py-1">${acc}</li>`).join('')}</ul></div>
-                            </div>
-                        </div>
-                    </div>`).join('');
-                documentsHTML += `</div>`;
-                detailsContainer.innerHTML = documentsHTML;
-                document.getElementById('close-all-view-btn').addEventListener('click', () => {
-                    const searchBar = document.getElementById('search-bar');
-                    if (searchBar) searchBar.value = '';
-                    detailsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">برای مشاهده اسناد، شروع به تایپ در کادر جستجو کنید یا روی "نمایش همه" کلیک کنید.</p>`;
-                });
-                document.querySelectorAll('.accordion-header').forEach(header => {
-                    header.addEventListener('click', () => {
-                        header.nextElementSibling.classList.toggle('open');
-                        header.querySelector('i').classList.toggle('rotate-180');
-                    });
-                });
-            }
-
-            function showSearchInterface(typeId, title) {
-                cards.forEach(c => c.classList.remove('active'));
-                document.querySelector(`[data-type-id="${typeId}"]`).classList.add('active');
-                viewer.innerHTML = `
-                    <div class="max-w-3xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-2xl border-4 border-[var(--navy)]">
-                        <h2 class="text-3xl font-display text-center mb-6">${title}</h2>
-                        <div class="relative">
-                            <div class="relative">
-                                <input type="search" id="search-bar" class="w-full p-3 pl-10 text-base bg-slate-100 border-2 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--gold)] focus:border-[var(--gold)]" placeholder="بخشی از شرح سند را جستجو کنید...">
-                                <i class="fas fa-search absolute top-1/2 left-4 -translate-y-1/2 text-slate-500"></i>
-                            </div>
-                            <div id="search-suggestions" class="absolute top-full left-0 right-0 bg-white border border-t-0 rounded-b-lg shadow-lg z-10 hidden max-h-64 overflow-y-auto"></div>
-                        </div>
-                        <div class="text-center my-4">
-                            <span class="text-sm text-slate-400">یا</span>
-                            <button id="show-all-btn" class="text-[var(--gold)] font-semibold hover:underline px-2">نمایش همه اسناد</button>
-                        </div>
-                        <div id="document-details" class="mt-4">
-                            <p class="text-center text-slate-500 py-8">برای مشاهده اسناد، شروع به تایپ در کادر جستجو کنید یا روی "نمایش همه" کلیک کنید.</p>
-                        </div>
-                    </div>`;
-                viewer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                const searchBar = document.getElementById('search-bar'), showAllBtn = document.getElementById('show-all-btn');
-                let debounceTimer;
-                searchBar.addEventListener('input', (e) => {
-                    clearTimeout(debounceTimer);
-                    document.getElementById('document-details').innerHTML = '';
-                    debounceTimer = setTimeout(() => { fetchAndShowSuggestions(typeId, e.target.value); }, 300);
-                });
-                showAllBtn.addEventListener('click', () => {
-                    document.getElementById('search-suggestions').classList.add('hidden');
-                    searchBar.value = '';
-                    renderAllDocuments(typeId);
-                });
-            }
-
-            async function updateCardsUI(session) {
-                authPrompt.style.display = (session && session.user) ? 'none' : 'block';
                 let purchasedIds = [];
-                if (session && session.user) {
-                    const { data: purchases } = await _supabase.from('user_purchases').select('document_type_id').eq('user_id', session.user.id);
-                    if (purchases) { purchasedIds = purchases.map(p => p.document_type_id); }
+                if (user) {
+                    const { data, error } = await _supabase.from('user_purchases').select('document_type_id');
+                    if (error) {
+                         console.error("Error fetching purchases:", error);
+                    } else {
+                        purchasedIds = data.map(p => p.document_type_id);
+                    }
                 }
 
-                cards.forEach(card => {
-                    const typeId = parseInt(card.dataset.typeId), title = card.dataset.title, isFree = card.id === 'service-card', tag = card.querySelector('span'), purchaseBtn = card.querySelector('button'), lockOverlay = card.querySelector('.lock-overlay'), p = card.querySelector('p');
+                cardsContainer.querySelectorAll('.card').forEach(card => {
+                    const typeId = parseInt(card.dataset.typeId);
+                    const title = card.dataset.title;
                     const isPurchased = purchasedIds.includes(typeId);
+                    const isFree = typeId === 1;
+                    const purchaseButton = card.querySelector('button');
 
-                    card.onclick = null; // Reset click handler
-
-                    if (session && session.user) { // USER LOGGED IN
-                        if (isFree) {
-                            card.classList.remove('locked'); card.classList.add('unlocked');
-                            if (tag) tag.style.display = 'none';
-                            card.onclick = () => showSearchInterface(typeId, title);
-                        } else if (isPurchased) {
-                            card.classList.remove('locked'); card.classList.add('unlocked', 'purchased');
-                            if (p) p.textContent = "این مجموعه با موفقیت خریداری شده است.";
-                            if (purchaseBtn) purchaseBtn.remove();
-                            if (lockOverlay) lockOverlay.remove();
-                            card.onclick = () => showSearchInterface(typeId, title);
-                        } else { // NOT FREE, NOT PURCHASED
-                            card.classList.add('locked'); card.classList.remove('unlocked', 'purchased');
-                            if (purchaseBtn) {
-                                purchaseBtn.onclick = (e) => { e.stopPropagation(); handlePurchase(typeId, title, parseInt(purchaseBtn.dataset.price)); };
+                    if (isFree || isPurchased) {
+                        card.classList.remove('locked');
+                        card.classList.add('unlocked');
+                        if (isPurchased) card.classList.add('purchased');
+                        if (purchaseButton) purchaseButton.style.display = 'none';
+                        if (isFree && !isPurchased) {
+                            const tag = card.querySelector('span');
+                            if (tag) tag.style.display = 'inline-block';
+                        }
+                        card.onclick = () => alert(`شما به "${title}" دسترسی دارید.`); // Placeholder
+                    } else { // Not free and not purchased
+                        card.classList.add('locked');
+                        card.classList.remove('unlocked', 'purchased');
+                        if (purchaseButton) {
+                            purchaseButton.style.display = 'inline-block';
+                            if (user) {
+                                purchaseButton.classList.add('pulse');
+                                purchaseButton.onclick = () => handlePurchase(typeId, title);
+                            } else {
+                                purchaseButton.classList.remove('pulse');
+                                purchaseButton.onclick = () => { window.location.href = 'login.html'; };
                             }
                         }
-                    } else { // USER LOGGED OUT
-                        card.classList.add('locked'); card.classList.remove('unlocked');
-                        if (isFree) {
-                            if (tag) tag.style.display = 'inline-block';
-                            card.onclick = () => { window.location.href = 'login.html'; };
-                        } else {
-                            card.onclick = () => { window.location.href = 'login.html'; };
-                        }
                     }
                 });
-
-                if (loginBtn) { loginBtn.style.display = (session && session.user) ? 'none' : 'flex'; }
-                if (userMenu) { userMenu.style.display = (session && session.user) ? 'block' : 'none'; }
-            }
+            };
 
             _supabase.auth.onAuthStateChange((event, session) => {
-                updateCardsUI(session);
+                updateUserInterface(session?.user);
             });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('trackId') && urlParams.has('success')) {
+                const trackId = urlParams.get('trackId');
+                const success = urlParams.get('success');
+                const typeId = urlParams.get('type_id');
+
+                alert('در حال تایید پرداخت...');
+
+                _supabase.functions.invoke('verify-zibal-payment', {
+                    body: { trackId, success, documentTypeId: typeId },
+                }).then(({ data, error }) => {
+                    if (error || (data && data.error)) {
+                        alert(`خطا در تایید پرداخت: ${error?.message || data.error}`);
+                    } else {
+                        alert('خرید شما با موفقیت تایید و ثبت شد!');
+                    }
+                    window.history.replaceState({}, document.title, "/documents.html");
+                    _supabase.auth.getUser().then(({ data: { user } }) => updateUserInterface(user));
+                });
+            }
         });
     </script>
 </body>
 
 </html>
+

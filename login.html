@@ -1,30 +1,62 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ورود و ثبت‌نام - آیدا شیرازی</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --navy: #0A192F; --slate-800: #1e293b; --slate-600: #475569;
-            --slate-100: #f1f5f9; --gold: #c49827; --light-gold: #FBEFCE;
-            --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif;
+            --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --gold: #c49827;
+            --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
         }
-        body { font-family: var(--font-body); background-color: var(--slate-100); }
-        h1, h2, .font-display { font-family: var(--font-display); }
-        .form-container { display: block; }
-        .form-container.hidden { display: none; }
-        #notification { transition: opacity 0.3s ease-in-out; }
-        #notification.hidden { opacity: 0; display: none; }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--slate-100);
+        }
+
+        h1,
+        h2,
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .form-container {
+            display: block;
+        }
+
+        .form-container.hidden {
+            display: none;
+        }
+
+        #notification {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #notification.hidden {
+            opacity: 0;
+            display: none;
+        }
     </style>
 </head>
+
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
-        
-        <div id="notification" class="hidden p-4 mb-4 text-sm rounded-lg flex justify-between items-center" role="alert">
+
+        <div id="notification" class="hidden p-4 mb-4 text-sm rounded-lg flex justify-between items-center"
+            role="alert">
             <span id="notification-message"></span>
             <button id="notification-close" class="ml-4 font-bold">&times;</button>
         </div>
@@ -34,20 +66,26 @@
             <form id="login-form-element" class="mt-8 space-y-6">
                 <div>
                     <label for="login-identifier" class="text-sm font-medium text-slate-700">ایمیل یا نام کاربری</label>
-                    <input id="login-identifier" name="identifier" type="text" required autocomplete="username" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                    <input id="login-identifier" name="identifier" type="text" required autocomplete="username"
+                        class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
                 <div>
                     <label for="login-password" class="text-sm font-medium text-slate-700">رمز عبور</label>
-                    <input id="login-password" name="password" type="password" required autocomplete="current-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                    <input id="login-password" name="password" type="password" required autocomplete="current-password"
+                        class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ورود</button>
+                <button type="submit"
+                    class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ورود</button>
             </form>
             <div class="mt-4 text-center text-sm space-y-2">
-                <p>حساب کاربری ندارید؟ <a href="#" id="show-register" class="font-medium text-[var(--gold)] hover:underline">ثبت‌نام کنید</a></p>
+                <p>حساب کاربری ندارید؟ <a href="#" id="show-register"
+                        class="font-medium text-[var(--gold)] hover:underline">ثبت‌نام کنید</a></p>
                 <div>
-                    <a href="#" id="show-forgot-password" class="font-medium text-[var(--gold)] hover:underline">فراموشی رمز عبور</a>
+                    <a href="#" id="show-forgot-password" class="font-medium text-[var(--gold)] hover:underline">فراموشی
+                        رمز عبور</a>
                     <span class="mx-2 text-slate-400">|</span>
-                    <a href="#" id="show-forgot-username" class="font-medium text-[var(--gold)] hover:underline">فراموشی نام کاربری</a>
+                    <a href="#" id="show-forgot-username" class="font-medium text-[var(--gold)] hover:underline">فراموشی
+                        نام کاربری</a>
                 </div>
             </div>
         </div>
@@ -55,49 +93,81 @@
         <div id="register-form" class="form-container hidden">
             <h1 class="text-3xl font-display text-center text-[var(--navy)]">ایجاد حساب جدید</h1>
             <form id="register-form-element" class="mt-8 space-y-6">
-                 <div>
+                <div>
                     <label for="register-username" class="text-sm font-medium text-slate-700">نام کاربری</label>
-                    <input id="register-username" name="username" type="text" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                    <input id="register-username" name="username" type="text" required
+                        class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
                 <div>
                     <label for="register-email" class="text-sm font-medium text-slate-700">ایمیل</label>
-                    <input id="register-email" name="email" type="email" required autocomplete="email" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                    <input id="register-email" name="email" type="email" required autocomplete="email"
+                        class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
                 <div>
                     <label for="register-password" class="text-sm font-medium text-slate-700">رمز عبور</label>
-                    <input id="register-password" name="password" type="password" required autocomplete="new-password" class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                    <input id="register-password" name="password" type="password" required autocomplete="new-password"
+                        class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                     <p class="mt-2 text-xs text-slate-500">حداقل ۸ کاراکتر، شامل حروف بزرگ و کوچک، عدد و علائم خاص.</p>
                 </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ثبت‌نام</button>
+                <button type="submit"
+                    class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ثبت‌نام</button>
             </form>
-            <p class="mt-4 text-center text-sm">قبلاً ثبت‌نام کرده‌اید؟ <a href="#" id="show-login-from-register" class="font-medium text-[var(--gold)] hover:underline">وارد شوید</a></p>
+            <p class="mt-4 text-center text-sm">قبلاً ثبت‌نام کرده‌اید؟ <a href="#" id="show-login-from-register"
+                    class="font-medium text-[var(--gold)] hover:underline">وارد شوید</a></p>
         </div>
-        
+
         <div id="forgot-password-form" class="form-container hidden">
             <h1 class="text-3xl font-display text-center text-[var(--navy)]">بازیابی رمز عبور</h1>
             <p class="text-center text-slate-500 mt-2">ایمیل خود را وارد کنید تا لینک بازیابی ارسال شود.</p>
             <form id="forgot-password-form-element" class="mt-8 space-y-6">
                 <div>
                     <label for="forgot-password-email" class="text-sm font-medium text-slate-700">ایمیل</label>
-                    <input id="forgot-password-email" name="email" type="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                    <input id="forgot-password-email" name="email" type="email" required
+                        class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ارسال لینک</button>
+                <button type="submit"
+                    class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">ارسال
+                    لینک</button>
             </form>
-            <p class="mt-4 text-center text-sm"><a href="#" class="show-login font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه ورود</a></p>
+            <p class="mt-4 text-center text-sm"><a href="#"
+                    class="show-login font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه ورود</a></p>
         </div>
 
         <div id="forgot-username-form" class="form-container hidden">
             <h1 class="text-3xl font-display text-center text-[var(--navy)]">بازیابی نام کاربری</h1>
-             <p class="text-center text-slate-500 mt-2">ایمیل خود را وارد کنید تا نام کاربری شما را پیدا کنیم.</p>
+            <p class="text-center text-slate-500 mt-2">ایمیل خود را وارد کنید تا نام کاربری شما را پیدا کنیم.</p>
             <form id="forgot-username-form-element" class="mt-8 space-y-6">
                 <div>
                     <label for="forgot-username-email" class="text-sm font-medium text-slate-700">ایمیل</label>
-                    <input id="forgot-username-email" name="email" type="email" required class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
+                    <input id="forgot-username-email" name="email" type="email" required
+                        class="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm">
                 </div>
-                <button type="submit" class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">پیدا کردن نام کاربری</button>
+                <button type="submit"
+                    class="w-full flex justify-center py-3 px-4 rounded-md shadow-sm text-sm font-semibold text-[var(--navy)] bg-[var(--gold)] hover:bg-[#b98d1e]">پیدا
+                    کردن نام کاربری</button>
             </form>
-            <p class="mt-4 text-center text-sm"><a href="#" class="show-login font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه ورود</a></p>
+            <p class="mt-4 text-center text-sm"><a href="#"
+                    class="show-login font-medium text-[var(--gold)] hover:underline">بازگشت به صفحه ورود</a></p>
         </div>
+        <footer class="py-8" style="background-color: var(--navy); color: white;">
+            <div class="container mx-auto px-6 flex flex-wrap justify-between items-center text-center md:text-right">
+                <div class="w-full md:w-auto mb-4 md:mb-0">
+                    <p class="text-slate-300 text-sm">&copy; 2025 - تمامی حقوق برای وب‌سایت آموزشی آیدا شیرازی محفوظ
+                        است.</p>
+                    <a href="mailto:info@aidashirazi.ir"
+                        class="text-slate-300 hover:text-[var(--gold)] transition-colors text-sm">info@aidashirazi.ir</a>
+                </div>
+                <div class="w-full md:w-auto">
+                    <!-- کد نماد اعتماد الکترونیکی شما اینجا قرار می‌گیرد -->
+                    <a referrerpolicy='origin' target='_blank'
+                        href='https://trustseal.enamad.ir/?id=658250&Code=7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'>
+                        <img referrerpolicy='origin'
+                            src='https://trustseal.enamad.ir/logo.aspx?id=658250&Code=7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'
+                            alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'>
+                    </a>
+                </div>
+            </div>
+        </footer>
 
     </div>
 
@@ -118,7 +188,7 @@
         const registerForm = document.getElementById('register-form-element');
         const forgotPasswordForm = document.getElementById('forgot-password-form-element');
         const forgotUsernameForm = document.getElementById('forgot-username-form-element');
-        
+
         const notification = document.getElementById('notification');
         const notificationMessage = document.getElementById('notification-message');
         const notificationClose = document.getElementById('notification-close');
@@ -163,7 +233,7 @@
                     email = data;
                 }
             }
-            
+
             const { error: signInError } = await _supabase.auth.signInWithPassword({ email, password });
 
             if (signInError) {
@@ -177,22 +247,22 @@
             e.preventDefault();
             const password = e.target.password.value;
             if (password.length < 8 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-               showNotification('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
-               return;
+                showNotification('رمز عبور باید حداقل ۸ کاراکتر و شامل حرف بزرگ، حرف کوچک، عدد و علائم خاص باشد.');
+                return;
             }
             const { error } = await _supabase.auth.signUp({
-               email: e.target.email.value,
-               password: password,
-               options: { data: { username: e.target.username.value } }
+                email: e.target.email.value,
+                password: password,
+                options: { data: { username: e.target.username.value } }
             });
             if (error) {
-               showNotification('خطا در ثبت‌نام: ' + error.message);
+                showNotification('خطا در ثبت‌نام: ' + error.message);
             } else {
-               showNotification('ایمیل تایید برای شما ارسال شد. لطفاً صندوق ورودی خود را چک کنید.', 'success');
-               e.target.reset(); // Clear form on success
+                showNotification('ایمیل تایید برای شما ارسال شد. لطفاً صندوق ورودی خود را چک کنید.', 'success');
+                e.target.reset(); // Clear form on success
             }
         });
-        
+
         forgotPasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = e.target.email.value;
@@ -204,7 +274,7 @@
                 e.target.reset(); // Clear form on success
             }
         });
-        
+
         forgotUsernameForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -218,4 +288,5 @@
         });
     </script>
 </body>
+
 </html>

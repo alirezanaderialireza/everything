@@ -10,6 +10,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <style>
         :root {
             --navy: #0A192F;
@@ -97,7 +98,7 @@
             opacity: 0.7;
             cursor: not-allowed;
         }
-        
+
         .card.purchased {
             border-color: var(--gold);
             filter: grayscale(0);
@@ -165,7 +166,7 @@
         .accordion-header {
             cursor: pointer;
         }
-        
+
         .accordion-content {
             max-height: 0;
             overflow: hidden;
@@ -179,7 +180,7 @@
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
-        
+
         .purchase-animation {
             animation: pulse-gold 2s infinite;
         }
@@ -187,18 +188,20 @@
         .purchase-animation:hover {
             animation-play-state: paused;
         }
-        
-        @keyframes pulse-gold {
-          0%, 100% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(196, 152, 39, 0.7);
-          }
-          70% {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 10px rgba(196, 152, 39, 0);
-          }
-        }
 
+        @keyframes pulse-gold {
+
+            0%,
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(196, 152, 39, 0.7);
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(196, 152, 39, 0);
+            }
+        }
     </style>
 </head>
 
@@ -261,21 +264,24 @@
                 <i class="fas fa-store card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های بازرگانی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به خرید، فروش و انبارداری کالا.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
+                    تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="3" data-title="اسناد حسابداری شرکت‌های پیمانکاری" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-hard-hat card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های پیمانکاری</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به صورت وضعیت‌ها و هزینه‌های پروژه.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
+                    تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="4" data-title="اسناد حسابداری شرکت‌های تولیدی" class="card locked">
                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-industry card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های تولیدی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به بهای تمام شده و جریان تولید.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
+                    تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
         </div>
 
@@ -316,7 +322,7 @@
                         .insert({ user_id: user.id, document_type_id: typeId });
 
                     if (error) {
-                        if (error.code === '23505') { alert('شما قبلاً این مجموعه را خریداری کرده‌اید.'); } 
+                        if (error.code === '23505') { alert('شما قبلاً این مجموعه را خریداری کرده‌اید.'); }
                         else { alert('خطایی در ثبت خرید رخ داد: ' + error.message); }
                     } else {
                         alert('خرید شما با موفقیت ثبت شد!');
@@ -404,7 +410,7 @@
                 detailsContainer.innerHTML = documentsHTML;
                 document.getElementById('close-all-view-btn').addEventListener('click', () => {
                     const searchBar = document.getElementById('search-bar');
-                    if (searchBar) searchBar.value = ''; 
+                    if (searchBar) searchBar.value = '';
                     detailsContainer.innerHTML = `<p class="text-center text-slate-500 py-8">برای مشاهده اسناد، شروع به تایپ در کادر جستجو کنید یا روی "نمایش همه" کلیک کنید.</p>`;
                 });
                 document.querySelectorAll('.accordion-header').forEach(header => {
@@ -450,7 +456,7 @@
                     renderAllDocuments(typeId);
                 });
             }
-            
+
             async function updateCardsUI(session) {
                 authPrompt.style.display = (session && session.user) ? 'none' : 'block';
                 let purchasedIds = [];
@@ -472,7 +478,7 @@
                             card.onclick = () => showSearchInterface(typeId, title);
                         } else if (isPurchased) {
                             card.classList.remove('locked'); card.classList.add('unlocked', 'purchased');
-                            if(p) p.textContent = "این مجموعه با موفقیت خریداری شده است.";
+                            if (p) p.textContent = "این مجموعه با موفقیت خریداری شده است.";
                             if (purchaseBtn) purchaseBtn.remove();
                             if (lockOverlay) lockOverlay.remove();
                             card.onclick = () => showSearchInterface(typeId, title);
@@ -484,7 +490,7 @@
                         }
                     } else { // USER LOGGED OUT
                         card.classList.add('locked'); card.classList.remove('unlocked');
-                        if(isFree) {
+                        if (isFree) {
                             if (tag) tag.style.display = 'inline-block';
                             card.onclick = () => { window.location.href = 'login.html'; };
                         } else {
@@ -496,7 +502,7 @@
                 if (loginBtn) { loginBtn.style.display = (session && session.user) ? 'none' : 'flex'; }
                 if (userMenu) { userMenu.style.display = (session && session.user) ? 'block' : 'none'; }
             }
-            
+
             _supabase.auth.onAuthStateChange((event, session) => {
                 updateCardsUI(session);
             });
@@ -505,4 +511,3 @@
 </body>
 
 </html>
-

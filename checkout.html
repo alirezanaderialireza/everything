@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تکمیل خرید - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --navy: #0A192F; --gold: #c49827; --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif; }
+        body { font-family: var(--font-body); background-color: #f1f5f9; }
+        h1, .font-display { font-family: var(--font-display); }
+        .btn { padding: 0.75rem 1rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+        .btn:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.7; }
+        .btn-zibal { background-color: #4CAF50; color: white; } /* رنگ سبز برای زیبال */
+        .btn-bitpay { background-color: #00529B; color: white; } /* رنگ آبی برای بیت‌پی */
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen py-8">
+    <div class="w-full max-w-lg p-8 space-y-6 bg-white rounded-lg shadow-lg">
+        <div class="text-center">
+            <h1 class="text-3xl font-display text-[var(--navy)]">تکمیل اطلاعات خرید</h1>
+            <p id="document-title" class="mt-2 text-slate-600"></p>
+        </div>
+        
+        <form id="user-info-form" class="space-y-4">
+            <div>
+                <label for="full-name" class="text-sm font-medium text-slate-700">نام و نام خانوادگی</label>
+                <input id="full-name" type="text" required class="mt-1 block w-full px-3 py-2 border rounded-md">
+            </div>
+            <div>
+                <label for="email" class="text-sm font-medium text-slate-700">ایمیل</label>
+                <input id="email" type="email" disabled class="mt-1 block w-full px-3 py-2 border rounded-md bg-slate-100 cursor-not-allowed">
+            </div>
+            <div>
+                <label for="mobile" class="text-sm font-medium text-slate-700">شماره همراه</label>
+                <input id="mobile" type="tel" required class="mt-1 block w-full px-3 py-2 border rounded-md">
+            </div>
+        </form>
+
+        <div class="pt-4 border-t">
+             <p class="text-sm text-center text-slate-500 mb-4">لطفاً درگاه پرداخت خود را انتخاب کنید:</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <button id="zibal-btn" class="btn btn-zibal">پرداخت با زیبال</button>
+                <button id="bitpay-btn" class="btn btn-bitpay">پرداخت با BitPay</button>
+            </div>
+        </div>
+
+        <p id="error-message" class="text-red-500 text-center mt-4 hidden"></p>
+        <div class="text-center">
+           <a href="documents.html" class="text-sm text-slate-500 hover:text-[var(--gold)] mt-4 inline-block">انصراف و بازگشت</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ... (کد Supabase client) ...
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        // Element Selectors
+        const form = document.getElementById('user-info-form');
+        const zibalBtn = document.getElementById('zibal-btn');
+        const bitpayBtn = document.getElementById('bitpay-btn');
+        const errorEl = document.getElementById('error-message');
+        const nameInput = document.getElementById('full-name');
+        const emailInput = document.getElementById('email');
+        const mobileInput = document.getElementById('mobile');
+        const titleEl = document.getElementById('document-title');
+
+        let documentTypeId = null;
+        let currentUser = null;
+
+        // پر کردن خودکار فرم با اطلاعات کاربر
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            emailInput.value = user.email;
+
+            // دریافت اطلاعات پروفایل
+            const { data: profile } = await _supabase.from('profiles').select('full_name, mobile').eq('id', user.id).single();
+            if (profile) {
+                if (profile.full_name) nameInput.value = profile.full_name;
+                if (profile.mobile) mobileInput.value = profile.mobile;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            documentTypeId = urlParams.get('typeId');
+            titleEl.textContent = `بسته: ${urlParams.get('title')}`;
+        });
+
+        // تابع اصلی برای ارسال درخواست به بک‌اند
+        async function handlePayment(gateway) {
+            if (!form.reportValidity()) return; // اعتبارسنجی فرم
+
+            const buttons = [zibalBtn, bitpayBtn];
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.textContent = 'لطفاً صبر کنید...';
+            });
+            errorEl.classList.add('hidden');
+
+            try {
+                const { data, error } = await _supabase.functions.invoke('create-payment-request', {
+                    body: {
+                        documentTypeId: parseInt(documentTypeId),
+                        gateway: gateway,
+                        userInfo: {
+                            fullName: nameInput.value,
+                            mobile: mobileInput.value
+                        }
+                    }
+                });
+
+                if (error) throw error;
+                window.location.href = data.paymentUrl;
+
+            } catch (err) {
+                errorEl.textContent = `خطا: ${err.message}`;
+                errorEl.classList.remove('hidden');
+                buttons.forEach(btn => btn.disabled = false);
+                zibalBtn.textContent = 'پرداخت با زیبال';
+                bitpayBtn.textContent = 'پرداخت با BitPay';
+            }
+        }
+
+        zibalBtn.addEventListener('click', () => handlePayment('zibal'));
+        bitpayBtn.addEventListener('click', () => handlePayment('bitpay'));
+    </script>
+</body>
+</html>

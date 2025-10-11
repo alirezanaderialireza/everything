@@ -33,7 +33,7 @@
         .font-display {
             font-family: var(--font-display);
         }
-        
+
         .main-header {
             background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
@@ -70,7 +70,7 @@
             background-color: #ccc;
             cursor: not-allowed;
         }
-        
+
         .purchase-animation {
             animation: pulse-gold 2s infinite;
         }
@@ -80,10 +80,13 @@
         }
 
         @keyframes pulse-gold {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
                 box-shadow: 0 0 0 0 rgba(196, 152, 39, 0.7);
             }
+
             70% {
                 transform: scale(1.05);
                 box-shadow: 0 0 0 10px rgba(196, 152, 39, 0);
@@ -110,10 +113,10 @@
             transform: translateY(-8px);
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
         }
-        
+
         .card.purchased {
-             border-color: var(--gold);
-             box-shadow: 0 15px 35px rgba(196, 152, 39, 0.2);
+            border-color: var(--gold);
+            box-shadow: 0 15px 35px rgba(196, 152, 39, 0.2);
         }
 
         .card.active {
@@ -126,13 +129,13 @@
             filter: grayscale(80%);
             opacity: 0.7;
         }
-        
+
         .card-icon {
             font-size: 3.5rem;
             margin-bottom: 1rem;
             color: var(--gold);
         }
-        
+
         .lock-overlay {
             position: absolute;
             top: 1rem;
@@ -170,8 +173,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .accordion-header {
@@ -186,16 +196,16 @@
         }
 
         .accordion-content.open {
-            max-height: 1000px; /* A large enough value */
+            max-height: 1000px;
+            /* A large enough value */
             transition: max-height 0.5s ease-in, padding 0.5s ease-in;
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
 
         .rotate-180 {
-             transform: rotate(180deg);
+            transform: rotate(180deg);
         }
-
     </style>
 </head>
 
@@ -240,37 +250,42 @@
 
     <main class="container mx-auto p-6 mt-8">
         <h1 class="text-4xl font-display text-center text-[var(--navy)] mb-4">بانک اسناد حسابداری</h1>
-        <p id="auth-prompt" class="text-center text-slate-500 mb-12">برای دسترسی به اسناد، لطفاً <a
-                href="login.html" class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a
-                href="login.html" class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
+        <p id="auth-prompt" class="text-center text-slate-500 mb-12">برای دسترسی به اسناد، لطفاً <a href="login.html"
+                class="text-[var(--gold)] font-bold hover:underline">وارد شوید</a> یا <a href="login.html"
+                class="text-[var(--gold)] font-bold hover:underline">ثبت‌نام کنید</a>.</p>
 
         <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-             <div data-type-id="1" data-title="اسناد حسابداری شرکت‌های خدماتی" id="service-card" class="card">
+            <div data-type-id="1" data-title="اسناد حسابداری شرکت‌های خدماتی" id="service-card" class="card">
                 <i class="fas fa-concierge-bell card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های خدماتی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد رایج در شرکت‌های ارائه‌دهنده خدمات.</p>
-                <span id="service-card-tag" class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با ثبت‌نام)</span>
+                <span id="service-card-tag"
+                    class="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">رایگان (با
+                    ثبت‌نام)</span>
             </div>
             <div data-type-id="2" data-title="اسناد حسابداری شرکت‌های بازرگانی" class="card locked">
-                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
+                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-store card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های بازرگانی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به خرید، فروش و انبارداری کالا.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
+                    تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="3" data-title="اسناد حسابداری شرکت‌های پیمانکاری" class="card locked">
-                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
+                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-hard-hat card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های پیمانکاری</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به صورت وضعیت‌ها و هزینه‌های پروژه.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
+                    تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
             <div data-type-id="4" data-title="اسناد حسابداری شرکت‌های تولیدی" class="card locked">
-                 <div class="lock-overlay"><i class="fas fa-lock"></i></div>
+                <div class="lock-overlay"><i class="fas fa-lock"></i></div>
                 <i class="fas fa-industry card-icon"></i>
                 <h2 class="text-2xl font-display text-slate-800">شرکت‌های تولیدی</h2>
                 <p class="text-slate-500 mt-2 mb-4">اسناد مربوط به بهای تمام شده و جریان تولید.</p>
-                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید تکی: ۱۰۰,۰۰۰ تومان</button>
+                <button data-price="100000" class="btn-gold purchase-animation w-full text-base font-bold py-3">خرید
+                    تکی: ۱۰۰,۰۰۰ تومان</button>
             </div>
         </div>
 
@@ -287,22 +302,22 @@
             const loginBtn = document.getElementById('login-btn'), userMenu = document.getElementById('user-menu'), profileToggleBtn = document.getElementById('profile-toggle-btn'), dropdownMenu = document.getElementById('dropdown-menu'), logoutBtn = document.getElementById('logout-btn'), authPrompt = document.getElementById('auth-prompt'), cardsContainer = document.getElementById('cards-container'), viewer = document.getElementById('document-viewer');
 
             if (profileToggleBtn) { profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); }); }
-            window.addEventListener('click', (e) => { 
-                if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { 
-                    dropdownMenu.classList.add('hidden'); 
+            window.addEventListener('click', (e) => {
+                if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                    dropdownMenu.classList.add('hidden');
                 }
             });
             if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
-            
+
             // This function now redirects to the checkout page
             function handlePurchaseRedirect(typeId, title) {
                 const url = `checkout.html?typeId=${typeId}&title=${encodeURIComponent(title)}`;
                 window.location.href = url;
             }
-            
+
             function normalizePersian(str) { if (!str) return ''; return str.replace(/ي/g, 'ی').replace(/ك/g, 'ک'); }
             function highlightText(text, searchTerm) { if (!searchTerm || !text) return text; const normText = normalizePersian(text); const normSearch = normalizePersian(searchTerm); const regex = new RegExp(`(${normSearch})`, 'gi'); return normText.replace(regex, `<strong class="text-[var(--navy)] bg-yellow-200 px-1 rounded">$1</strong>`); }
-            
+
             let searchResults = [];
 
             function renderSingleDocument(doc) {
@@ -429,7 +444,7 @@
                     renderAllDocuments(typeId);
                 });
             }
-            
+
             async function updateCardsUI(user) {
                 authPrompt.style.display = user ? 'none' : 'block';
                 loginBtn.style.display = user ? 'none' : 'flex';
@@ -454,32 +469,32 @@
                     const lockOverlay = card.querySelector('.lock-overlay');
                     const tag = card.querySelector('span');
                     const p = card.querySelector('p');
-                    
-                    card.onclick = null; 
+
+                    card.onclick = null;
 
                     if (user && (isFree || isPurchased)) {
                         card.classList.remove('locked');
                         card.classList.add('unlocked');
-                        if(lockOverlay) lockOverlay.style.display = 'none';
+                        if (lockOverlay) lockOverlay.style.display = 'none';
                         if (isPurchased) {
                             card.classList.add('purchased');
-                            if(p) p.textContent = "این مجموعه خریداری شده است.";
+                            if (p) p.textContent = "این مجموعه خریداری شده است.";
                         }
                         if (purchaseBtn) purchaseBtn.style.display = 'none';
                         if (isFree && tag) tag.style.display = 'none';
-                        
+
                         card.onclick = () => showSearchInterface(typeId, title);
-                    } else { 
+                    } else {
                         card.classList.add('locked');
                         card.classList.remove('unlocked', 'purchased');
-                        if(lockOverlay) lockOverlay.style.display = 'flex';
+                        if (lockOverlay) lockOverlay.style.display = 'flex';
                         if (isFree && tag) tag.style.display = 'inline-block';
 
                         if (purchaseBtn) {
                             purchaseBtn.style.display = 'block';
-                             if (user) {
-                                purchaseBtn.onclick = (e) => { 
-                                    e.stopPropagation(); 
+                            if (user) {
+                                purchaseBtn.onclick = (e) => {
+                                    e.stopPropagation();
                                     handlePurchaseRedirect(typeId, title);
                                 };
                             } else {
@@ -487,7 +502,7 @@
                                 purchaseBtn.onclick = (e) => { e.stopPropagation(); window.location.href = 'login.html'; };
                             }
                         } else {
-                             card.onclick = () => { window.location.href = 'login.html'; };
+                            card.onclick = () => { window.location.href = 'login.html'; };
                         }
                     }
                 });
@@ -495,27 +510,53 @@
 
             _supabase.auth.onAuthStateChange((event, session) => {
                 updateCardsUI(session?.user);
-                
+
                 const urlParams = new URLSearchParams(window.location.search);
                 if (urlParams.has('payment')) {
                     const status = urlParams.get('payment');
                     const reason = urlParams.get('reason');
                     const message = urlParams.get('message');
-                    
+
                     if (status === 'success') {
                         if (reason === 'already_verified') {
-                             alert('این تراکنش قبلاً تایید شده بود.');
+                            alert('این تراکنش قبلاً تایید شده بود.');
                         } else {
-                             alert('خرید شما با موفقیت تایید و ثبت شد!');
+                            alert('خرید شما با موفقیت تایید و ثبت شد!');
                         }
                     } else if (status === 'failed') {
                         alert('پرداخت ناموفق بود یا توسط شما لغو شد.');
                     } else if (status === 'error') {
                         alert(`خطایی در فرآیند پرداخت رخ داد: ${message || 'نامشخص'}`);
                     }
-                    
+
                     window.history.replaceState({}, document.title, "/documents.html");
                     if (session) updateCardsUI(session.user);
+                }
+            });
+            // این کد را در انتهای رویداد onAuthStateChange در documents.html قرار دهید.
+            _supabase.auth.onAuthStateChange((event, session) => {
+                updateCardsUI(session?.user);
+
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('payment')) {
+                    const status = urlParams.get('payment');
+                    const message = urlParams.get('message');
+
+                    if (status === 'success') {
+                        alert('خرید شما با موفقیت تایید و ثبت شد!');
+                    } else if (status === 'failed') {
+                        alert('پرداخت ناموفق بود یا توسط شما لغو شد.');
+                    } else if (status === 'error') {
+                        alert(`خطایی در فرآیند پرداخت رخ داد: ${message || 'نامشخص'}`);
+                    }
+
+                    // پارامترها را از URL پاک می‌کند تا با رفرش صفحه دوباره نمایش داده نشود
+                    window.history.replaceState({}, document.title, "/documents.html");
+
+                    // رابط کاربری را دوباره به‌روزرسانی کن تا قفل‌ها باز شوند
+                    if (session) {
+                        updateCardsUI(session.user);
+                    }
                 }
             });
         });
@@ -523,4 +564,3 @@
 </body>
 
 </html>
-

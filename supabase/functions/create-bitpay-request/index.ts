@@ -1,7 +1,12 @@
 // supabase/functions/create-bitpay-request/index.ts
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { corsHeaders } from "../_shared/cors.ts";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "https://aidashirazi.ir",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 const BITPAY_API_URL = "https://bitpay.ir/api/v2/invoice";
 const PRICE_TOMAN = 100000; // قیمت ثابت محصول به تومان
@@ -13,7 +18,7 @@ serve(async (req) => {
   }
 
   try {
-    const { documentTypeId } = await req.json();
+    const { documentTypeId, payerName, mobile } = await req.json();
     if (!documentTypeId) throw new Error("شناسه محصول ارسال نشده است.");
 
     // ایجاد یک کلاینت سوپابیس با دسترسی کامل
@@ -24,16 +29,16 @@ serve(async (req) => {
 
     // گرفتن اطلاعات کاربر از توکن احراز هویت
     const authHeader = req.headers.get("Authorization")!;
-    const { data: { user } } = await _supabase.auth.getUser(
-      authHeader.replace("Bearer ", ""),
-    );
-    if (!user) throw new Error("کاربر شناسایی نشد.");
+    const jwt = authHeader.replace("Bearer ", "");
+    const payloadJwt = JSON.parse(atob(jwt.split('.')[1]));
+    const userId = payloadJwt.sub;
+    if (!userId) throw new Error("کاربر شناسایی نشد.");
 
     // 1. ثبت یک تراکنش در حال انتظار
     const { data: transaction, error: transactionError } = await supabaseAdmin
       .from("pending_transactions")
       .insert({
-        user_id: user.id,
+        user_id: userId,
         document_type_id: documentTypeId,
         gateway: "bitpay", // مشخص کردن درگاه
       })
@@ -43,10 +48,11 @@ serve(async (req) => {
     if (transactionError) throw transactionError;
 
     // 2. آماده‌سازی درخواست برای بیت‌پی
-    const payload = {
+    const payloadForBitpay = {
       price: PRICE_TOMAN,
       description: `خرید اسناد حسابداری - سفارش ${transaction.id}`,
-      payerName: user.email, // نام پرداخت‌کننده (اختیاری)
+      payerName: payerName, // استفاده از نام دریافت شده از فرم
+      phone: mobile,      // استفاده از شماره موبایل دریافت شده از فرم
       order_id: transaction.id, // ارسال شناسه تراکنش ما به بیت‌پی
       callback: `https://evfgzegtplkhocfxcjpp.supabase.co/functions/v1/verify-bitpay-payment`, // آدرس بازگشت
     };
@@ -58,7 +64,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
         "X-API-KEY": Deno.env.get("BITPAY_API_KEY"), // استفاده از کلید محرمانه
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(payloadForBitpay),
     });
 
     const result = await response.json();
@@ -81,3 +87,4 @@ serve(async (req) => {
     });
   }
 });
+

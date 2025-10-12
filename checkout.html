@@ -1,28 +1,67 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تکمیل خرید - آیدا شیرازی</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
-        :root { --navy: #0A192F; --gold: #c49827; --font-display: 'Lalezar', cursive; --font-body: 'Vazirmatn', sans-serif; }
-        body { font-family: var(--font-body); background-color: #f1f5f9; }
-        h1, .font-display { font-family: var(--font-display); }
-        .btn { padding: 0.75rem 1rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
-        .btn:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.7; }
-        .btn-zibal { background-color: #4CAF50; color: white; } /* رنگ سبز برای زیبال */
-        .btn-bitpay { background-color: #00529B; color: white; } /* رنگ آبی برای بیت‌پی */
+        :root {
+            --navy: #0A192F;
+            --gold: #c49827;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: #f1f5f9;
+        }
+
+        h1,
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .btn {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-zibal {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        /* رنگ سبز برای زیبال */
+        .btn-bitpay {
+            background-color: #00529B;
+            color: white;
+        }
+
+        /* رنگ آبی برای بیت‌پی */
     </style>
 </head>
+
 <body class="flex items-center justify-center min-h-screen py-8">
     <div class="w-full max-w-lg p-8 space-y-6 bg-white rounded-lg shadow-lg">
         <div class="text-center">
             <h1 class="text-3xl font-display text-[var(--navy)]">تکمیل اطلاعات خرید</h1>
             <p id="document-title" class="mt-2 text-slate-600"></p>
         </div>
-        
+
         <form id="user-info-form" class="space-y-4">
             <div>
                 <label for="full-name" class="text-sm font-medium text-slate-700">نام و نام خانوادگی</label>
@@ -30,7 +69,8 @@
             </div>
             <div>
                 <label for="email" class="text-sm font-medium text-slate-700">ایمیل</label>
-                <input id="email" type="email" disabled class="mt-1 block w-full px-3 py-2 border rounded-md bg-slate-100 cursor-not-allowed">
+                <input id="email" type="email" disabled
+                    class="mt-1 block w-full px-3 py-2 border rounded-md bg-slate-100 cursor-not-allowed">
             </div>
             <div>
                 <label for="mobile" class="text-sm font-medium text-slate-700">شماره همراه</label>
@@ -39,7 +79,13 @@
         </form>
 
         <div class="pt-4 border-t">
-             <p class="text-sm text-center text-slate-500 mb-4">لطفاً درگاه پرداخت خود را انتخاب کنید:</p>
+            <p class="text-sm text-center text-slate-500 mb-4">لطفاً درگاه پرداخت خود را انتخاب کنید:</p>
+            <div class="flex justify-center mb-4">
+                <a href="https://bitpay.ir/certificate-993735-aidashirazi.ir" target="_blank">
+                    <img src="https://bitpay.ir/theme/public/images/trusted-logo.svg" alt="نماد اعتماد بیت پی"
+                        style="height: 50px;" />
+                </a>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <button id="zibal-btn" class="btn btn-zibal">پرداخت با زیبال</button>
                 <button id="bitpay-btn" class="btn btn-bitpay">پرداخت با BitPay</button>
@@ -48,7 +94,8 @@
 
         <p id="error-message" class="text-red-500 text-center mt-4 hidden"></p>
         <div class="text-center">
-           <a href="documents.html" class="text-sm text-slate-500 hover:text-[var(--gold)] mt-4 inline-block">انصراف و بازگشت</a>
+            <a href="documents.html" class="text-sm text-slate-500 hover:text-[var(--gold)] mt-4 inline-block">انصراف و
+                بازگشت</a>
         </div>
     </div>
 
@@ -134,4 +181,5 @@
         bitpayBtn.addEventListener('click', () => handlePayment('bitpay'));
     </script>
 </body>
+
 </html>

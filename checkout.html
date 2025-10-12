@@ -1,108 +1,181 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تکمیل خرید - آیدا شیرازی</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
             --gold: #c49827;
+            --light-gold: #FBEFCE;
             --font-display: 'Lalezar', cursive;
             --font-body: 'Vazirmatn', sans-serif;
         }
 
         body {
             font-family: var(--font-body);
-            background-color: #f1f5f9;
+            background-color: var(--slate-100);
         }
 
-        h1,
-        .font-display {
+        h1, h2, .font-display {
             font-family: var(--font-display);
         }
 
-        .btn {
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
+        .btn-gold {
+            background-color: var(--gold);
+            color: var(--navy);
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(196, 152, 39, 0.2);
         }
-
-        .btn:disabled {
+        .btn-gold:hover:not(:disabled) {
+            background-color: #b98d1e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 152, 39, 0.3);
+        }
+        .btn-gold:disabled {
             background-color: #ccc;
             cursor: not-allowed;
             opacity: 0.7;
+            box-shadow: none;
         }
 
-        .btn-zibal {
-            background-color: #4CAF50;
-            color: white;
+        /* استایل برای کارت‌های انتخاب درگاه پرداخت */
+        .gateway-card {
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
         }
-
-        /* رنگ سبز برای زیبال */
-        .btn-bitpay {
-            background-color: #00529B;
-            color: white;
+        .gateway-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
         }
-
+        .gateway-card.selected {
+            border-color: var(--gold);
+            background-color: var(--light-gold);
+            box-shadow: 0 4px 15px rgba(196, 152, 39, 0.2);
+        }
+        .gateway-card.selected .radio-circle {
+            background-color: var(--gold);
+            border-color: var(--gold);
+        }
+        .gateway-card.selected .radio-circle::after {
+            opacity: 1;
+        }
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ccc;
+            transition: all 0.2s;
+        }
+        .radio-circle::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        /* استایل برای هم‌اندازه کردن نمادها */
         #zibal-trust img {
-            height: 80px !important;
+            height: 40px !important;
         }
-
-        /* رنگ آبی برای بیت‌پی */
     </style>
 </head>
+<body class="py-12 px-4">
 
-<body class="flex items-center justify-center min-h-screen py-8">
-    <div class="w-full max-w-lg p-8 space-y-6 bg-white rounded-lg shadow-lg">
-        <div class="text-center">
-            <h1 class="text-3xl font-display text-[var(--navy)]">تکمیل اطلاعات خرید</h1>
-            <p id="document-title" class="mt-2 text-slate-600"></p>
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-10">
+            <a href="index.html" class="text-2xl font-bold font-display text-[var(--navy)]">آیدا شیرازی</a>
+            <h1 class="text-4xl font-display text-[var(--slate-800)] mt-2">تکمیل اطلاعات خرید</h1>
         </div>
 
-        <form id="user-info-form" class="space-y-4">
-            <div>
-                <label for="full-name" class="text-sm font-medium text-slate-700">نام و نام خانوادگی</label>
-                <input id="full-name" type="text" required class="mt-1 block w-full px-3 py-2 border rounded-md">
-            </div>
-            <div>
-                <label for="email" class="text-sm font-medium text-slate-700">ایمیل</label>
-                <input id="email" type="email" disabled
-                    class="mt-1 block w-full px-3 py-2 border rounded-md bg-slate-100 cursor-not-allowed">
-            </div>
-            <div>
-                <label for="mobile" class="text-sm font-medium text-slate-700">شماره همراه</label>
-                <input id="mobile" type="tel" required class="mt-1 block w-full px-3 py-2 border rounded-md">
-            </div>
-        </form>
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-12">
+            
+            <div class="lg:col-span-3 bg-white p-8 rounded-2xl shadow-lg">
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-display text-[var(--navy)] mb-4 border-b pb-3">۱. اطلاعات خریدار</h2>
+                        <form id="user-info-form" class="space-y-4 mt-4">
+                            <div>
+                                <label for="full-name" class="text-sm font-medium text-slate-700">نام و نام خانوادگی</label>
+                                <input id="full-name" type="text" required class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                            </div>
+                            <div>
+                                <label for="email" class="text-sm font-medium text-slate-700">ایمیل</label>
+                                <input id="email" type="email" disabled class="mt-1 block w-full px-3 py-2 border rounded-md bg-slate-100 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label for="mobile" class="text-sm font-medium text-slate-700">شماره همراه</label>
+                                <input id="mobile" type="tel" required class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                            </div>
+                        </form>
+                    </div>
 
-        <div class="pt-4 border-t">
-            <p class="text-sm text-center text-slate-500 mb-4">لطفاً درگاه پرداخت خود را انتخاب کنید:</p>
-            <div class="flex justify-center items-center gap-6 mb-4">
-                <a href="https://bitpay.ir/certificate-993735-aidashirazi.ir" target="_blank">
-                    <img src="https://bitpay.ir/theme/public/images/trusted-logo.svg" alt="نماد اعتماد بیت پی"
-                        style="height: 80px;" />
-                </a>
-                <div id="zibal-trust">
-                    <script src="https://zibal.ir/trust/scripts/zibal-trust-v4.js" type="text/javascript"></script>
+                    <div>
+                        <h2 class="text-2xl font-display text-[var(--navy)] mb-4 border-b pb-3">۲. انتخاب درگاه</h2>
+                        <div id="gateway-selection" class="space-y-4 mt-4">
+                            <div data-gateway="zibal" class="gateway-card p-4 rounded-lg flex justify-between items-center">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-circle rounded-full flex items-center justify-center"></div>
+                                    <span class="font-bold text-slate-700">پرداخت با زیبال</span>
+                                </div>
+                                <div id="zibal-trust">
+                                    <script src="https://zibal.ir/trust/scripts/zibal-trust-v4.js" type="text/javascript"></script>
+                                </div>
+                            </div>
+                            <div data-gateway="bitpay" class="gateway-card p-4 rounded-lg flex justify-between items-center">
+                                <div class="flex items-center gap-4">
+                                    <div class="radio-circle rounded-full flex items-center justify-center"></div>
+                                    <span class="font-bold text-slate-700">پرداخت با BitPay</span>
+                                </div>
+                                <a href="https://bitpay.ir/certificate-993735-aidashirazi.ir" target="_blank">
+                                    <img src="https://bitpay.ir/theme/public/images/trusted-logo.svg" alt="نماد اعتماد بیت پی" style="height: 40px;"/>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button id="zibal-btn" class="btn btn-zibal">پرداخت با زیبال</button>
-                <button id="bitpay-btn" class="btn btn-bitpay">پرداخت با BitPay</button>
-            </div>
-        </div>
 
-        <p id="error-message" class="text-red-500 text-center mt-4 hidden"></p>
-        <div class="text-center">
-            <a href="documents.html" class="text-sm text-slate-500 hover:text-[var(--gold)] mt-4 inline-block">انصراف و
-                بازگشت</a>
+            <div class="lg:col-span-2">
+                <div class="bg-white p-8 rounded-2xl shadow-lg sticky top-12">
+                    <h2 class="text-2xl font-display text-[var(--navy)] mb-6 border-b pb-4">خلاصه سفارش</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-600">محصول:</span>
+                            <span id="document-title" class="font-semibold text-slate-800"></span>
+                        </div>
+                         <div class="flex justify-between items-center">
+                            <span class="text-slate-600">قیمت واحد:</span>
+                            <span id="document-price" class="font-semibold text-slate-800"></span>
+                        </div>
+                        <div class="border-t pt-4 mt-4! flex justify-between items-center text-lg">
+                            <span class="font-bold text-slate-800">مبلغ قابل پرداخت:</span>
+                            <span id="total-price" class="font-bold text-[var(--gold)] text-xl"></span>
+                        </div>
+                    </div>
+                    <button id="pay-btn" class="w-full mt-8 py-3 px-4 rounded-md font-semibold btn-gold text-lg">
+                        <i class="fa-solid fa-lock-open ml-2"></i>
+                        <span>پرداخت و فعال‌سازی</span>
+                    </button>
+                    <p id="error-message" class="text-red-500 text-center text-sm mt-4 hidden"></p>
+                    <div class="text-center mt-6">
+                        <a href="documents.html" class="text-sm text-slate-500 hover:text-[var(--gold)]">
+                            <i class="fa-solid fa-arrow-right ml-1"></i>
+                            <span>انصراف و بازگشت</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -114,20 +187,27 @@
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
-        // Element Selectors
+        // --- Element Selectors ---
         const form = document.getElementById('user-info-form');
-        const zibalBtn = document.getElementById('zibal-btn');
-        const bitpayBtn = document.getElementById('bitpay-btn');
+        const payBtn = document.getElementById('pay-btn');
         const errorEl = document.getElementById('error-message');
         const nameInput = document.getElementById('full-name');
         const emailInput = document.getElementById('email');
         const mobileInput = document.getElementById('mobile');
-        const titleEl = document.getElementById('document-title');
+        
+        const docTitleEl = document.getElementById('document-title');
+        const docPriceEl = document.getElementById('document-price');
+        const totalPriceEl = document.getElementById('total-price');
 
+        const gatewayCards = document.querySelectorAll('.gateway-card');
+
+        // --- State Variables ---
         let documentTypeId = null;
         let currentUser = null;
+        let selectedGateway = null;
+        const PRICE_Toman = 100000;
 
-        // پر کردن خودکار فرم با اطلاعات کاربر
+        // --- Event Listeners ---
         document.addEventListener('DOMContentLoaded', async () => {
             const { data: { user } } = await _supabase.auth.getUser();
             if (!user) {
@@ -137,7 +217,6 @@
             currentUser = user;
             emailInput.value = user.email;
 
-            // دریافت اطلاعات پروفایل
             const { data: profile } = await _supabase.from('profiles').select('full_name, mobile').eq('id', user.id).single();
             if (profile) {
                 if (profile.full_name) nameInput.value = profile.full_name;
@@ -146,21 +225,39 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             documentTypeId = urlParams.get('typeId');
-            titleEl.textContent = `بسته: ${urlParams.get('title')}`;
+            docTitleEl.textContent = urlParams.get('title');
+            
+            const formattedPrice = `${PRICE_Toman.toLocaleString('fa-IR')} تومان`;
+            docPriceEl.textContent = formattedPrice;
+            totalPriceEl.textContent = formattedPrice;
         });
 
-        // تابع اصلی برای ارسال درخواست به بک‌اند
-        async function handlePayment(gateway) {
-            if (!form.reportValidity()) return; // اعتبارسنجی فرم
-
-            const buttons = [zibalBtn, bitpayBtn];
-            buttons.forEach(btn => {
-                btn.disabled = true;
-                btn.textContent = 'لطفاً صبر کنید...';
+        gatewayCards.forEach(card => {
+            card.addEventListener('click', () => {
+                gatewayCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedGateway = card.dataset.gateway;
             });
+        });
+
+        payBtn.addEventListener('click', () => {
+            if (!selectedGateway) {
+                alert('لطفاً یک درگاه پرداخت انتخاب کنید.');
+                return;
+            }
+            handlePayment(selectedGateway);
+        });
+        
+        // --- Main Payment Function ---
+        async function handlePayment(gateway) {
+            if (!form.reportValidity()) return;
+
+            payBtn.disabled = true;
+            payBtn.querySelector('span').textContent = 'در حال انتقال...';
             errorEl.classList.add('hidden');
 
             try {
+                // این تابع بک‌اند را باید با کد نهایی و سالم جایگزین کنید
                 const { data, error } = await _supabase.functions.invoke('create-payment-request', {
                     body: {
                         documentTypeId: parseInt(documentTypeId),
@@ -178,15 +275,11 @@
             } catch (err) {
                 errorEl.textContent = `خطا: ${err.message}`;
                 errorEl.classList.remove('hidden');
-                buttons.forEach(btn => btn.disabled = false);
-                zibalBtn.textContent = 'پرداخت با زیبال';
-                bitpayBtn.textContent = 'پرداخت با BitPay';
+                payBtn.disabled = false;
+                payBtn.querySelector('span').textContent = 'پرداخت و فعال‌سازی';
             }
         }
-
-        zibalBtn.addEventListener('click', () => handlePayment('zibal'));
-        bitpayBtn.addEventListener('click', () => handlePayment('bitpay'));
     </script>
-</body>
 
+</body>
 </html>

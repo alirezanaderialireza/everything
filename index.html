@@ -196,6 +196,10 @@
             color: var(--slate-800);
             margin-left: 8px;
         }
+
+        #notification-toast.show {
+            transform: translateX(0);
+        }
     </style>
 </head>
 
@@ -473,6 +477,7 @@
                 if (profile && profile.has_premium_calendar) {
                     weeklyViewBtn.style.display = 'flex';  // دکمه تقویم هفتگی را نشان بده
                     upgradePrompt.style.display = 'none';  // پیام ارتقا را مخفی کن
+                    checkForUpcomingTasks(session.user); // <<<< این خط را اضافه کنید
                 }
                 // اگر کاربر محصول را نخریده بود
                 else {
@@ -565,7 +570,49 @@
                 }
             }
         });
+        async function checkForUpcomingTasks(user) {
+            if (!user) return;
+
+            const today = new Date().toISOString().slice(0, 10);
+            const { data, error } = await _supabase
+                .from('user_personal_events')
+                .select('title')
+                .eq('user_id', user.id)
+                .eq('event_date', today)
+                .eq('is_completed', false); // فقط کارهای تکمیل نشده
+
+            if (error) {
+                console.error("Error fetching upcoming tasks:", error);
+                return;
+            }
+
+            if (data && data.length > 0) {
+                const taskListEl = document.getElementById('toast-task-list');
+                const toastEl = document.getElementById('notification-toast');
+
+                taskListEl.innerHTML = data.map(task => `<p>- ${task.title}</p>`).join('');
+
+                // با کمی تاخیر، هشدار را نمایش بده
+                setTimeout(() => {
+                    toastEl.classList.add('show');
+                }, 1500);
+            }
+        }
     </script>
+    <div id="notification-toast"
+        class="fixed bottom-5 left-5 bg-white rounded-lg shadow-2xl p-5 w-80 border-t-4 border-[var(--gold)] transition-transform duration-500 translate-x-[-120%]"
+        style="z-index: 100;">
+        <div class="flex items-start gap-4">
+            <i class="fa-solid fa-bell text-2xl text-[var(--gold)] mt-1"></i>
+            <div>
+                <h3 class="font-display text-lg text-slate-800">کارهای امروز شما</h3>
+                <div id="toast-task-list" class="text-sm text-slate-600 mt-2 space-y-1">
+                </div>
+            </div>
+            <button onclick="document.getElementById('notification-toast').classList.remove('show')"
+                class="text-slate-400 hover:text-slate-600">&times;</button>
+        </div>
+    </div>
 </body>
 
 </html>

@@ -229,6 +229,24 @@
             margin-bottom: 0.5rem;
             border-right: 4px solid var(--gold);
         }
+
+        .personal-event-inline {
+            background-color: var(--event-color, var(--gold));
+            color: white;
+            /* بقیه استایل‌ها مشابه event-title-inline است */
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-bottom: 3px;
+            font-size: 0.75rem;
+        }
+
+        #notification-toast.show {
+            transform: translateX(0);
+        }
     </style>
 </head>
 
@@ -283,219 +301,306 @@
     <main class="container mx-auto px-6 py-12">
         <h1 class="text-4xl md:text-5xl font-display text-center mb-12" style="color: var(--navy);">تقویم هوشمند
             حسابداری</h1>
-            <div class="max-w-4xl mx-auto mb-8 text-center" id="premium-features-section">
+        <div class="max-w-4xl mx-auto mb-8 text-center" id="premium-features-section">
 
-                <div id="upgrade-calendar-prompt">
-                    <a href="checkout-calendar.html" class="inline-block">
-                        <button class="btn btn-gold">
-                            <i class="fa-solid fa-crown ml-2"></i>
-                            <span>خرید و فعال‌سازی نسخه پیشرفته (۵۰,۰۰۰ تومان)</span>
-                        </button>
-                    </a>
-                </div>
-
-                <div id="premium-buttons-container" class="space-x-4 space-x-reverse" style="display: none;">
-                    <button id="add-event-btn" class="btn btn-gold">
-                        <i class="fa-solid fa-plus ml-2"></i>
-                        <span>افزودن رویداد</span>
+            <div id="upgrade-calendar-prompt">
+                <a href="checkout-calendar.html" class="inline-block">
+                    <button class="btn btn-gold">
+                        <i class="fa-solid fa-crown ml-2"></i>
+                        <span>خرید و فعال‌سازی نسخه پیشرفته (۵۰,۰۰۰ تومان)</span>
                     </button>
-                    <a href="weekly-calendar.html" id="weekly-view-link"
-                        class="btn btn-gold bg-slate-700 text-white hover:bg-slate-800">
-                        <i class="fa-solid fa-calendar-week ml-2"></i>
-                        <span>نمای هفتگی</span>
-                    </a>
-                </div>
-
+                </a>
             </div>
-            <div id="calendar-container">ّ
 
-                <div id="calendar-container">
-                    <div class="calendar-header">
-                        <button id="prev-month-btn" class="calendar-nav-btn"><i
-                                class="fa fa-chevron-right"></i></button>
-                        <div id="month-display" class="calendar-month-display">...</div>
-                        <button id="next-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-left"></i></button>
-                    </div>
-                    <div class="calendar-grid weekday-grid">
-                        <div class="weekday-header">شنبه</div>
-                        <div class="weekday-header">یکشنبه</div>
-                        <div class="weekday-header">دوشنبه</div>
-                        <div class="weekday-header">سه‌شنبه</div>
-                        <div class="weekday-header">چهارشنبه</div>
-                        <div class="weekday-header">پنجشنبه</div>
-                        <div class="weekday-header">جمعه</div>
-                    </div>
-                    <div id="calendar-days-grid" class="calendar-grid">
-                    </div>
+            <div id="premium-buttons-container" class="space-x-4 space-x-reverse" style="display: none;">
+                <button id="add-event-btn" class="btn btn-gold">
+                    <i class="fa-solid fa-plus ml-2"></i>
+                    <span>افزودن رویداد</span>
+                </button>
+                <a href="weekly-calendar.html" id="weekly-view-link"
+                    class="btn btn-gold bg-slate-700 text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-calendar-week ml-2"></i>
+                    <span>نمای هفتگی</span>
+                </a>
+            </div>
+
+        </div>
+        <div id="calendar-container">ّ
+
+            <div id="calendar-container">
+                <div class="calendar-header">
+                    <button id="prev-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-right"></i></button>
+                    <div id="month-display" class="calendar-month-display">...</div>
+                    <button id="next-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-left"></i></button>
                 </div>
-
-                <div id="day-details-container" class="mt-8">
-                    <h3 class="text-2xl mb-4">رویدادهای روز انتخاب شده:</h3>
-                    <ul id="details-list">
-                        <li>روزی را برای مشاهده جزئیات انتخاب کنید.</li>
-                    </ul>
+                <div class="calendar-grid weekday-grid">
+                    <div class="weekday-header">شنبه</div>
+                    <div class="weekday-header">یکشنبه</div>
+                    <div class="weekday-header">دوشنبه</div>
+                    <div class="weekday-header">سه‌شنبه</div>
+                    <div class="weekday-header">چهارشنبه</div>
+                    <div class="weekday-header">پنجشنبه</div>
+                    <div class="weekday-header">جمعه</div>
                 </div>
-        </main>
+                <div id="calendar-days-grid" class="calendar-grid">
+                </div>
+            </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script>
-            // اسکریپت کامل لاگین
-            const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
-            const { createClient } = supabase;
-            const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage, }, });
-            const loginBtn = document.getElementById('login-btn');
-            const userMenu = document.getElementById('user-menu');
-            const profileToggleBtn = document.getElementById('profile-toggle-btn');
-            const dropdownMenu = document.getElementById('dropdown-menu');
-            const logoutBtn = document.getElementById('logout-btn');
+            <div id="day-details-container" class="mt-8">
+                <h3 class="text-2xl mb-4">رویدادهای روز انتخاب شده:</h3>
+                <ul id="details-list">
+                    <li>روزی را برای مشاهده جزئیات انتخاب کنید.</li>
+                </ul>
+            </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // اسکریپت کامل لاگین
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage, }, });
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const profileToggleBtn = document.getElementById('profile-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        const weeklyViewBtn = document.getElementById('weekly-view-btn');
+        const addEventBtn = document.getElementById('add-event-btn');
+        const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
+        _supabase.auth.onAuthStateChange(async (event, session) => {
+            // پیدا کردن دکمه‌های جدید
             const weeklyViewBtn = document.getElementById('weekly-view-btn');
             const addEventBtn = document.getElementById('add-event-btn');
             const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
-            _supabase.auth.onAuthStateChange(async (event, session) => {
-                // پیدا کردن دکمه‌های جدید
-                const upgradePrompt = document.getElementById('upgrade-calendar-prompt');
-                const premiumButtons = document.getElementById('premium-buttons-container');
-                const weeklyViewBtnInHeader = document.getElementById('weekly-view-btn'); // دکمه هدر
 
-                // اگر کاربر لاگین کرده باشد
-                if (session && session.user) {
-                    loginBtn.classList.add('hidden');
-                    userMenu.classList.remove('hidden');
+            // اگر کاربر لاگین کرده باشد
+            if (session && session.user) {
+                if (loginBtn) loginBtn.classList.add('hidden');
+                if (userMenu) userMenu.classList.remove('hidden');
 
-                    // بررسی وضعیت خرید تقویم پیشرفته از دیتابیس
-                    const { data: profile } = await _supabase
-                        .from('profiles')
-                        .select('has_premium_calendar')
-                        .eq('id', session.user.id)
-                        .single();
+                const { data: profile, error } = await _supabase
+                    .from('profiles')
+                    .select('has_premium_calendar')
+                    .eq('id', session.user.id)
+                    .single();
 
-                    // اگر کاربر نسخه پیشرفته را خریده بود
-                    if (profile && profile.has_premium_calendar) {
-                        upgradePrompt.style.display = 'none'; // دکمه خرید را مخفی کن
-                        premiumButtons.style.display = 'block'; // دکمه‌های پیشرفته را نشان بده
-                        if (weeklyViewBtnInHeader) weeklyViewBtnInHeader.style.display = 'flex';
-                    }
-                    // اگر کاربر نسخه پیشرفته را نخریده بود
-                    else {
-                        upgradePrompt.style.display = 'block'; // دکمه خرید را نشان بده
-                        premiumButtons.style.display = 'none'; // دکمه‌های پیشرفته را مخفی کن
-                        if (weeklyViewBtnInHeader) weeklyViewBtnInHeader.style.display = 'none';
-                    }
+                // اگر کاربر نسخه پیشرفته را خریده بود
+                if (profile && profile.has_premium_calendar) {
+                    isPremiumUser = true; // <<<< وضعیت کاربر به پیشرفته تغییر می‌کند
+                    if (weeklyViewBtn) weeklyViewBtn.style.display = 'flex';
+                    if (addEventBtn) addEventBtn.style.display = 'inline-block';
+                    if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
+                    fetchPersonalEvents(currentMoment.jYear(), session.user);
+                    checkForUpcomingTasks(session.user);                      // این خط برای نمایش هشدار
                 }
-                // اگر کاربر لاگین نکرده باشد
+                // اگر کاربر نسخه پیشرفته را نخریده بود
                 else {
-                    loginBtn.classList.remove('hidden');
-                    userMenu.classList.add('hidden');
+                    isPremiumUser = false; // <<<< وضعیت کاربر عادی باقی می‌ماند
+                    if (weeklyViewBtn) weeklyViewBtn.style.display = 'none';
+                    if (addEventBtn) addEventBtn.style.display = 'none';
+                    if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
 
-                    // **تغییر اصلی اینجاست**
-                    upgradePrompt.style.display = 'block'; // دکمه خرید را به همه نشان بده
-                    premiumButtons.style.display = 'none'; // دکمه‌های پیشرفته مخفی بماند
-                    if (weeklyViewBtnInHeader) weeklyViewBtnInHeader.style.display = 'none';
+                    userPersonalEvents = [];
+                    renderCalendar();
                 }
-            });
-            if (profileToggleBtn) {
-                profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
-                window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-                logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });
+            }
+            // اگر کاربر لاگین نکرده باشد
+            else {
+                isPremiumUser = false; // <<<< وضعیت کاربر عادی است
+                if (loginBtn) loginBtn.classList.remove('hidden');
+                if (userMenu) userMenu.classList.add('hidden');
+
+                if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
+                if (weeklyViewBtn) weeklyViewBtn.style.display = 'none';
+                if (addEventBtn) addEventBtn.style.display = 'none';
+            }
+        });
+        if (profileToggleBtn) {
+            profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
+            logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });
+        }
+
+        // اسکریپت کامل تقویم
+        document.addEventListener('DOMContentLoaded', function () {
+            // منطق ساعت زنده در هدر
+            const clockEl = document.getElementById('live-clock-display');
+            function updateClock() {
+                const now = new Date();
+                if (clockEl) clockEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // منطق تقوim کامل
+            moment.locale('fa');
+            const monthDisplay = document.getElementById('month-display');
+            const daysGrid = document.getElementById('calendar-days-grid');
+            const detailsList = document.getElementById('details-list');
+            const prevMonthBtn = document.getElementById('prev-month-btn');
+            const nextMonthBtn = document.getElementById('next-month-btn');
+            let currentMoment = moment();
+            let allEvents = [];
+            let selectedDate = null;
+            let userPersonalEvents = []; // آرایه‌ای برای نگهداری رویدادهای شخصی کاربر
+            let isPremiumUser = false; // وضعیت خرید نسخه پیشرفته توسط کاربر
+
+            async function fetchEvents(year) {
+                // در اینجا از نام کاربری صحیح شما استفاده می‌کنیم
+                const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
+                try {
+                    const response = await fetch(apiUrl);
+                    if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');
+                    allEvents = await response.json();
+                    renderCalendar();
+                } catch (error) {
+                    console.error("Failed to fetch events:", error);
+                    daysGrid.innerHTML = `<p class="p-4 col-span-7 text-center">خطا در بارگذاری رویدادها. لطفاً از فعال بودن سرور پایتون اطمینان حاصل کنید.</p>`;
+                }
+            }
+            async function fetchPersonalEvents(year, user) {
+                if (!user) return; // اگر کاربری وجود نداشت، خارج شو
+
+                // تاریخ شروع و پایان سال شمسی را به میلادی تبدیل می‌کنیم
+                const yearStart = new Date(year - 1, 3, 21); // roughly
+                const yearEnd = new Date(year, 3, 20); // roughly
+
+                const { data, error } = await _supabase
+                    .from('user_personal_events')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .gte('event_date', yearStart.toISOString().slice(0, 10))
+                    .lte('event_date', yearEnd.toISOString().slice(0, 10));
+
+                if (error) {
+                    console.error("Error fetching personal events:", error);
+                    userPersonalEvents = [];
+                } else {
+                    userPersonalEvents = data;
+                }
+                // پس از دریافت رویدادهای شخصی، تقویم را دوباره رندر کن
+                renderCalendar();
             }
 
-            // اسکریپت کامل تقویم
-            document.addEventListener('DOMContentLoaded', function () {
-                // منطق ساعت زنده در هدر
-                const clockEl = document.getElementById('live-clock-display');
-                function updateClock() {
-                    const now = new Date();
-                    if (clockEl) clockEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                }
-                updateClock();
-                setInterval(updateClock, 1000);
-
-                // منطق تقوim کامل
-                moment.locale('fa');
-                const monthDisplay = document.getElementById('month-display');
-                const daysGrid = document.getElementById('calendar-days-grid');
-                const detailsList = document.getElementById('details-list');
-                const prevMonthBtn = document.getElementById('prev-month-btn');
-                const nextMonthBtn = document.getElementById('next-month-btn');
-                let currentMoment = moment();
-                let allEvents = [];
-                let selectedDate = null;
-
-                async function fetchEvents(year) {
-                    // در اینجا از نام کاربری صحیح شما استفاده می‌کنیم
-                    const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
-                    try {
-                        const response = await fetch(apiUrl);
-                        if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');
-                        allEvents = await response.json();
-                        renderCalendar();
-                    } catch (error) {
-                        console.error("Failed to fetch events:", error);
-                        daysGrid.innerHTML = `<p class="p-4 col-span-7 text-center">خطا در بارگذاری رویدادها. لطفاً از فعال بودن سرور پایتون اطمینان حاصل کنید.</p>`;
+            function renderCalendar() {
+                daysGrid.innerHTML = '';
+                monthDisplay.textContent = currentMoment.format('MMMM YYYY');
+                const today = moment().format('YYYY-MM-DD');
+                const startOfMonth = currentMoment.clone().startOf('jMonth');
+                const daysInMonth = currentMoment.jDaysInMonth();
+                const firstDayOfWeek = startOfMonth.day();
+                const startOffset = (firstDayOfWeek + 1) % 7;
+                for (let i = 0; i < startOffset; i++) { daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`); }
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const dayMoment = currentMoment.clone().jDate(i);
+                    const dateString = dayMoment.format('YYYY-MM-DD');
+                    const dayEvents = allEvents.filter(e => e.date === dateString);
+                    let cellClasses = 'day-cell';
+                    if (dateString === today) cellClasses += ' today';
+                    if (dateString === selectedDate) cellClasses += ' selected';
+                    let eventsHtml = '';
+                    if (dayEvents.length > 0) {
+                        eventsHtml = '<div class="day-events-list">';
+                        dayEvents.slice(0, 2).forEach(event => { eventsHtml += `<div class="event-title-inline">${event.title}</div>`; });
+                        eventsHtml += '</div>';
+                        if (dayEvents.length > 2) eventsHtml += '<div class="event-dot"></div>';
                     }
+                    const cellHtml = `<div class="${cellClasses}" data-date="${dateString}"><div class="day-number">${i}</div>${eventsHtml}</div>`;
+                    daysGrid.insertAdjacentHTML('beforeend', cellHtml);
                 }
+                document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
+            }
 
-                function renderCalendar() {
-                    daysGrid.innerHTML = '';
-                    monthDisplay.textContent = currentMoment.format('MMMM YYYY');
-                    const today = moment().format('YYYY-MM-DD');
-                    const startOfMonth = currentMoment.clone().startOf('jMonth');
-                    const daysInMonth = currentMoment.jDaysInMonth();
-                    const firstDayOfWeek = startOfMonth.day();
-                    const startOffset = (firstDayOfWeek + 1) % 7;
-                    for (let i = 0; i < startOffset; i++) { daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`); }
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        const dayMoment = currentMoment.clone().jDate(i);
-                        const dateString = dayMoment.format('YYYY-MM-DD');
-                        const dayEvents = allEvents.filter(e => e.date === dateString);
-                        let cellClasses = 'day-cell';
-                        if (dateString === today) cellClasses += ' today';
-                        if (dateString === selectedDate) cellClasses += ' selected';
-                        let eventsHtml = '';
-                        if (dayEvents.length > 0) {
-                            eventsHtml = '<div class="day-events-list">';
-                            dayEvents.slice(0, 2).forEach(event => { eventsHtml += `<div class="event-title-inline">${event.title}</div>`; });
-                            eventsHtml += '</div>';
-                            if (dayEvents.length > 2) eventsHtml += '<div class="event-dot"></div>';
-                        }
-                        const cellHtml = `<div class="${cellClasses}" data-date="${dateString}"><div class="day-number">${i}</div>${eventsHtml}</div>`;
-                        daysGrid.insertAdjacentHTML('beforeend', cellHtml);
-                    }
-                    document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
+            function handleDayClick(event) {
+                const clickedCell = event.currentTarget;
+                selectedDate = clickedCell.dataset.date;
+
+                // اگر کاربر نسخه پیشرفته را خریده است
+                if (isPremiumUser) {
+                    // او را به صفحه نمای روزانه منتقل کن و تاریخ را به عنوان پارامتر بفرست
+                    window.location.href = `daily-view.html?date=${selectedDate}`;
                 }
-
-                function handleDayClick(event) {
-                    const clickedCell = event.currentTarget;
-                    selectedDate = clickedCell.dataset.date;
+                // اگر کاربر عادی است، مثل قبل عمل کن
+                else {
                     document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
                     clickedCell.classList.add('selected');
-                    const dayEvents = allEvents.filter(e => e.date === selectedDate);
+
+                    const publicEvents = allEvents.filter(e => e.date === selectedDate);
+                    // در نسخه رایگان، رویدادهای شخصی را نمایش نمی‌دهیم
+                    const detailsList = document.getElementById('details-list');
                     detailsList.innerHTML = '';
-                    if (dayEvents.length > 0) {
-                        dayEvents.forEach(e => { detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`); });
+
+                    if (publicEvents.length > 0) {
+                        publicEvents.forEach(e => {
+                            detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
+                        });
                     } else {
-                        detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+                        detailsList.innerHTML = `<li>هیچ رویداد عمومی برای این روز ثبت نشده است.</li>`;
                     }
                 }
+            }
 
-                prevMonthBtn.addEventListener('click', () => {
-                    const currentYear = currentMoment.jYear();
-                    currentMoment.subtract(1, 'jMonth');
-                    // اگر سال تغییر کرد، رویدادهای سال جدید را از API دریافت کن
-                    if (currentMoment.jYear() !== currentYear) { fetchEvents(currentMoment.jYear()); } else { renderCalendar(); }
-                });
-                nextMonthBtn.addEventListener('click', () => {
-                    const currentYear = currentMoment.jYear();
-                    currentMoment.add(1, 'jMonth');
-                    // اگر سال تغییر کرد، رویدادهای سال جدید را از API دریافت کن
-                    if (currentMoment.jYear() !== currentYear) { fetchEvents(currentMoment.jYear()); } else { renderCalendar(); }
-                });
-
-                // شروع برنامه با دریافت رویدادهای سال جاری شمسی
-                fetchEvents(currentMoment.jYear());
+            prevMonthBtn.addEventListener('click', () => {
+                const currentYear = currentMoment.jYear();
+                currentMoment.subtract(1, 'jMonth');
+                // اگر سال تغییر کرد، رویدادهای سال جدید را از API دریافت کن
+                if (currentMoment.jYear() !== currentYear) { fetchEvents(currentMoment.jYear()); } else { renderCalendar(); }
             });
-        </script>
+            nextMonthBtn.addEventListener('click', () => {
+                const currentYear = currentMoment.jYear();
+                currentMoment.add(1, 'jMonth');
+                // اگر سال تغییر کرد، رویدادهای سال جدید را از API دریافت کن
+                if (currentMoment.jYear() !== currentYear) { fetchEvents(currentMoment.jYear()); } else { renderCalendar(); }
+            });
+
+            // شروع برنامه با دریافت رویدادهای سال جاری شمسی
+            fetchEvents(currentMoment.jYear());
+        });
+        async function checkForUpcomingTasks(user) {
+            if (!user) return;
+
+            const today = new Date().toISOString().slice(0, 10);
+            const { data, error } = await _supabase
+                .from('user_personal_events')
+                .select('title')
+                .eq('user_id', user.id)
+                .eq('event_date', today)
+                .eq('is_completed', false); // فقط کارهای تکمیل نشده
+
+            if (error) {
+                console.error("Error fetching upcoming tasks:", error);
+                return;
+            }
+
+            if (data && data.length > 0) {
+                const taskListEl = document.getElementById('toast-task-list');
+                const toastEl = document.getElementById('notification-toast');
+
+                taskListEl.innerHTML = data.map(task => `<p>- ${task.title}</p>`).join('');
+
+                // با کمی تاخیر، هشدار را نمایش بده
+                setTimeout(() => {
+                    toastEl.classList.add('show');
+                }, 1500);
+            }
+        }
+    </script>
+    <div id="notification-toast"
+        class="fixed bottom-5 left-5 bg-white rounded-lg shadow-2xl p-5 w-80 border-t-4 border-[var(--gold)] transition-transform duration-500 translate-x-[-120%]"
+        style="z-index: 100;">
+        <div class="flex items-start gap-4">
+            <i class="fa-solid fa-bell text-2xl text-[var(--gold)] mt-1"></i>
+            <div>
+                <h3 class="font-display text-lg text-slate-800">کارهای امروز شما</h3>
+                <div id="toast-task-list" class="text-sm text-slate-600 mt-2 space-y-1">
+                </div>
+            </div>
+            <button onclick="document.getElementById('notification-toast').classList.remove('show')"
+                class="text-slate-400 hover:text-slate-600">&times;</button>
+        </div>
+    </div>
 </body>
 
 </html>

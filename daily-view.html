@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نمای روزانه - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
+    <style>
+        :root {
+            --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --gold: #c49227;
+            --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--slate-100);
+        }
+
+        h1,
+        h2,
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .main-header {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+        }
+
+        #daily-schedule {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            /* ستون زمان و ستون رویدادها */
+            grid-template-rows: repeat(16, 60px);
+            /* 16 ساعت از ۸ صبح تا ۱۲ شب، هر کدام ۶۰ پیکسل */
+        }
+
+        .time-label {
+            grid-column: 1;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--slate-500);
+            position: relative;
+            top: -10px;
+            /* تنظیم دقیق برچسب زمان */
+        }
+
+        #timeline {
+            grid-column: 2;
+            grid-row: 1 / -1;
+            /* کل ارتفاع را در بر بگیرد */
+            position: relative;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .hour-line {
+            height: 60px;
+            border-top: 1px dotted #d1d5db;
+        }
+
+        .event-block-daily {
+            position: absolute;
+            right: 10px;
+            left: 10px;
+            background-color: var(--event-color, var(--navy));
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            overflow: hidden;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-right: 4px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: white;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-right: 4px solid var(--task-color, var(--slate-600));
+            transition: all 0.3s ease;
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            background-color: #f8fafc;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--slate-500);
+        }
+
+        .task-checkbox {
+            min-width: 20px;
+            min-height: 20px;
+            width: 20px;
+            height: 20px;
+            appearance: none;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .task-checkbox:checked {
+            background-color: var(--task-color, var(--gold));
+            border-color: var(--task-color, var(--gold));
+        }
+
+        .task-checkbox:checked::after {
+            content: '\f00c';
+            /* Font Awesome check icon */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: white;
+            font-size: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100">
+
+    <header class="main-header sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+                <a href="documents.html" class="nav-link">اسناد حسابداری</a>
+                <a href="calendar.html" class="nav-link">تقویم ماهانه</a>
+                <a href="weekly-calendar.html" class="nav-link">تقویم هفتگی</a>
+                <a href="calculator.html" class="nav-link">ماشین حساب</a>
+            </div>
+            <div id="profile-section" class="relative">
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-6 mt-8">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 id="page-title" class="text-4xl font-display text-[var(--navy)]">برنامه روزانه</h1>
+                <p id="page-subtitle" class="text-slate-500 mt-2"></p>
+            </div>
+            <a href="calendar.html" class="text-sm text-slate-600 hover:text-[var(--gold)] font-semibold">
+                <i class="fa-solid fa-arrow-left ml-2"></i>
+                <span>بازگشت به تقویم ماهانه</span>
+            </a>
+        </div>
+
+        <div id="all-day-events-container" class="mb-8">
+            <h2 class="text-xl font-display text-slate-700 mb-3">رویدادهای کلی امروز</h2>
+            <div id="all-day-list" class="space-y-2">
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-4">
+            <div id="daily-schedule">
+                <div id="timeline">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        const pageTitle = document.getElementById('page-title');
+        const pageSubtitle = document.getElementById('page-subtitle');
+        const timeline = document.getElementById('timeline');
+        const scheduleGrid = document.getElementById('daily-schedule');
+        const allDayList = document.getElementById('all-day-list');
+
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            moment.locale('fa');
+
+            // ۱. بررسی وضعیت لاگین و دسترسی کاربر
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session || !session.user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = session.user;
+
+            const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', currentUser.id).single();
+            if (!profile || !profile.has_premium_calendar) {
+                alert('دسترسی به این بخش نیازمند خرید تقویم پیشرفته است.');
+                window.location.href = 'calendar.html';
+                return;
+            }
+
+            // ۲. گرفتن تاریخ از URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const dateStr = urlParams.get('date');
+            if (!dateStr) {
+                alert('تاریخی برای نمایش مشخص نشده است.');
+                window.location.href = 'calendar.html';
+                return;
+            }
+
+            // ۳. تنظیم عناوین و ساخت گرید زمانی
+            const selectedMoment = moment(dateStr, 'YYYY-MM-DD');
+            pageTitle.textContent = `برنامه روز ${selectedMoment.format('dddd')}`;
+            pageSubtitle.textContent = selectedMoment.format('jD jMMMM jYYYY');
+
+            setupTimeline();
+
+            // ۴. فراخوانی و نمایش همه رویدادها
+            fetchAndRenderAllEvents(dateStr);
+        });
+
+        function setupTimeline() {
+            for (let i = 8; i <= 23; i++) {
+                timeline.innerHTML += `<div class="hour-line"></div>`;
+                scheduleGrid.innerHTML += `<div class="time-label">${i}:00</div>`;
+            }
+        }
+
+        function timeToMinutes(timeStr) {
+            if (!timeStr) return 0;
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        // تابع اصلی برای فراخوانی و نمایش همه رویدادها
+        async function fetchAndRenderAllEvents(date) {
+            const shamsiYear = moment(date, 'YYYY-MM-DD').jYear();
+
+            // فراخوانی رویدادهای عمومی از API
+            const publicApiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${shamsiYear}`;
+            const publicEventsResponse = await fetch(publicApiUrl);
+            const allPublicEvents = await publicEventsResponse.json();
+            const publicEventsForDay = allPublicEvents.filter(e => e.date === date);
+
+            // فراخوانی رویدادهای شخصی از Supabase
+            const { data: personalEvents, error } = await _supabase
+                .from('user_personal_events')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .eq('event_date', date);
+
+            if (error) console.error("Error fetching personal events:", error);
+
+            // نمایش رویدادها
+            renderEvents(publicEventsForDay, personalEvents || []);
+        }
+
+        function renderEvents(publicEvents, personalEvents) {
+            allDayList.innerHTML = ''; // پاک کردن لیست قبلی
+
+            // نمایش رویدادهای عمومی
+            publicEvents.forEach(event => {
+                allDayList.innerHTML += `
+                    <div class="bg-white p-3 rounded-lg shadow-sm border-r-4" style="border-color: var(--slate-600);">
+                        <p class="font-semibold text-slate-800">${event.title}</p>
+                    </div>`;
+            });
+
+            // نمایش رویدادهای شخصی
+            // ... در تابع renderEvents ...
+
+            personalEvents.forEach(event => {
+                // اگر رویداد از نوع "تمام روز" بود
+                if (event.is_all_day) {
+                    const completedClass = event.is_completed ? 'completed' : '';
+                    const checkedAttr = event.is_completed ? 'checked' : '';
+
+                    // کامپوننت "کار" (Task) را با قابلیت تیک زدن ایجاد کن
+                    allDayList.innerHTML += `
+            <div id="task-${event.id}" class="task-item ${completedClass}" style="--task-color: ${event.color};">
+                <input type="checkbox" class="task-checkbox" onchange="toggleTaskCompletion('${event.id}', this.checked)" ${checkedAttr}>
+                <div>
+                    <p class="font-semibold task-title" style="color: ${event.color};">${event.title}</p>
+                    <p class="text-xs text-slate-400">${event.category}</p>
+                </div>
+            </div>`;
+                }
+                // اگر رویداد دارای ساعت شروع و پایان مشخص بود
+                else {
+                    // آن را به عنوان یک بلوک رنگی روی تایم‌لاین قرار بده
+                    const startMinutes = timeToMinutes(event.start_time);
+                    const endMinutes = timeToMinutes(event.end_time);
+
+                    const topOffset = ((startMinutes - (8 * 60)) / 60) * 60; // موقعیت از بالا بر اساس ساعت شروع
+                    const durationMinutes = endMinutes - startMinutes;
+                    const height = (durationMinutes / 60) * 60; // ارتفاع بر اساس مدت زمان رویداد
+
+                    const eventBlock = document.createElement('div');
+                    eventBlock.className = 'event-block-daily';
+                    eventBlock.style.top = `${topOffset}px`;
+                    eventBlock.style.height = `${height}px`;
+                    eventBlock.style.backgroundColor = event.color;
+                    eventBlock.innerHTML = `<p class="font-bold">${event.title}</p><p class="text-xs opacity-80">${event.start_time} - ${event.end_time}</p>`;
+
+                    timeline.appendChild(eventBlock);
+                }
+            });
+            async function toggleTaskCompletion(eventId, isCompleted) {
+                // ۱. آپدیت کردن وضعیت در دیتابیس
+                const { error } = await _supabase
+                    .from('user_personal_events')
+                    .update({ is_completed: isCompleted })
+                    .eq('id', eventId);
+
+                if (error) {
+                    alert('خطا در به‌روزرسانی وضعیت کار.');
+                    console.error(error);
+                    return;
+                }
+
+                // ۲. آپدیت کردن ظاهر کامپوننت در صفحه
+                const taskElement = document.getElementById(`task-${eventId}`);
+                if (taskElement) {
+                    if (isCompleted) {
+                        taskElement.classList.add('completed');
+                    } else {
+                        taskElement.classList.remove('completed');
+                    }
+                }
+            }
+
+            if (allDayList.innerHTML === '') {
+                allDayList.innerHTML = `<p class="text-center text-slate-500 p-4">هیچ رویداد کلی برای امروز ثبت نشده است.</p>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

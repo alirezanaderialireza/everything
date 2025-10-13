@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقویم هفتگی - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --gold: #c49227;
+            --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--slate-100);
+        }
+
+        h1,
+        h2,
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .main-header {
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: var(--navy);
+            border-radius: 0.5rem;
+            font-weight: 600;
+            padding: 0.6rem 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-gold:hover:not(:disabled) {
+            background-color: #b98d1e;
+            transform: translateY(-2px);
+        }
+
+        .btn-gold:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        #weekly-grid {
+            display: grid;
+            grid-template-columns: 60px repeat(7, 1fr);
+            grid-template-rows: 50px repeat(16, 60px);
+            /* 8 AM to 11 PM */
+        }
+
+        .time-slot {
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .day-column {
+            border-right: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .event-block {
+            position: absolute;
+            right: 2px;
+            left: 2px;
+            background-color: var(--navy);
+            color: white;
+            border-radius: 4px;
+            padding: 4px 8px;
+            overflow: hidden;
+            font-size: 0.8rem;
+            border-right: 4px solid var(--gold);
+        }
+
+        #event-modal {
+            transition: opacity 0.3s ease;
+        }
+
+        .category-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .category-selector input[type="radio"] {
+            display: none;
+        }
+
+        .category-selector label {
+            padding: 6px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .category-selector input[type="radio"]:checked+label {
+            background-color: var(--cat-color);
+            color: white;
+            border-color: var(--cat-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-slate-100">
+
+    <header class="main-header sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+                <a href="documents.html" class="nav-link">اسناد حسابداری</a>
+                <a href="calendar.html" class="nav-link">تقویم ماهانه</a>
+                <a href="weekly-calendar.html" class="nav-link">تقویم هفتگی</a>
+                <a href="calculator.html" class="nav-link">ماشین حساب</a>
+            </div>
+            <div id="profile-section" class="relative">
+                <a href="login.html" id="login-btn" class="btn-gold flex items-center justify-center gap-2 px-4 py-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>ورود / ثبت‌نام</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="profile-toggle-btn"
+                        class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-slate-600"></i>
+                    </button>
+                    <div id="dropdown-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات
+                            پروفایل</a>
+                        <a href="#" id="logout-btn"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-6 mt-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-display text-[var(--navy)]">برنامه هفتگی</h1>
+            <button id="add-event-btn" class="btn-gold">
+                <i class="fa-solid fa-plus ml-2"></i>
+                <span>افزودن رویداد</span>
+            </button>
+        </div>
+
+        <div id="weekly-container" class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div id="weekly-grid">
+            </div>
+        </div>
+    </main>
+
+    <div id="event-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+            <h2 class="text-2xl font-display text-[var(--navy)] mb-6">ثبت رویداد جدید</h2>
+            <form id="event-form" class="space-y-4">
+                <div>
+                    <label for="event-title" class="text-sm font-medium text-slate-700">عنوان رویداد</label>
+                    <input id="event-title" type="text" required
+                        class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-[var(--gold)] outline-none">
+                </div>
+
+                <div>
+                    <label for="event-category" class="text-sm font-medium text-slate-700">دسته‌بندی</label>
+                    <div class="category-selector mt-1">
+                        <input type="radio" name="category" id="cat-meeting"
+                            value='{"name": "جلسه", "color": "#0A192F"}' checked>
+                        <label for="cat-meeting" style="--cat-color: #0A192F;">جلسه</label>
+
+                        <input type="radio" name="category" id="cat-deadline"
+                            value='{"name": "مهلت قانونی", "color": "#ef4444"}'>
+                        <label for="cat-deadline" style="--cat-color: #ef4444;">مهلت قانونی</label>
+
+                        <input type="radio" name="category" id="cat-personal"
+                            value='{"name": "شخصی", "color": "#22c55e"}'>
+                        <label for="cat-personal" style="--cat-color: #22c55e;">شخصی</label>
+
+                        <input type="radio" name="category" id="cat-reminder"
+                            value='{"name": "یادآوری", "color": "#c49227"}'>
+                        <label for="cat-reminder" style="--cat-color: #c49227;">یادآوری</label>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="event-date" class="text-sm font-medium text-slate-700">تاریخ</label>
+                    <input id="event-date" type="date" required class="mt-1 w-full p-2 border rounded-md">
+                </div>
+
+                <div class="flex items-center">
+                    <input id="is-all-day" type="checkbox"
+                        class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]">
+                    <label for="is-all-day" class="ml-2 text-sm font-medium text-slate-700">رویداد تمام روز</label>
+                </div>
+
+                <div id="time-inputs" class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="start-time" class="text-sm font-medium text-slate-700">ساعت شروع</label>
+                        <input id="start-time" type="time" required class="mt-1 w-full p-2 border rounded-md">
+                    </div>
+                    <div>
+                        <label for="end-time" class="text-sm font-medium text-slate-700">ساعت پایان</label>
+                        <input id="end-time" type="time" required class="mt-1 w-full p-2 border rounded-md">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-4">
+                    <button type="button" id="cancel-btn"
+                        class="px-4 py-2 rounded-md bg-slate-100 hover:bg-slate-200">انصراف</button>
+                    <button type="submit" class="btn-gold">ذخیره رویداد</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase Client
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        // DOM Elements
+        const grid = document.getElementById('weekly-grid');
+        const modal = document.getElementById('event-modal');
+        const addEventBtn = document.getElementById('add-event-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const eventForm = document.getElementById('event-form');
+        const isAllDayCheckbox = document.getElementById('is-all-day');
+        const timeInputs = document.getElementById('time-inputs');
+
+        // --- Event Listeners for Form Interactivity ---
+        isAllDayCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                timeInputs.style.display = 'none'; // مخفی کردن فیلدهای زمان
+                document.getElementById('start-time').required = false;
+                document.getElementById('end-time').required = false;
+            } else {
+                timeInputs.style.display = 'grid'; // نمایش مجدد فیلدهای زمان
+                document.getElementById('start-time').required = true;
+                document.getElementById('end-time').required = true;
+            }
+        });
+
+        let currentUser = null;
+        const today = new Date();
+
+        // --- Authentication and Authorization ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (!session || !session.user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = session.user;
+
+            const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', currentUser.id).single();
+            if (!profile || !profile.has_premium_calendar) {
+                alert('دسترسی به این بخش نیازمند خرید تقویم پیشرفته است.');
+                window.location.href = 'calendar.html';
+                return;
+            }
+
+            setupWeekView(today);
+            loadAndRenderEvents(today);
+        });
+
+        // --- Calendar Rendering ---
+        function setupWeekView(date) {
+            grid.innerHTML = ''; // Clear previous grid
+            const startOfWeek = new Date(date);
+            startOfWeek.setDate(date.getDate() - date.getDay()); // Assuming Sunday is the start of the week
+
+            // Create headers
+            const headerRow = document.createElement('div');
+            headerRow.className = "col-start-2 col-span-7 grid grid-cols-7 text-center font-bold text-slate-700";
+            const days = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه', 'شنبه'];
+            days.forEach((day, index) => {
+                const dayDate = new Date(startOfWeek);
+                dayDate.setDate(startOfWeek.getDate() + index);
+                headerRow.innerHTML += `<div class="p-2 border-b border-r">${day}<br><span class="text-sm font-normal">${dayDate.toLocaleDateString('fa-IR', { day: 'numeric', month: 'numeric' })}</span></div>`;
+            });
+            grid.appendChild(headerRow);
+
+            // Create time slots
+            for (let i = 8; i <= 23; i++) {
+                grid.innerHTML += `<div class="time-slot text-center text-xs text-slate-500 p-1">${i}:00</div>`;
+            }
+
+            // Create day columns
+            for (let i = 0; i < 7; i++) {
+                const dayCol = document.createElement('div');
+                dayCol.id = `day-col-${i}`;
+                dayCol.className = 'day-column col-start-' + (i + 2);
+                grid.appendChild(dayCol);
+            }
+        }
+
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        function renderEvent(event) {
+            const eventDate = new Date(event.event_date);
+            const dayIndex = eventDate.getDay();
+            const dayColumn = document.getElementById(`day-col-${dayIndex}`);
+
+            if (!dayColumn) return;
+
+            const startMinutes = timeToMinutes(event.start_time);
+            const endMinutes = timeToMinutes(event.end_time);
+
+            const topOffset = ((startMinutes - (8 * 60)) / 60) * 60; // 60px per hour, starting from 8 AM
+            const durationMinutes = endMinutes - startMinutes;
+            const height = (durationMinutes / 60) * 60;
+
+            const eventBlock = document.createElement('div');
+            eventBlock.className = 'event-block';
+            eventBlock.style.top = `${topOffset}px`;
+            eventBlock.style.height = `${height}px`;
+            eventBlock.textContent = event.title;
+
+            dayColumn.appendChild(eventBlock);
+        }
+
+        async function loadAndRenderEvents(date) {
+            const startOfWeek = new Date(date);
+            startOfWeek.setDate(date.getDate() - date.getDay());
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+            const { data, error } = await _supabase
+                .from('user_personal_events')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .gte('event_date', startOfWeek.toISOString().slice(0, 10))
+                .lte('event_date', endOfWeek.toISOString().slice(0, 10));
+
+            if (error) {
+                console.error("Error fetching events:", error);
+                return;
+            }
+
+            document.querySelectorAll('.event-block').forEach(e => e.remove()); // Clear old events
+            data.forEach(renderEvent);
+        }
+
+        // --- Modal and Form Logic ---
+        addEventBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+        eventForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // خواندن مقادیر جدید از فرم
+            const title = e.target['event-title'].value;
+            const event_date = e.target['event-date'].value;
+            const is_all_day = e.target['is-all-day'].checked;
+
+            // خواندن مقدار JSON از دسته‌بندی انتخاب شده
+            const categoryData = JSON.parse(e.target['category'].value);
+            const category = categoryData.name;
+            const color = categoryData.color;
+
+            let start_time = null;
+            let end_time = null;
+
+            // فقط اگر رویداد تمام-روز نباشد، مقادیر زمان را بخوان
+            if (!is_all_day) {
+                start_time = e.target['start-time'].value;
+                end_time = e.target['end-time'].value;
+
+                if (timeToMinutes(end_time) <= timeToMinutes(start_time)) {
+                    alert("ساعت پایان باید بعد از ساعت شروع باشد.");
+                    return;
+                }
+            }
+
+            // ساخت آبجکت نهایی برای ارسال به دیتابیس
+            const newEvent = {
+                title,
+                event_date,
+                is_all_day,
+                category,
+                color,
+                start_time,
+                end_time,
+                user_id: currentUser.id
+            };
+
+            const { data, error } = await _supabase
+                .from('user_personal_events')
+                .insert([newEvent])
+                .select();
+
+            if (error) {
+                alert("خطا در ثبت رویداد: " + error.message);
+            } else {
+                // رندر کردن رویداد جدید روی تقویم
+                renderEvent(data[0]);
+                modal.classList.add('hidden');
+                eventForm.reset();
+                timeInputs.style.display = 'grid'; // ریست کردن نمایش فیلدهای زمان
+            }
+        });
+    </script>
+</body>
+
+</html>

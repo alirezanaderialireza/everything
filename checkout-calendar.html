@@ -222,12 +222,11 @@
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Supabase Client
         const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI_NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
         const { createClient } = supabase;
         const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
@@ -243,7 +242,6 @@
         const totalPriceEl = document.getElementById('total-price');
         const gatewayCards = document.querySelectorAll('.gateway-card');
 
-        // --- New Discount Elements ---
         const discountCodeInput = document.getElementById('discount-code-input');
         const applyDiscountBtn = document.getElementById('apply-discount-btn');
         const discountMessage = document.getElementById('discount-message');
@@ -257,24 +255,40 @@
         let finalPrice = PRICE_TOMAN;
         let validatedDiscountCode = null;
 
-        // --- Helper Function ---
         const formatToman = (num) => `${Math.round(num).toLocaleString('fa-IR')} تومان`;
 
-        // --- Initial Page Load ---
+        // --- Main Logic on Page Load ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // ... (بخش مربوط به چک کردن لاگین کاربر بدون تغییر باقی می‌ماند) ...
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            emailInput.value = user.email;
 
-            // نمایش قیمت اولیه
+            const { data: profile } = await _supabase.from('profiles').select('full_name, mobile').eq('id', user.id).single();
+            if (profile) {
+                if (profile.full_name) nameInput.value = profile.full_name;
+                if (profile.mobile) mobileInput.value = profile.mobile;
+            }
+
             productPriceEl.textContent = formatToman(PRICE_TOMAN);
             totalPriceEl.textContent = formatToman(finalPrice);
         });
 
-        // --- Gateway Selection Logic ---
+        // --- Event Listeners ---
+
+        // Gateway Selection
         gatewayCards.forEach(card => {
-            // ... (این بخش بدون تغییر باقی می‌ماند) ...
+            card.addEventListener('click', () => {
+                gatewayCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedGateway = card.dataset.gateway;
+            });
         });
 
-        // --- New Discount Logic ---
+        // Discount Code Application
         applyDiscountBtn.addEventListener('click', async () => {
             const code = discountCodeInput.value.trim().toUpperCase();
             if (!code) {
@@ -288,7 +302,6 @@
             discountMessage.className = 'text-xs mt-2 h-4 text-slate-500';
 
             try {
-                // یک تابع جدید در بک‌اند صدا می‌زنیم تا کد را بررسی کند
                 const { data, error } = await _supabase.functions.invoke('validate-discount-code', {
                     body: { code, product_type: 'calendar' }
                 });
@@ -300,7 +313,6 @@
                     const discountValue = PRICE_TOMAN * (discountPercent / 100);
                     finalPrice = PRICE_TOMAN - discountValue;
 
-                    // آپدیت UI
                     discountAmountEl.textContent = `- ${formatToman(discountValue)}`;
                     discountRow.classList.remove('hidden');
                     totalPriceEl.textContent = formatToman(finalPrice);
@@ -308,7 +320,7 @@
                     discountMessage.textContent = `تخفیف ${discountPercent}% با موفقیت اعمال شد.`;
                     discountMessage.className = 'text-xs mt-2 h-4 text-green-600';
 
-                    validatedDiscountCode = code; // کد معتبر را ذخیره می‌کنیم
+                    validatedDiscountCode = code;
                     discountCodeInput.disabled = true;
                 } else {
                     throw new Error(data.message || 'کد تخفیف نامعتبر است.');
@@ -323,7 +335,7 @@
             }
         });
 
-        // --- Final Payment Logic ---
+        // Final Payment Button
         payBtn.addEventListener('click', () => {
             if (!selectedGateway) {
                 alert('لطفاً یک درگاه پرداخت انتخاب کنید.');
@@ -333,10 +345,16 @@
         });
 
         async function handlePayment(gateway) {
-            // ... (بخش اعتبارسنجی فرم بدون تغییر) ...
+            if (!form.reportValidity()) {
+                alert('لطفاً تمام اطلاعات خریدار را تکمیل کنید.');
+                return;
+            }
+
+            payBtn.disabled = true;
+            payBtn.querySelector('span').textContent = 'در حال انتقال...';
+            errorEl.classList.add('hidden');
 
             try {
-                // کد تخفیف معتبر را به بک‌اند ارسال می‌کنیم
                 const { data, error } = await _supabase.functions.invoke('create-calendar-payment-request', {
                     body: {
                         gateway: gateway,
@@ -344,7 +362,7 @@
                             fullName: nameInput.value,
                             mobile: mobileInput.value
                         },
-                        discountCode: validatedDiscountCode // <<<< فیلد جدید
+                        discountCode: validatedDiscountCode
                     }
                 });
 
@@ -352,7 +370,10 @@
                 window.location.href = data.paymentUrl;
 
             } catch (err) {
-                // ... (بخش مدیریت خطا بدون تغییر) ...
+                errorEl.textContent = `خطا: ${err.message}`;
+                errorEl.classList.remove('hidden');
+                payBtn.disabled = false;
+                payBtn.querySelector('span').textContent = 'پرداخت و فعال‌سازی';
             }
         }
     </script>

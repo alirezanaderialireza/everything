@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خرید تقویم پیشرفته - آیدا شیرازی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A192F;
+            --slate-800: #1e293b;
+            --slate-600: #475569;
+            --slate-100: #f1f5f9;
+            --gold: #c49827;
+            --light-gold: #FBEFCE;
+            --font-display: 'Lalezar', cursive;
+            --font-body: 'Vazirmatn', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--slate-100);
+        }
+
+        h1,
+        h2,
+        .font-display {
+            font-family: var(--font-display);
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: var(--navy);
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(196, 152, 39, 0.2);
+        }
+
+        .btn-gold:hover:not(:disabled) {
+            background-color: #b98d1e;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(196, 152, 39, 0.3);
+        }
+
+        .btn-gold:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+            box-shadow: none;
+        }
+
+        .gateway-card {
+            border: 2px solid #e2e8f0;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .gateway-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .gateway-card.selected {
+            border-color: var(--gold);
+            background-color: var(--light-gold);
+            box-shadow: 0 4px 15px rgba(196, 152, 39, 0.2);
+        }
+    </style>
+</head>
+
+<body class="py-12 px-4">
+
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-10">
+            <a href="index.html" class="text-2xl font-bold font-display text-[var(--navy)]">آیدا شیرازی</a>
+            <h1 class="text-4xl font-display text-[var(--slate-800)] mt-2">تکمیل خرید تقویم پیشرفته</h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-12">
+
+            <div class="lg:col-span-3 bg-white p-8 rounded-2xl shadow-lg">
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-display text-[var(--navy)] mb-4 border-b pb-3">۱. اطلاعات خریدار</h2>
+                        <form id="user-info-form" class="space-y-4 mt-4">
+                            <div>
+                                <label for="full-name" class="text-sm font-medium text-slate-700">نام و نام
+                                    خانوادگی</label>
+                                <input id="full-name" type="text" required
+                                    class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                            </div>
+                            <div>
+                                <label for="email" class="text-sm font-medium text-slate-700">ایمیل</label>
+                                <input id="email" type="email" disabled
+                                    class="mt-1 block w-full px-3 py-2 border rounded-md bg-slate-100 cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label for="mobile" class="text-sm font-medium text-slate-700">شماره همراه</label>
+                                <input id="mobile" type="tel" required
+                                    class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-[var(--gold)] focus:border-[var(--gold)]">
+                            </div>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h2 class="text-2xl font-display text-[var(--navy)] mb-4 border-b pb-3">۲. انتخاب درگاه</h2>
+                        <div id="gateway-selection" class="space-y-4 mt-4">
+                            <div data-gateway="zibal"
+                                class="gateway-card p-4 rounded-lg flex justify-between items-center">
+                            </div>
+                            <div data-gateway="bitpay"
+                                class="gateway-card p-4 rounded-lg flex justify-between items-center">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                <div class="bg-white p-8 rounded-2xl shadow-lg sticky top-12">
+                    <h2 class="text-2xl font-display text-[var(--navy)] mb-6 border-b pb-4">خلاصه سفارش</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-600">محصول:</span>
+                            <span id="product-title" class="font-semibold text-slate-800">تقویم پیشرفته</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-600">قیمت:</span>
+                            <span id="product-price" class="font-semibold text-slate-800"></span>
+                        </div>
+                        <div class="border-t pt-4 mt-4! flex justify-between items-center text-lg">
+                            <span class="font-bold text-slate-800">مبلغ قابل پرداخت:</span>
+                            <span id="total-price" class="font-bold text-[var(--gold)] text-xl"></span>
+                        </div>
+                    </div>
+                    <button id="pay-btn" class="w-full mt-8 py-3 px-4 rounded-md font-semibold btn-gold text-lg">
+                        <i class="fa-solid fa-lock-open ml-2"></i>
+                        <span>پرداخت و فعال‌سازی</span>
+                    </button>
+                    <p id="error-message" class="text-red-500 text-center text-sm mt-4 hidden"></p>
+                    <div class="text-center mt-6">
+                        <a href="calendar.html" class="text-sm text-slate-500 hover:text-[var(--gold)]">
+                            <i class="fa-solid fa-arrow-right ml-1"></i>
+                            <span>انصراف و بازگشت</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        const form = document.getElementById('user-info-form');
+        const payBtn = document.getElementById('pay-btn');
+        const errorEl = document.getElementById('error-message');
+        const emailInput = document.getElementById('email');
+        const nameInput = document.getElementById('full-name');
+        const mobileInput = document.getElementById('mobile');
+
+        const productPriceEl = document.getElementById('product-price');
+        const totalPriceEl = document.getElementById('total-price');
+        const gatewayCards = document.querySelectorAll('.gateway-card');
+
+        let currentUser = null;
+        let selectedGateway = null;
+        const PRICE_TOMAN = 50000; // قیمت تقویم پیشرفته
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            emailInput.value = user.email;
+
+            const { data: profile } = await _supabase.from('profiles').select('full_name, mobile').eq('id', user.id).single();
+            if (profile) {
+                if (profile.full_name) nameInput.value = profile.full_name;
+                if (profile.mobile) mobileInput.value = profile.mobile;
+            }
+
+            const formattedPrice = `${PRICE_TOMAN.toLocaleString('fa-IR')} تومان`;
+            productPriceEl.textContent = formattedPrice;
+            totalPriceEl.textContent = formattedPrice;
+        });
+
+        gatewayCards.forEach(card => {
+            card.addEventListener('click', () => {
+                gatewayCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedGateway = card.dataset.gateway;
+            });
+        });
+
+        payBtn.addEventListener('click', () => {
+            if (!selectedGateway) {
+                alert('لطفاً یک درگاه پرداخت انتخاب کنید.');
+                return;
+            }
+            // نام تابع پشتیبان را تغییر خواهیم داد
+            handlePayment(selectedGateway);
+        });
+
+        async function handlePayment(gateway) {
+            if (!form.reportValidity()) return;
+
+            payBtn.disabled = true;
+            payBtn.querySelector('span').textContent = 'در حال انتقال...';
+            errorEl.classList.add('hidden');
+
+            try {
+                // نام تابع پشتیبان را به یک نام جدید تغییر می‌دهیم
+                const { data, error } = await _supabase.functions.invoke('create-calendar-payment-request', {
+                    body: {
+                        gateway: gateway,
+                        userInfo: {
+                            fullName: nameInput.value,
+                            mobile: mobileInput.value
+                        }
+                    }
+                });
+
+                if (error) throw error;
+                window.location.href = data.paymentUrl;
+
+            } catch (err) {
+                errorEl.textContent = `خطا: ${err.message}`;
+                errorEl.classList.remove('hidden');
+                payBtn.disabled = false;
+                payBtn.querySelector('span').textContent = 'پرداخت و فعال‌سازی';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

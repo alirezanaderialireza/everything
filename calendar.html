@@ -247,8 +247,13 @@
             </div>
             <div class="hidden md:flex items-center space-x-10 space-x-reverse">
                 <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
-                <a href="documents.html" class="nav-link">اسناد حسابداری</a> <!-- این خط جدید است -->
+                <a href="documents.html" class="nav-link">اسناد حسابداری</a>
                 <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
+                <a href="weekly-calendar.html" id="weekly-view-btn" class="nav-link flex items-center gap-2"
+                    style="display: none;">
+                    <span>تقویم هفتگی</span>
+                    <i class="fa-solid fa-star text-xs text-yellow-500"></i>
+                </a>
                 <a href="calculator.html" class="nav-link">ماشین حساب</a>
                 <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
                 <a href="index.html#about" class="nav-link">درباره من</a>
@@ -278,6 +283,24 @@
     <main class="container mx-auto px-6 py-12">
         <h1 class="text-4xl md:text-5xl font-display text-center mb-12" style="color: var(--navy);">تقویم هوشمند
             حسابداری</h1>
+        <div class="max-w-4xl mx-auto mb-8 text-center">
+            <button id="add-event-btn" class="btn btn-gold" style="display: none;">
+                <i class="fa-solid fa-plus ml-2"></i>
+                <span>افزودن رویداد جدید</span>
+            </button>
+
+            <div id="upgrade-calendar-prompt" class="p-4 bg-white rounded-lg shadow" style="display: none;">
+                <p class="text-slate-600 mb-3">
+                    با ارتقا به نسخه پیشرفته، به نمای هفتگی و امکان ثبت رویداد شخصی دسترسی پیدا کنید.
+                </p>
+                <a href="checkout-calendar.html" class="inline-block">
+                    <button class="btn btn-gold">
+                        <i class="fa-solid fa-crown ml-2"></i>
+                        <span>ارتقا و خرید تقویم پیشرفته</span>
+                    </button>
+                </a>
+            </div>
+        </div>
 
         <div id="calendar-container">
             <div class="calendar-header">
@@ -318,8 +341,43 @@
         const profileToggleBtn = document.getElementById('profile-toggle-btn');
         const dropdownMenu = document.getElementById('dropdown-menu');
         const logoutBtn = document.getElementById('logout-btn');
-        _supabase.auth.onAuthStateChange((event, session) => {
-            if (session && session.user) { if (loginBtn) loginBtn.classList.add('hidden'); if (userMenu) userMenu.classList.remove('hidden'); } else { if (loginBtn) loginBtn.classList.remove('hidden'); if (userMenu) userMenu.classList.add('hidden'); }
+        const weeklyViewBtn = document.getElementById('weekly-view-btn');
+        const addEventBtn = document.getElementById('add-event-btn');
+        const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
+        _supabase.auth.onAuthStateChange(async (event, session) => {
+            // اگر کاربر لاگین کرده باشد
+            if (session && session.user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+
+                // از دیتابیس بپرس که آیا این کاربر محصول تقویم را خریده است یا نه
+                const { data: profile, error } = await _supabase
+                    .from('profiles')
+                    .select('has_premium_calendar')
+                    .eq('id', session.user.id)
+                    .single();
+
+                // اگر کاربر محصول را خریده بود (یعنی has_premium_calendar = true)
+                if (profile && profile.has_premium_calendar) {
+                    weeklyViewBtn.style.display = 'flex';         // دکمه تقویم هفتگی در هدر را نشان بده
+                    addEventBtn.style.display = 'inline-block';   // دکمه افزودن رویداد را نشان بده
+                    upgradeCalendarPrompt.style.display = 'none'; // پیام ارتقا را مخفی کن
+                }
+                // اگر کاربر محصول را نخریده بود
+                else {
+                    weeklyViewBtn.style.display = 'none';         // دکمه تقویم هفتگی در هدر را مخفی کن
+                    addEventBtn.style.display = 'none';           // دکمه افزودن رویداد را مخفی کن
+                    upgradeCalendarPrompt.style.display = 'block';// پیام ارتقا را نشان بده
+                }
+            }
+            // اگر کاربر لاگین نکرده باشد
+            else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+                weeklyViewBtn.style.display = 'none';
+                addEventBtn.style.display = 'none';
+                upgradeCalendarPrompt.style.display = 'none'; // پیام ارتقا برای کاربر لاگین نکرده مخفی است
+            }
         });
         if (profileToggleBtn) {
             profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });

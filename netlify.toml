@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/payment/*"
+  to = "https://evfgzegtplkhocfxcjpp.supabase.co/functions/v1/:splat"
+  status = 200

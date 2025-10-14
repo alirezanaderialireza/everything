@@ -447,41 +447,57 @@
             const logoutBtn = document.getElementById('logout-btn');
             const upgradePrompt = document.getElementById('upgrade-prompt');
 
-            // --- 2. AUTHENTICATION & PREMIUM FEATURES LOGIC ---
+            // --- 2. AUTHENTICATION & PROFILE MENU LOGIC (Corrected & Unified) ---
             _supabase.auth.onAuthStateChange(async (event, session) => {
                 if (session && session.user) {
+                    // User is logged in
                     loginBtn.classList.add('hidden');
                     userMenu.classList.remove('hidden');
 
+                    // Check for premium calendar access
                     const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
 
                     if (profile && profile.has_premium_calendar) {
                         if (upgradePrompt) upgradePrompt.style.display = 'none';
-                        checkForUpcomingTasks(session.user);
+                        checkForUpcomingTasks(session.user); // Check for tasks if premium
                     } else {
                         if (upgradePrompt) upgradePrompt.style.display = 'block';
                     }
                 } else {
+                    // User is logged out
                     loginBtn.classList.remove('hidden');
                     userMenu.classList.add('hidden');
                     if (upgradePrompt) upgradePrompt.style.display = 'none';
                 }
             });
 
-            // --- 3. PROFILE MENU & LOGOUT LOGIC ---
+            // Event listener for the profile icon to toggle the dropdown
             if (profileToggleBtn) {
-                profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
-                window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', async (e) => {
-                        e.preventDefault();
-                        await _supabase.auth.signOut();
-                        window.location.href = '/index.html';
-                    });
-                }
+                profileToggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevents the window click from closing it immediately
+                    dropdownMenu.classList.toggle('hidden');
+                });
             }
 
-            // --- 4. UPCOMING TASKS NOTIFICATION LOGIC ---
+            // Corrected event listener for the logout button
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await _supabase.auth.signOut();
+                    // Redirect to home page after logout to reflect changes
+                    window.location.href = '/index.html';
+                });
+            }
+
+            // Close the dropdown if clicking anywhere else on the page
+            window.addEventListener('click', () => {
+                if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+
+
+            // --- 3. UPCOMING TASKS NOTIFICATION LOGIC ---
             async function checkForUpcomingTasks(user) {
                 if (!user) return;
                 const today = new Date().toISOString().slice(0, 10);
@@ -499,7 +515,7 @@
                 }
             }
 
-            // --- 5. CALENDAR WIDGET & CLOCK LOGIC ---
+            // --- 4. CALENDAR WIDGET & CLOCK LOGIC ---
             const timeEl = document.getElementById('widget-time');
             const shamsiDateEl = document.getElementById('widget-shamsi-date');
             const qamariDateEl = document.getElementById('widget-qamari-date');

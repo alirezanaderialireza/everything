@@ -8,8 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
         rel="stylesheet">
     <style>
@@ -32,8 +30,6 @@
             font-family: var(--font-body);
             background-color: white;
             color: var(--slate-600);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         h1,
@@ -57,21 +53,6 @@
             font-weight: 500;
             position: relative;
             padding-bottom: 4px;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            right: 0;
-            background-color: var(--gold);
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
         }
 
         .nav-link:hover {
@@ -204,242 +185,238 @@
 </head>
 
 <body class="bg-white">
-    <div id="landing-page">
-        <header class="main-header sticky top-0 z-50">
-            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو"
-                        class="w-10 h-10 rounded-full">
-                    <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا
-                        شیرازی</a>
-                </div>
-                <div class="hidden md:flex items-center space-x-10 space-x-reverse">
-                    <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
-                    <a href="documents.html" class="nav-link">اسناد حسابداری</a>
-                    <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
-                    <a href="calculator.html" class="nav-link">ماشین حساب</a>
-                    <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
-                    <a href="index.html#about" class="nav-link">درباره من</a>
-                </div>
-                <div id="profile-section" class="relative">
-                    <a href="login.html" id="login-btn" class="btn btn-gold flex">
-                        <i class="fa-solid fa-right-to-bracket"></i>
-                        <span>ورود / ثبت‌نام</span>
-                    </a>
-                    <div id="user-menu" class="hidden">
-                        <button id="profile-toggle-btn"
-                            class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
-                            <i class="fa-solid fa-user text-slate-600"></i>
-                        </button>
-                        <div id="dropdown-menu"
-                            class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                            <a href="settings.html"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
-                            <a href="#" id="logout-btn"
-                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج از حساب</a>
-                        </div>
+    <header class="main-header sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="لوگو"
+                    class="w-10 h-10 rounded-full">
+                <a href="index.html" class="text-xl font-bold font-display" style="color: var(--navy);">آیدا شیرازی</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-10 space-x-reverse">
+                <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
+                <a href="documents.html" class="nav-link">اسناد حسابداری</a>
+                <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
+                <a href="calculator.html" class="nav-link">ماشین حساب</a>
+                <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
+                <a href="index.html#about" class="nav-link">درباره من</a>
+            </div>
+            <div id="profile-section" class="relative">
+                <a href="login.html" id="login-btn" class="btn btn-gold flex">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>ورود / ثبت‌نام</span>
+                </a>
+                <div id="user-menu" class="hidden">
+                    <button id="profile-toggle-btn"
+                        class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
+                        <i class="fa-solid fa-user text-slate-600"></i>
+                    </button>
+                    <div id="dropdown-menu"
+                        class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
+                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات
+                            پروفایل</a>
+                        <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج
+                            از حساب</a>
                     </div>
                 </div>
-            </nav>
-        </header>
+            </div>
+        </nav>
+    </header>
 
-        <main>
-            <section class="text-center" style="background-color: var(--navy);">
-                <div class="container mx-auto px-6 py-32 md:py-40">
-                    <h1 class="text-5xl md:text-6xl font-bold mb-4 font-display text-white">
-                        متخصص امور مالیاتی <span style="color: var(--gold);">کسب‌وکار خود</span> شوید
-                    </h1>
-                    <p class="text-lg max-w-2xl mx-auto mb-8 text-slate-300 leading-relaxed">
-                        با نقشه راه جامع و آموزش‌های ویدیویی ما، یک بار برای همیشه تمام پیچیدگی‌های مالیات و حسابداری را
-                        به زبان ساده بیاموزید.
-                    </p>
-                    <div>
-                        <a href="#roadmap" class="btn btn-gold">
-                            <i class="fa-solid fa-map-signs"></i>
-                            <span>مشاهده نقشه راه</span>
-                        </a>
-                    </div>
-                </div>
-            </section>
-
-            <section id="smart-calendar-widget-section" class="py-20 bg-white">
-                <div class="container mx-auto px-6">
-                    <div id="calendar-widget">
-                        <div class="widget-header">
-                            <div id="widget-time" class="widget-time">--:--:--</div>
-                            <div class="widget-dates-container">
-                                <div class="date-segment">
-                                    <div class="label">شمسی</div>
-                                    <div id="widget-shamsi-date" class="value">...</div>
-                                </div>
-                                <div class="date-segment">
-                                    <div class="label">میلادی</div>
-                                    <div id="widget-gregorian-date" class="value">...</div>
-                                </div>
-                                <div class="date-segment">
-                                    <div class="label">قمری</div>
-                                    <div id="widget-qamari-date" class="value">...</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="widget-body">
-                            <div class="events-column" id="today-events">
-                                <h4><i class="fa-solid fa-star ml-2"></i>رویدادهای امروز</h4>
-                                <ul></ul>
-                                <p class="no-events hidden">رویدادی برای امروز ثبت نشده است.</p>
-                            </div>
-                            <div class="events-column" id="week-events">
-                                <h4><i class="fa-solid fa-bell ml-2"></i>یادآورهای هفته آینده</h4>
-                                <ul></ul>
-                                <p class="no-events hidden">رویدادی در ۷ روز آینده ثبت نشده است.</p>
-                            </div>
-                            <div class="events-column" id="month-events">
-                                <h4><i class="fa-solid fa-calendar-days ml-2"></i>رویدادهای ماه آینده</h4>
-                                <ul></ul>
-                                <p class="no-events hidden">رویدادی برای ماه آینده ثبت نشده است.</p>
-                            </div>
-                        </div>
-                        <div id="upgrade-prompt" class="p-4 text-center border-t border-slate-200"
-                            style="display: none;">
-                            <p class="text-slate-600 mb-3">
-                                با ارتقا به نسخه پیشرفته، به نمای هفتگی و امکان ثبت رویداد شخصی دسترسی پیدا کنید.
-                            </p>
-                            <a href="checkout-calendar.html" class="inline-block">
-                                <button class="btn btn-gold">
-                                    <i class="fa-solid fa-crown ml-2"></i>
-                                    <span>ارتقا به نسخه پیشرفته</span>
-                                </button>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <section id="roadmap" class="py-24 sm:py-32 overflow-hidden">
-                <div class="container mx-auto px-6">
-                    <div class="text-center max-w-3xl mx-auto">
-                        <h2 class="text-4xl md:text-5xl font-display">نقشه راه جامع مالیاتی شما</h2>
-                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">
-                            این مسیر آموزشی، شما را قدم به قدم از سطح مبتدی به یک متخصص توانمند تبدیل می‌کند. هر مرحله
-                            یک دوره کامل برای تسلط بر یکی از جنبه‌های کلیدی امور مالی است.
-                        </p>
-                    </div>
-
-                    <div class="relative mt-24">
-                        <div class="absolute left-1/2 top-2 h-full w-0.5 bg-slate-200 -translate-x-1/2"
-                            aria-hidden="true"></div>
-                        <div class="space-y-20 md:space-y-28">
-                            <div class="relative flex items-center">
-                                <div class="w-full md:w-1/2 md:pr-12">
-                                    <div
-                                        class="group relative bg-white p-8 rounded-xl border border-slate-200 shadow-lg transition-shadow duration-300 hover:shadow-2xl">
-                                        <span
-                                            class="absolute top-4 -right-10 font-display text-8xl font-bold text-slate-100/80 -z-10">01</span>
-                                        <div class="mb-4 text-right">
-                                            <i class="fa-solid fa-percent text-4xl text-[var(--gold)]"></i>
-                                        </div>
-                                        <h3 class="text-2xl font-display mb-3 text-slate-800">دوره ارزش افزوده</h3>
-                                        <p class="text-slate-600 leading-relaxed mb-6">از ثبت‌نام تا ارسال اظهارنامه و
-                                            دریافت اعتبار مالیاتی، تمام مراحل را به صورت عملی بیاموزید.</p>
-                                        <a href="#"
-                                            class="font-semibold text-[var(--navy)] group-hover:text-[var(--gold)] transition-colors duration-300 flex items-center">
-                                            <i
-                                                class="fa-solid fa-arrow-left ml-3 transition-transform duration-300 group-hover:translate-x-1.5"></i>
-                                            <span>مشاهده جزئیات دوره</span>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div
-                                    class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--gold)] border-4 border-white shadow-md">
-                                </div>
-                            </div>
-                            <div class="relative flex items-center md:flex-row-reverse">
-                                <div class="w-full md:w-1/2 md:pl-12">
-                                    <div
-                                        class="group relative bg-white p-8 rounded-xl border border-slate-200 shadow-lg transition-shadow duration-300 hover:shadow-2xl text-right">
-                                        <span
-                                            class="absolute top-4 -left-10 font-display text-8xl font-bold text-slate-100/80 -z-10">02</span>
-                                        <div class="mb-4">
-                                            <i class="fa-solid fa-file-invoice-dollar text-4xl text-[var(--gold)]"></i>
-                                        </div>
-                                        <h3 class="text-2xl font-display mb-3 text-slate-800">دوره اظهارنامه عملکرد</h3>
-                                        <p class="text-slate-600 leading-relaxed mb-6">یاد بگیرید چگونه اظهارنامه سالانه
-                                            خود را بدون نقص و با استفاده از تمام ظرفیت‌های قانونی تکمیل کنید.</p>
-                                        <a href="#"
-                                            class="font-semibold text-[var(--navy)] group-hover:text-[var(--gold)] transition-colors duration-300 flex items-center justify-end">
-                                            <span>مشاهده جزئیات دوره</span>
-                                            <i
-                                                class="fa-solid fa-arrow-left mr-3 transition-transform duration-300 group-hover:-translate-x-1.5"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div
-                                    class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--gold)] border-4 border-white shadow-md">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="updates" class="py-24 sm:py-32" style="background-color: var(--slate-100);">
-                <div class="container mx-auto px-6">
-                    <div class="text-center max-w-2xl mx-auto">
-                        <h2 class="text-4xl md:text-5xl font-display">آخرین تغییرات و اخبار</h2>
-                        <p class="mt-4 text-lg text-slate-600 leading-relaxed">
-                            در این بخش می‌توانید از آخرین تغییرات در قوانین مالیاتی، حسابداری و تامین اجتماعی مطلع شوید.
-                        </p>
-                    </div>
-                    <div class="max-w-3xl mx-auto mt-16 space-y-8">
-                        <div class="flex items-center gap-6">
-                            <div class="bg-[var(--navy)] text-center rounded-lg p-4 min-w-[80px]">
-                                <span class="block text-3xl font-bold text-white font-sans">25</span>
-                                <span class="block text-sm text-[var(--gold)]">شهریور</span>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-display mb-1">تغییرات جدید در نرخ مالیات بر ارزش افزوده</h3>
-                                <p class="text-slate-600">طبق بخشنامه جدید سازمان امور مالیاتی، نرخ مالیات بر ارزش
-                                    افزوده برای برخی کالاها و خدمات تغییر کرده است. برای اطلاعات بیشتر کلیک کنید.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="about" class="py-24 sm:py-32">
-                <div class="container mx-auto px-6 text-center">
-                    <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="آیدا شیرازی"
-                        class="w-32 h-32 rounded-full mx-auto mb-6 border-4 shadow-lg"
-                        style="border-color: var(--gold);">
-                    <h2 class="text-4xl md:text-5xl font-display">با آیدا شیرازی آشنا شوید</h2>
-                    <p class="max-w-3xl mx-auto text-slate-700 text-lg mt-6 leading-loose">
-                        من آیدا شیرازی، مشاور و مدرس امور مالیاتی، با سال‌ها تجربه در زمینه حسابرسی و ارائه مشاوره به
-                        کسب‌وکارهای مختلف، تصمیم گرفتم تا دانش خود را در قالب یک نقشه راه جامع و کاربردی در اختیار شما
-                        قرار دهم. هدف من، توانمندسازی مدیران و صاحبان کسب‌وکار برای مدیریت هوشمندانه و مستقلانه امور
-                        مالی‌شان است.
-                    </p>
-                </div>
-            </section>
-        </main>
-
-        <footer class="py-8" style="background-color: var(--navy); color: white;">
-            <div class="container mx-auto px-6 flex flex-wrap justify-between items-center text-center md:text-right">
-                <div class="w-full md:w-auto mb-4 md:mb-0">
-                    <p class="text-slate-300 text-sm">&copy; 2025 - تمامی حقوق برای وب‌سایت آموزشی آیدا شیرازی محفوظ
-                        است.</p>
-                    <a href="mailto:info@aidashirazi.ir"
-                        class="text-slate-300 hover:text-[var(--gold)] transition-colors text-sm">info@aidashirazi.ir</a>
-                </div>
-                <div class="w-full md:w-auto">
-                    <a referrerpolicy='origin' target='_blank'
-                        href='https://trustseal.enamad.ir/?id=658250&Code=7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'>
-                        <img referrerpolicy='origin'
-                            src='https://trustseal.enamad.ir/logo.aspx?id=658250&Code=7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'
-                            alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'>
+    <main>
+        <section class="text-center" style="background-color: var(--navy);">
+            <div class="container mx-auto px-6 py-32 md:py-40">
+                <h1 class="text-5xl md:text-6xl font-bold mb-4 font-display text-white">
+                    متخصص امور مالیاتی <span style="color: var(--gold);">کسب‌وکار خود</span> شوید
+                </h1>
+                <p class="text-lg max-w-2xl mx-auto mb-8 text-slate-300 leading-relaxed">
+                    با نقشه راه جامع و آموزش‌های ویدیویی ما، یک بار برای همیشه تمام پیچیدگی‌های مالیات و حسابداری را به
+                    زبان ساده بیاموزید.
+                </p>
+                <div>
+                    <a href="#roadmap" class="btn btn-gold">
+                        <i class="fa-solid fa-map-signs"></i>
+                        <span>مشاهده نقشه راه</span>
                     </a>
                 </div>
             </div>
-        </footer>
-    </div>
+        </section>
+
+        <section id="smart-calendar-widget-section" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div id="calendar-widget">
+                    <div class="widget-header">
+                        <div id="widget-time" class="widget-time">--:--:--</div>
+                        <div class="widget-dates-container">
+                            <div class="date-segment">
+                                <div class="label">شمسی</div>
+                                <div id="widget-shamsi-date" class="value">...</div>
+                            </div>
+                            <div class="date-segment">
+                                <div class="label">میلادی</div>
+                                <div id="widget-gregorian-date" class="value">...</div>
+                            </div>
+                            <div class="date-segment">
+                                <div class="label">قمری</div>
+                                <div id="widget-qamari-date" class="value">...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="widget-body">
+                        <div class="events-column" id="today-events">
+                            <h4><i class="fa-solid fa-star ml-2"></i>رویدادهای امروز</h4>
+                            <ul></ul>
+                            <p class="no-events hidden">رویدادی برای امروز ثبت نشده است.</p>
+                        </div>
+                        <div class="events-column" id="week-events">
+                            <h4><i class="fa-solid fa-bell ml-2"></i>یادآورهای هفته آینده</h4>
+                            <ul></ul>
+                            <p class="no-events hidden">رویدادی در ۷ روز آینده ثبت نشده است.</p>
+                        </div>
+                        <div class="events-column" id="month-events">
+                            <h4><i class="fa-solid fa-calendar-days ml-2"></i>رویدادهای ماه آینده</h4>
+                            <ul></ul>
+                            <p class="no-events hidden">رویدادی برای ماه آینده ثبت نشده است.</p>
+                        </div>
+                    </div>
+                    <div id="upgrade-prompt" class="p-4 text-center border-t border-slate-200" style="display: none;">
+                        <p class="text-slate-600 mb-3">
+                            با ارتقا به نسخه پیشرفته، به نمای هفتگی و امکان ثبت رویداد شخصی دسترسی پیدا کنید.
+                        </p>
+                        <a href="checkout-calendar.html" class="inline-block">
+                            <button class="btn btn-gold">
+                                <i class="fa-solid fa-crown ml-2"></i>
+                                <span>ارتقا به نسخه پیشرفته</span>
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="py-24 sm:py-32 overflow-hidden">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="text-4xl md:text-5xl font-display">نقشه راه جامع مالیاتی شما</h2>
+                    <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                        این مسیر آموزشی، شما را قدم به قدم از سطح مبتدی به یک متخصص توانمند تبدیل می‌کند. هر مرحله یک
+                        دوره کامل برای تسلط بر یکی از جنبه‌های کلیدی امور مالی است.
+                    </p>
+                </div>
+                <div class="relative mt-24">
+                    <div class="absolute left-1/2 top-2 h-full w-0.5 bg-slate-200 -translate-x-1/2" aria-hidden="true">
+                    </div>
+                    <div class="space-y-20 md:space-y-28">
+                        <div class="relative flex items-center">
+                            <div class="w-full md:w-1/2 md:pr-12">
+                                <div
+                                    class="group relative bg-white p-8 rounded-xl border border-slate-200 shadow-lg transition-shadow duration-300 hover:shadow-2xl">
+                                    <span
+                                        class="absolute top-4 -right-10 font-display text-8xl font-bold text-slate-100/80 -z-10">01</span>
+                                    <div class="mb-4 text-right">
+                                        <i class="fa-solid fa-percent text-4xl text-[var(--gold)]"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-display mb-3 text-slate-800">دوره ارزش افزوده</h3>
+                                    <p class="text-slate-600 leading-relaxed mb-6">از ثبت‌نام تا ارسال اظهارنامه و
+                                        دریافت اعتبار مالیاتی، تمام مراحل را به صورت عملی بیاموزید.</p>
+                                    <a href="#"
+                                        class="font-semibold text-[var(--navy)] group-hover:text-[var(--gold)] transition-colors duration-300 flex items-center">
+                                        <i
+                                            class="fa-solid fa-arrow-left ml-3 transition-transform duration-300 group-hover:translate-x-1.5"></i>
+                                        <span>مشاهده جزئیات دوره</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div
+                                class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--gold)] border-4 border-white shadow-md">
+                            </div>
+                        </div>
+                        <div class="relative flex items-center md:flex-row-reverse">
+                            <div class="w-full md:w-1/2 md:pl-12">
+                                <div
+                                    class="group relative bg-white p-8 rounded-xl border border-slate-200 shadow-lg transition-shadow duration-300 hover:shadow-2xl text-right">
+                                    <span
+                                        class="absolute top-4 -left-10 font-display text-8xl font-bold text-slate-100/80 -z-10">02</span>
+                                    <div class="mb-4">
+                                        <i class="fa-solid fa-file-invoice-dollar text-4xl text-[var(--gold)]"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-display mb-3 text-slate-800">دوره اظهارنامه عملکرد</h3>
+                                    <p class="text-slate-600 leading-relaxed mb-6">یاد بگیرید چگونه اظهارنامه سالانه خود
+                                        را بدون نقص و با استفاده از تمام ظرفیت‌های قانونی تکمیل کنید.</p>
+                                    <a href="#"
+                                        class="font-semibold text-[var(--navy)] group-hover:text-[var(--gold)] transition-colors duration-300 flex items-center justify-end">
+                                        <span>مشاهده جزئیات دوره</span>
+                                        <i
+                                            class="fa-solid fa-arrow-left mr-3 transition-transform duration-300 group-hover:-translate-x-1.5"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div
+                                class="absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-[var(--gold)] border-4 border-white shadow-md">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="updates" class="py-24 sm:py-32" style="background-color: var(--slate-100);">
+            <div class="container mx-auto px-6">
+                <div class="text-center max-w-2xl mx-auto">
+                    <h2 class="text-4xl md:text-5xl font-display">آخرین تغییرات و اخبار</h2>
+                    <p class="mt-4 text-lg text-slate-600 leading-relaxed">
+                        در این بخش می‌توانید از آخرین تغییرات در قوانین مالیاتی، حسابداری و تامین اجتماعی مطلع شوید.
+                    </p>
+                </div>
+                <div class="max-w-3xl mx-auto mt-16 space-y-8">
+                    <div class="flex items-center gap-6">
+                        <div class="bg-[var(--navy)] text-center rounded-lg p-4 min-w-[80px]">
+                            <span class="block text-3xl font-bold text-white font-sans">25</span>
+                            <span class="block text-sm text-[var(--gold)]">شهریور</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-display mb-1">تغییرات جدید در نرخ مالیات بر ارزش افزوده</h3>
+                            <p class="text-slate-600">طبق بخشنامه جدید سازمان امور مالیاتی، نرخ مالیات بر ارزش افزوده
+                                برای برخی کالاها و خدمات تغییر کرده است. برای اطلاعات بیشتر کلیک کنید.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" class="py-24 sm:py-32">
+            <div class="container mx-auto px-6 text-center">
+                <img src="https://i.postimg.cc/j519gM1p/dd6fd5aa-9d3e-4a23-85e5-5ee9a534197e.jpg" alt="آیدا شیرازی"
+                    class="w-32 h-32 rounded-full mx-auto mb-6 border-4 shadow-lg" style="border-color: var(--gold);">
+                <h2 class="text-4xl md:text-5xl font-display">با آیدا شیرازی آشنا شوید</h2>
+                <p class="max-w-3xl mx-auto text-slate-700 text-lg mt-6 leading-loose">
+                    من آیدا شیرازی، مشاور و مدرس امور مالیاتی، با سال‌ها تجربه در زمینه حسابرسی و ارائه مشاوره به
+                    کسب‌وکارهای مختلف، تصمیم گرفتم تا دانش خود را در قالب یک نقشه راه جامع و کاربردی در اختیار شما قرار
+                    دهم. هدف من، توانمندسازی مدیران و صاحبان کسب‌وکار برای مدیریت هوشمندانه و مستقلانه امور مالی‌شان
+                    است.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-8" style="background-color: var(--navy); color: white;">
+        <div class="container mx-auto px-6 flex flex-wrap justify-between items-center text-center md:text-right">
+            <div class="w-full md:w-auto mb-4 md:mb-0">
+                <p class="text-slate-300 text-sm">&copy; 2025 - تمامی حقوق برای وب‌سایت آموزشی آیدا شیرازی محفوظ است.
+                </p>
+                <a href="mailto:info@aidashirazi.ir"
+                    class="text-slate-300 hover:text-[var(--gold)] transition-colors text-sm">info@aidashirazi.ir</a>
+            </div>
+            <div class="w-full md:w-auto">
+                <a referrerpolicy='origin' target='_blank'
+                    href='https://trustseal.enamad.ir/?id=658250&Code=7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'>
+                    <img referrerpolicy='origin'
+                        src='https://trustseal.enamad.ir/logo.aspx?id=658250&Code=7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'
+                        alt='نماد اعتماد الکترونیکی' style='cursor:pointer' code='7jygiRlKt4WDEiPohc1PrFBPWlKJsk3u'>
+                </a>
+            </div>
+        </div>
+    </footer>
+
     <div id="notification-toast"
         class="fixed bottom-5 left-5 bg-white rounded-lg shadow-2xl p-5 w-80 border-t-4 border-[var(--gold)] transition-transform duration-500 translate-x-[-120%]"
         style="z-index: 100;">
@@ -447,8 +424,7 @@
             <i class="fa-solid fa-bell text-2xl text-[var(--gold)] mt-1"></i>
             <div>
                 <h3 class="font-display text-lg text-slate-800">کارهای امروز شما</h3>
-                <div id="toast-task-list" class="text-sm text-slate-600 mt-2 space-y-1">
-                </div>
+                <div id="toast-task-list" class="text-sm text-slate-600 mt-2 space-y-1"></div>
             </div>
             <button onclick="document.getElementById('notification-toast').classList.remove('show')"
                 class="text-slate-400 hover:text-slate-600">&times;</button>
@@ -457,87 +433,94 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // --- 1. SUPABASE CLIENT & DOM ELEMENTS ---
-        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
-
-        const loginBtn = document.getElementById('login-btn');
-        const userMenu = document.getElementById('user-menu');
-        const profileToggleBtn = document.getElementById('profile-toggle-btn');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        const logoutBtn = document.getElementById('logout-btn');
-        const upgradePrompt = document.getElementById('upgrade-prompt');
-
-        // --- 2. AUTHENTICATION & PREMIUM FEATURES LOGIC ---
-        _supabase.auth.onAuthStateChange(async (event, session) => {
-            if (session && session.user) {
-                loginBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
-
-                const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
-
-                if (profile && profile.has_premium_calendar) {
-                    if (upgradePrompt) upgradePrompt.style.display = 'none';
-                    checkForUpcomingTasks(session.user);
-                } else {
-                    if (upgradePrompt) upgradePrompt.style.display = 'block';
-                }
-            } else {
-                loginBtn.classList.remove('hidden');
-                userMenu.classList.add('hidden');
-                if (upgradePrompt) upgradePrompt.style.display = 'none';
-            }
-        });
-
-        if (profileToggleBtn) {
-            profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
-            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await _supabase.auth.signOut();
-                    window.location.href = '/index.html';
-                });
-            }
-        }
-
-        // --- 3. UPCOMING TASKS NOTIFICATION LOGIC ---
-        async function checkForUpcomingTasks(user) {
-            if (!user) return;
-            const today = new Date().toISOString().slice(0, 10);
-            const { data, error } = await _supabase.from('user_personal_events').select('title').eq('user_id', user.id).eq('event_date', today).eq('is_completed', false);
-
-            if (data && data.length > 0) {
-                const taskListEl = document.getElementById('toast-task-list');
-                const toastEl = document.getElementById('notification-toast');
-                if (taskListEl && toastEl) {
-                    taskListEl.innerHTML = data.map(task => `<p class="truncate">- ${task.title}</p>`).join('');
-                    setTimeout(() => {
-                        toastEl.classList.add('show');
-                    }, 1500);
-                }
-            }
-        }
-
-        // --- 4. CALENDAR WIDGET & CLOCK LOGIC ---
         document.addEventListener('DOMContentLoaded', function () {
-            // Live Clock
+            // --- 1. SUPABASE CLIENT & DOM ELEMENTS ---
+            const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+            const { createClient } = supabase;
+            const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+            const loginBtn = document.getElementById('login-btn');
+            const userMenu = document.getElementById('user-menu');
+            const profileToggleBtn = document.getElementById('profile-toggle-btn');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            const logoutBtn = document.getElementById('logout-btn');
+            const upgradePrompt = document.getElementById('upgrade-prompt');
+
+            // --- 2. AUTHENTICATION & PREMIUM FEATURES LOGIC ---
+            _supabase.auth.onAuthStateChange(async (event, session) => {
+                if (session && session.user) {
+                    loginBtn.classList.add('hidden');
+                    userMenu.classList.remove('hidden');
+
+                    const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
+
+                    if (profile && profile.has_premium_calendar) {
+                        if (upgradePrompt) upgradePrompt.style.display = 'none';
+                        checkForUpcomingTasks(session.user);
+                    } else {
+                        if (upgradePrompt) upgradePrompt.style.display = 'block';
+                    }
+                } else {
+                    loginBtn.classList.remove('hidden');
+                    userMenu.classList.add('hidden');
+                    if (upgradePrompt) upgradePrompt.style.display = 'none';
+                }
+            });
+
+            // --- 3. PROFILE MENU & LOGOUT LOGIC ---
+            if (profileToggleBtn) {
+                profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+                window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        await _supabase.auth.signOut();
+                        window.location.href = '/index.html';
+                    });
+                }
+            }
+
+            // --- 4. UPCOMING TASKS NOTIFICATION LOGIC ---
+            async function checkForUpcomingTasks(user) {
+                if (!user) return;
+                const today = new Date().toISOString().slice(0, 10);
+                const { data, error } = await _supabase.from('user_personal_events').select('title').eq('user_id', user.id).eq('event_date', today).eq('is_completed', false);
+
+                if (data && data.length > 0) {
+                    const taskListEl = document.getElementById('toast-task-list');
+                    const toastEl = document.getElementById('notification-toast');
+                    if (taskListEl && toastEl) {
+                        taskListEl.innerHTML = data.map(task => `<p class="truncate">- ${task.title}</p>`).join('');
+                        setTimeout(() => {
+                            toastEl.classList.add('show');
+                        }, 1500);
+                    }
+                }
+            }
+
+            // --- 5. CALENDAR WIDGET & CLOCK LOGIC ---
             const timeEl = document.getElementById('widget-time');
+            const shamsiDateEl = document.getElementById('widget-shamsi-date');
+            const qamariDateEl = document.getElementById('widget-qamari-date');
+            const gregorianDateEl = document.getElementById('widget-gregorian-date');
+
             function updateTimeAndDate() {
                 const now = new Date();
                 if (timeEl) timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                // ... (other date updates)
+                if (shamsiDateEl) shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long' }).format(now);
+                if (gregorianDateEl) gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(now);
+                if (qamariDateEl) try { qamariDateEl.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', { day: 'numeric', month: 'long' }).format(now); } catch (e) { qamariDateEl.textContent = 'ناموجود'; }
             }
             if (timeEl) {
                 updateTimeAndDate();
                 setInterval(updateTimeAndDate, 1000);
             }
 
-            // Calendar Widget
             const todayCol = document.getElementById('today-events');
             if (todayCol) {
+                const weekCol = document.getElementById('week-events');
+                const monthCol = document.getElementById('month-events');
                 const currentShamsiYear = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric' }).format(new Date()).replace(/[^0-9]/g, '');
                 const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${currentShamsiYear}`;
 
@@ -546,28 +529,40 @@
                     .then(events => {
                         const today = new Date();
                         const todayShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(today).replace(/\//g, '-');
+                        const sevenDaysFromNow = new Date();
+                        sevenDaysFromNow.setDate(today.getDate() + 7);
+                        const sevenDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(sevenDaysFromNow).replace(/\//g, '-');
+                        const thirtyDaysFromNow = new Date();
+                        thirtyDaysFromNow.setDate(today.getDate() + 30);
+                        const thirtyDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(thirtyDaysFromNow).replace(/\//g, '-');
 
                         const todayEvents = events.filter(e => e.date === todayShamsi);
-                        // ... (filtering for week/month events)
+                        const weekEvents = events.filter(e => e.date > todayShamsi && e.date <= sevenDaysLaterShamsi);
+                        const monthEvents = events.filter(e => e.date > sevenDaysLaterShamsi && e.date <= thirtyDaysLaterShamsi);
 
                         renderWidgetEvents(todayCol, todayEvents);
-                        // ... (rendering for week/month columns)
+                        renderWidgetEvents(weekCol, weekEvents, true);
+                        renderWidgetEvents(monthCol, monthEvents, true);
                     })
                     .catch(error => {
                         console.error("Error fetching widget events:", error);
-                        todayCol.querySelector('ul').innerHTML = `<li>خطا در بارگذاری رویدادها.</li>`;
+                        const errorLi = `<li>خطا در بارگذاری رویدادها.</li>`;
+                        if (todayCol) todayCol.querySelector('ul').innerHTML = errorLi;
+                        if (weekCol) weekCol.querySelector('ul').innerHTML = errorLi;
+                        if (monthCol) monthCol.querySelector('ul').innerHTML = errorLi;
                     });
 
                 function renderWidgetEvents(columnElement, eventList, showDate = false) {
                     const ul = columnElement.querySelector('ul');
                     const noEventsP = columnElement.querySelector('.no-events');
+                    if (!ul || !noEventsP) return;
                     if (eventList.length === 0) {
                         noEventsP.classList.remove('hidden');
                         ul.innerHTML = '';
-                        return;
+                    } else {
+                        noEventsP.classList.add('hidden');
+                        ul.innerHTML = eventList.map(event => `<li>${showDate ? `<span class="event-date-tag">${event.date.substring(5)}</span>` : ''}${event.title}</li>`).join('');
                     }
-                    noEventsP.classList.add('hidden');
-                    ul.innerHTML = eventList.map(event => `<li>${showDate ? `<span class="event-date-tag">${event.date.substring(5)}</span>` : ''}${event.title}</li>`).join('');
                 }
             }
         });

@@ -217,11 +217,6 @@
                     <a href="index.html#roadmap" class="nav-link">نقشه راه</a>
                     <a href="documents.html" class="nav-link">اسناد حسابداری</a>
                     <a href="calendar.html" class="nav-link">تقویم هوشمند</a>
-                    <a href="weekly-calendar.html" id="weekly-view-btn" class="nav-link flex items-center gap-2"
-                        style="display: none;">
-                        <span>تقویم هفتگی</span>
-                        <i class="fa-solid fa-star text-xs text-yellow-500"></i>
-                    </a>
                     <a href="calculator.html" class="nav-link">ماشین حساب</a>
                     <a href="index.html#updates" class="nav-link">آخرین تغییرات</a>
                     <a href="index.html#about" class="nav-link">درباره من</a>
@@ -461,36 +456,54 @@
         const weeklyViewBtn = document.getElementById('weekly-view-btn');
         const upgradePrompt = document.getElementById('upgrade-prompt');
         _supabase.auth.onAuthStateChange(async (event, session) => {
+            // پیدا کردن دکمه‌های مربوط به قابلیت‌های پیشرفته در بدنه صفحه
+            const addEventBtn = document.getElementById('add-event-btn');
+            const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
+            const weeklyViewLink = document.getElementById('weekly-view-link'); // دکمه نمای هفتگی در بدنه
+
             // اگر کاربر لاگین کرده باشد
             if (session && session.user) {
-                loginBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (userMenu) userMenu.style.display = 'block';
 
-                // از دیتابیس بپرس که آیا این کاربر محصول تقویم را خریده است یا نه
-                const { data: profile, error } = await _supabase
-                    .from('profiles')
-                    .select('has_premium_calendar')
-                    .eq('id', session.user.id)
-                    .single();
+                const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
 
-                // اگر کاربر محصول را خریده بود (یعنی has_premium_calendar = true)
+                // اگر کاربر نسخه پیشرفته را خریده بود
                 if (profile && profile.has_premium_calendar) {
-                    weeklyViewBtn.style.display = 'flex';  // دکمه تقویم هفتگی را نشان بده
-                    upgradePrompt.style.display = 'none';  // پیام ارتقا را مخفی کن
-                    checkForUpcomingTasks(session.user); // <<<< این خط را اضافه کنید
+                    isPremiumUser = true;
+                    if (addEventBtn) addEventBtn.style.display = 'inline-block';
+                    if (weeklyViewLink) weeklyViewLink.style.display = 'inline-block';
+                    if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
+
+                    fetchPersonalEvents(currentMoment.jYear(), session.user);
+                    checkForUpcomingTasks(session.user);
                 }
-                // اگر کاربر محصول را نخریده بود
+                // اگر کاربر نسخه پیشرفته را نخریده بود
                 else {
-                    weeklyViewBtn.style.display = 'none';   // دکمه تقویم هفتگی را مخفی کن
-                    upgradePrompt.style.display = 'block'; // پیام ارتقا را نشان بده
+                    isPremiumUser = false;
+                    if (addEventBtn) addEventBtn.style.display = 'none';
+                    if (weeklyViewLink) weeklyViewLink.style.display = 'none';
+                    if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
+
+                    userPersonalEvents = [];
+                    renderCalendar();
                 }
             }
             // اگر کاربر لاگین نکرده باشد
             else {
-                loginBtn.classList.remove('hidden');
-                userMenu.classList.add('hidden');
-                weeklyViewBtn.style.display = 'none';   // دکمه تقویم هفتگی را مخفی کن
-                upgradePrompt.style.display = 'none';   // پیام ارتقا را هم مخفی کن (چون کاربر اول باید لاگین کند)
+                isPremiumUser = false;
+                if (loginBtn) loginBtn.style.display = 'flex';
+                if (userMenu) userMenu.style.display = 'none';
+
+                // دکمه خرید برای همه نمایش داده می‌شود
+                if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
+
+                // دکمه‌های پیشرفته مخفی هستند
+                if (addEventBtn) addEventBtn.style.display = 'none';
+                if (weeklyViewLink) weeklyViewLink.style.display = 'none';
+
+                userPersonalEvents = [];
+                renderCalendar();
             }
         });
         if (profileToggleBtn) {

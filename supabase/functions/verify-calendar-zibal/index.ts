@@ -1,4 +1,4 @@
-// supabase/functions/verify-calendar-zibal/index.ts (Final Code)
+// supabase/functions/verify-calendar-zibal/index.ts (Final & Correct Code)
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
@@ -19,19 +19,19 @@ serve(async (req) => {
       redirectUrl.searchParams.set("payment", "failed");
       return Response.redirect(redirectUrl.href, 303);
     }
-
+    
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SERVICE_ROLE_KEY")!
     );
 
-    const { data: transaction, error: transactionError } = await supabaseAdmin
+    const { data: transaction } = await supabaseAdmin
       .from("pending_transactions")
       .select("*, user_id")
       .eq("id", orderId)
       .single();
 
-    if (transactionError) throw new Error(`تراکنش با شناسه ${orderId} یافت نشد.`);
+    if (!transaction) throw new Error(`تراکنش با شناسه ${orderId} یافت نشد.`);
 
     if (transaction.status === 'completed') {
       redirectUrl.searchParams.set("payment", "success");
@@ -48,7 +48,7 @@ serve(async (req) => {
       }),
     });
     const result = await verifyResponse.json();
-
+    
     if (result.result !== 100 && result.result !== 201) {
       throw new Error(`خطا در تایید تراکنش با زیبال: ${result.message}`);
     }

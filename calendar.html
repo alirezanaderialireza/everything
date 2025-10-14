@@ -356,234 +356,212 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // اسکریپت کامل لاگین
+        // --- 1. SUPABASE CLIENT & GLOBAL VARIABLES ---
         const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
         const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage, }, });
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        // --- 2. DOM ELEMENTS & STATE ---
         const loginBtn = document.getElementById('login-btn');
         const userMenu = document.getElementById('user-menu');
         const profileToggleBtn = document.getElementById('profile-toggle-btn');
         const dropdownMenu = document.getElementById('dropdown-menu');
         const logoutBtn = document.getElementById('logout-btn');
-        const weeklyViewBtn = document.getElementById('weekly-view-btn');
-        const addEventBtn = document.getElementById('add-event-btn');
-        const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
+        const monthDisplay = document.getElementById('month-display');
+        const daysGrid = document.getElementById('calendar-days-grid');
+        const detailsList = document.getElementById('details-list');
+        const prevMonthBtn = document.getElementById('prev-month-btn');
+        const nextMonthBtn = document.getElementById('next-month-btn');
+
+        let currentMoment = moment();
+        let allEvents = []; // For public events
+        let userPersonalEvents = []; // For user's private events
+        let selectedDate = null;
+        let isPremiumUser = false; // Flag for premium access
+
+        // --- 3. AUTHENTICATION & UI MANAGEMENT (onAuthStateChange) ---
         _supabase.auth.onAuthStateChange(async (event, session) => {
-            // پیدا کردن دکمه‌های جدید
             const weeklyViewBtn = document.getElementById('weekly-view-btn');
             const addEventBtn = document.getElementById('add-event-btn');
             const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
 
-            // اگر کاربر لاگین کرده باشد
             if (session && session.user) {
-                if (loginBtn) loginBtn.classList.add('hidden');
-                if (userMenu) userMenu.classList.remove('hidden');
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (userMenu) userMenu.style.display = 'block';
 
-                const { data: profile, error } = await _supabase
-                    .from('profiles')
-                    .select('has_premium_calendar')
-                    .eq('id', session.user.id)
-                    .single();
+                const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
 
-                // اگر کاربر نسخه پیشرفته را خریده بود
                 if (profile && profile.has_premium_calendar) {
-                    isPremiumUser = true; // <<<< وضعیت کاربر به پیشرفته تغییر می‌کند
+                    isPremiumUser = true;
                     if (weeklyViewBtn) weeklyViewBtn.style.display = 'flex';
-                    if (addEventBtn) addEventBtn.style.display = 'inline-block';
+                    if (addEventBtn) addEventBtn.style.display = 'block';
                     if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
                     fetchPersonalEvents(currentMoment.jYear(), session.user);
-                    checkForUpcomingTasks(session.user);                      // این خط برای نمایش هشدار
-                }
-                // اگر کاربر نسخه پیشرفته را نخریده بود
-                else {
-                    isPremiumUser = false; // <<<< وضعیت کاربر عادی باقی می‌ماند
+                    checkForUpcomingTasks(session.user);
+                } else {
+                    isPremiumUser = false;
                     if (weeklyViewBtn) weeklyViewBtn.style.display = 'none';
                     if (addEventBtn) addEventBtn.style.display = 'none';
                     if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-
                     userPersonalEvents = [];
                     renderCalendar();
                 }
-            }
-            // اگر کاربر لاگین نکرده باشد
-            else {
-                isPremiumUser = false; // <<<< وضعیت کاربر عادی است
-                if (loginBtn) loginBtn.classList.remove('hidden');
-                if (userMenu) userMenu.classList.add('hidden');
-
+            } else {
+                isPremiumUser = false;
+                if (loginBtn) loginBtn.style.display = 'flex';
+                if (userMenu) userMenu.style.display = 'none';
                 if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
                 if (weeklyViewBtn) weeklyViewBtn.style.display = 'none';
                 if (addEventBtn) addEventBtn.style.display = 'none';
+                userPersonalEvents = [];
+                renderCalendar();
             }
         });
+
         if (profileToggleBtn) {
             profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-            logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); });
+            if (logoutBtn) logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); });
         }
 
-        // اسکریپت کامل تقویم
+        // --- 4. PAGE INITIALIZATION (DOMContentLoaded) ---
         document.addEventListener('DOMContentLoaded', function () {
-            // منطق ساعت زنده در هدر
+            moment.locale('fa');
+
             const clockEl = document.getElementById('live-clock-display');
             function updateClock() {
-                const now = new Date();
-                if (clockEl) clockEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                if (clockEl) clockEl.textContent = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }
             updateClock();
             setInterval(updateClock, 1000);
 
-            // منطق تقوim کامل
-            moment.locale('fa');
-            const monthDisplay = document.getElementById('month-display');
-            const daysGrid = document.getElementById('calendar-days-grid');
-            const detailsList = document.getElementById('details-list');
-            const prevMonthBtn = document.getElementById('prev-month-btn');
-            const nextMonthBtn = document.getElementById('next-month-btn');
-            let currentMoment = moment();
-            let allEvents = [];
-            let selectedDate = null;
-            let userPersonalEvents = []; // آرایه‌ای برای نگهداری رویدادهای شخصی کاربر
-            let isPremiumUser = false; // وضعیت خرید نسخه پیشرفته توسط کاربر
+            // Post-Payment Alert & UI Update
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('payment');
+            if (paymentStatus === 'success') {
+                alert('خرید شما با موفقیت انجام شد! قابلیت‌های جدید تقویم برای شما فعال شده است.');
 
-            async function fetchEvents(year) {
-                // در اینجا از نام کاربری صحیح شما استفاده می‌کنیم
-                const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
-                try {
-                    const response = await fetch(apiUrl);
-                    if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');
-                    allEvents = await response.json();
-                    renderCalendar();
-                } catch (error) {
-                    console.error("Failed to fetch events:", error);
-                    daysGrid.innerHTML = `<p class="p-4 col-span-7 text-center">خطا در بارگذاری رویدادها. لطفاً از فعال بودن سرور پایتون اطمینان حاصل کنید.</p>`;
-                }
-            }
-            async function fetchPersonalEvents(year, user) {
-                if (!user) return; // اگر کاربری وجود نداشت، خارج شو
+                const upgradePrompt = document.getElementById('upgrade-calendar-prompt');
+                const addEventBtn = document.getElementById('add-event-btn');
+                const weeklyViewBtnInHeader = document.getElementById('weekly-view-btn');
 
-                // تاریخ شروع و پایان سال شمسی را به میلادی تبدیل می‌کنیم
-                const yearStart = new Date(year - 1, 3, 21); // roughly
-                const yearEnd = new Date(year, 3, 20); // roughly
+                if (upgradePrompt) upgradePrompt.style.display = 'none';
+                if (addEventBtn) addEventBtn.style.display = 'block';
+                if (weeklyViewBtnInHeader) weeklyViewBtnInHeader.style.display = 'flex';
 
-                const { data, error } = await _supabase
-                    .from('user_personal_events')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .gte('event_date', yearStart.toISOString().slice(0, 10))
-                    .lte('event_date', yearEnd.toISOString().slice(0, 10));
-
-                if (error) {
-                    console.error("Error fetching personal events:", error);
-                    userPersonalEvents = [];
-                } else {
-                    userPersonalEvents = data;
-                }
-                // پس از دریافت رویدادهای شخصی، تقویم را دوباره رندر کن
-                renderCalendar();
+                window.history.replaceState({}, document.title, "/calendar.html");
             }
 
-            function renderCalendar() {
-                daysGrid.innerHTML = '';
-                monthDisplay.textContent = currentMoment.format('MMMM YYYY');
-                const today = moment().format('YYYY-MM-DD');
-                const startOfMonth = currentMoment.clone().startOf('jMonth');
-                const daysInMonth = currentMoment.jDaysInMonth();
-                const firstDayOfWeek = startOfMonth.day();
-                const startOffset = (firstDayOfWeek + 1) % 7;
-                for (let i = 0; i < startOffset; i++) { daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`); }
-                for (let i = 1; i <= daysInMonth; i++) {
-                    const dayMoment = currentMoment.clone().jDate(i);
-                    const dateString = dayMoment.format('YYYY-MM-DD');
-                    const dayEvents = allEvents.filter(e => e.date === dateString);
-                    let cellClasses = 'day-cell';
-                    if (dateString === today) cellClasses += ' today';
-                    if (dateString === selectedDate) cellClasses += ' selected';
-                    let eventsHtml = '';
-                    if (dayEvents.length > 0) {
-                        eventsHtml = '<div class="day-events-list">';
-                        dayEvents.slice(0, 2).forEach(event => { eventsHtml += `<div class="event-title-inline">${event.title}</div>`; });
-                        eventsHtml += '</div>';
-                        if (dayEvents.length > 2) eventsHtml += '<div class="event-dot"></div>';
-                    }
-                    const cellHtml = `<div class="${cellClasses}" data-date="${dateString}"><div class="day-number">${i}</div>${eventsHtml}</div>`;
-                    daysGrid.insertAdjacentHTML('beforeend', cellHtml);
-                }
-                document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
-            }
+            prevMonthBtn.addEventListener('click', () => navigateMonths(-1));
+            nextMonthBtn.addEventListener('click', () => navigateMonths(1));
 
-            function handleDayClick(event) {
-                const clickedCell = event.currentTarget;
-                selectedDate = clickedCell.dataset.date;
-
-                // اگر کاربر نسخه پیشرفته را خریده است
-                if (isPremiumUser) {
-                    // او را به صفحه نمای روزانه منتقل کن و تاریخ را به عنوان پارامتر بفرست
-                    window.location.href = `daily-view.html?date=${selectedDate}`;
-                }
-                // اگر کاربر عادی است، مثل قبل عمل کن
-                else {
-                    document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
-                    clickedCell.classList.add('selected');
-
-                    const publicEvents = allEvents.filter(e => e.date === selectedDate);
-                    // در نسخه رایگان، رویدادهای شخصی را نمایش نمی‌دهیم
-                    const detailsList = document.getElementById('details-list');
-                    detailsList.innerHTML = '';
-
-                    if (publicEvents.length > 0) {
-                        publicEvents.forEach(e => {
-                            detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
-                        });
-                    } else {
-                        detailsList.innerHTML = `<li>هیچ رویداد عمومی برای این روز ثبت نشده است.</li>`;
-                    }
-                }
-            }
-
-            prevMonthBtn.addEventListener('click', () => {
-                const currentYear = currentMoment.jYear();
-                currentMoment.subtract(1, 'jMonth');
-                // اگر سال تغییر کرد، رویدادهای سال جدید را از API دریافت کن
-                if (currentMoment.jYear() !== currentYear) { fetchEvents(currentMoment.jYear()); } else { renderCalendar(); }
-            });
-            nextMonthBtn.addEventListener('click', () => {
-                const currentYear = currentMoment.jYear();
-                currentMoment.add(1, 'jMonth');
-                // اگر سال تغییر کرد، رویدادهای سال جدید را از API دریافت کن
-                if (currentMoment.jYear() !== currentYear) { fetchEvents(currentMoment.jYear()); } else { renderCalendar(); }
-            });
-
-            // شروع برنامه با دریافت رویدادهای سال جاری شمسی
             fetchEvents(currentMoment.jYear());
         });
+
+        // --- 5. DATA FETCHING FUNCTIONS ---
+        async function fetchEvents(year) {
+            const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('پاسخ سرور عمومی دریافت نشد.');
+                allEvents = await response.json();
+                renderCalendar();
+            } catch (error) {
+                console.error("Failed to fetch public events:", error);
+            }
+        }
+
+        async function fetchPersonalEvents(year, user) {
+            if (!user) return;
+            const yearStart = moment().jYear(year).startOf('jYear').toDate();
+            const yearEnd = moment().jYear(year).endOf('jYear').toDate();
+
+            const { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', user.id).gte('event_date', yearStart.toISOString()).lte('event_date', yearEnd.toISOString());
+            userPersonalEvents = error ? [] : data;
+            renderCalendar();
+        }
+
         async function checkForUpcomingTasks(user) {
             if (!user) return;
-
             const today = new Date().toISOString().slice(0, 10);
-            const { data, error } = await _supabase
-                .from('user_personal_events')
-                .select('title')
-                .eq('user_id', user.id)
-                .eq('event_date', today)
-                .eq('is_completed', false); // فقط کارهای تکمیل نشده
-
-            if (error) {
-                console.error("Error fetching upcoming tasks:", error);
-                return;
-            }
-
-            if (data && data.length > 0) {
+            const { data, error } = await _supabase.from('user_personal_events').select('title').eq('user_id', user.id).eq('event_date', today).eq('is_completed', false);
+            if (!error && data && data.length > 0) {
                 const taskListEl = document.getElementById('toast-task-list');
                 const toastEl = document.getElementById('notification-toast');
+                if (taskListEl && toastEl) {
+                    taskListEl.innerHTML = data.map(task => `<p class="truncate">- ${task.title}</p>`).join('');
+                    setTimeout(() => toastEl.classList.add('show'), 1500);
+                }
+            }
+        }
 
-                taskListEl.innerHTML = data.map(task => `<p>- ${task.title}</p>`).join('');
+        // --- 6. RENDERING & EVENT HANDLERS ---
+        function renderCalendar() {
+            if (!daysGrid) return; // Safety check
+            daysGrid.innerHTML = '';
+            monthDisplay.textContent = currentMoment.format('jMMMM jYYYY');
+            const today = moment().format('YYYY-MM-DD');
+            const startOfMonth = currentMoment.clone().startOf('jMonth');
+            const daysInMonth = currentMoment.jDaysInMonth();
+            const firstDayOfWeek = (startOfMonth.day() + 1) % 7;
 
-                // با کمی تاخیر، هشدار را نمایش بده
-                setTimeout(() => {
-                    toastEl.classList.add('show');
-                }, 1500);
+            for (let i = 0; i < firstDayOfWeek; i++) { daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`); }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayMoment = currentMoment.clone().jDate(i);
+                const dateString = dayMoment.format('YYYY-MM-DD');
+                const publicEvents = allEvents.filter(e => e.date === dateString);
+                const personalEvents = userPersonalEvents.filter(e => e.event_date === dateString);
+
+                let eventsHtml = '<div class="day-events-list">';
+                publicEvents.slice(0, 1).forEach(event => { eventsHtml += `<div class="event-title-inline">${event.title}</div>`; });
+                personalEvents.slice(0, 1).forEach(event => { eventsHtml += `<div class="personal-event-inline" style="--event-color: ${event.color};">${event.title}</div>`; });
+                eventsHtml += '</div>';
+
+                if ((publicEvents.length + personalEvents.length) > 2) { eventsHtml += '<div class="event-dot"></div>'; }
+
+                let cellClasses = 'day-cell';
+                if (dateString === today) cellClasses += ' today';
+                if (dateString === selectedDate) cellClasses += ' selected';
+                const cellHtml = `<div class="${cellClasses}" data-date="${dateString}"><div class="day-number">${i}</div>${eventsHtml}</div>`;
+                daysGrid.insertAdjacentHTML('beforeend', cellHtml);
+            }
+            document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
+        }
+
+        function handleDayClick(event) {
+            selectedDate = event.currentTarget.dataset.date;
+            if (isPremiumUser) {
+                window.location.href = `daily-view.html?date=${selectedDate}`;
+            } else {
+                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+                event.currentTarget.classList.add('selected');
+
+                const publicEvents = allEvents.filter(e => e.date === selectedDate);
+                detailsList.innerHTML = '';
+
+                if (publicEvents.length > 0) {
+                    publicEvents.forEach(e => { detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`); });
+                } else {
+                    detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+                }
+            }
+        }
+
+        function navigateMonths(direction) {
+            const currentYear = currentMoment.jYear();
+            currentMoment.add(direction, 'jMonth');
+            const newYear = currentMoment.jYear();
+            if (newYear !== currentYear) {
+                fetchEvents(newYear);
+                if (isPremiumUser) {
+                    _supabase.auth.getSession().then(({ data: { session } }) => {
+                        if (session) fetchPersonalEvents(newYear, session.user);
+                    });
+                }
+            } else {
+                renderCalendar();
             }
         }
     </script>

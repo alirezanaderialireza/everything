@@ -618,6 +618,7 @@
                 });
             }
         }
+        if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
         window.addEventListener('click', () => {
             if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
                 dropdownMenu.classList.add('hidden');

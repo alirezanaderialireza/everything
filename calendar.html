@@ -385,21 +385,20 @@
                 }
             });
 
-            // --- 4. PROFILE MENU & LOGOUT LOGIC (Corrected & Unified) ---
             if (profileToggleBtn) {
-                profileToggleBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevents the window click from closing it immediately
-                    dropdownMenu.classList.toggle('hidden');
-                });
-            }
+                profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+                window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
 
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await _supabase.auth.signOut();
-                    window.location.href = 'index.html'; // Redirect to home page
-                });
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        await _supabase.auth.signOut();
+                        // به جای رفرش، به صفحه اصلی برو
+                        window.location.href = '/index.html';
+                    });
+                }
             }
+            if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
 
             window.addEventListener('click', () => {
                 if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {

@@ -471,24 +471,21 @@
                 }
             });
 
-            // Event listener for the profile icon to toggle the dropdown
             if (profileToggleBtn) {
-                profileToggleBtn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevents the window click from closing it immediately
-                    dropdownMenu.classList.toggle('hidden');
-                });
-            }
+                profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+                window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
 
-            // Corrected event listener for the logout button
-            console.log('دکمه خروج پیدا شد:', logoutBtn);
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await _supabase.auth.signOut();
-                    // Redirect to home page after logout to reflect changes
-                    window.location.href = '/index.html';
-                });
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        await _supabase.auth.signOut();
+                        // به جای رفرش، به صفحه اصلی برو
+                        window.location.href = '/index.html';
+                    });
+                }
             }
+            if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
+
 
             // Close the dropdown if clicking anywhere else on the page
             window.addEventListener('click', () => {

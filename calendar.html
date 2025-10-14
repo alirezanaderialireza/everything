@@ -368,18 +368,27 @@
         const detailsList = document.getElementById('details-list');
         const prevMonthBtn = document.getElementById('prev-month-btn');
         const nextMonthBtn = document.getElementById('next-month-btn');
+        const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
+        const premiumButtons = document.getElementById('premium-buttons-container');
 
         let currentMoment = moment();
-        let allEvents = []; // For public events
-        let userPersonalEvents = []; // For user's private events
+        let allEvents = [];
+        let userPersonalEvents = [];
         let selectedDate = null;
-        let isPremiumUser = false; // Flag for premium access
+        let isPremiumUser = false;
 
+        // --- 3. UNIFIED AUTH & UI MANAGEMENT (THE SINGLE SOURCE OF TRUTH) ---
         _supabase.auth.onAuthStateChange(async (event, session) => {
-            // پیدا کردن دکمه‌های صحیح از بدنه HTML
-            const addEventBtn = document.getElementById('add-event-btn');
-            const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
-            const premiumButtons = document.getElementById('premium-buttons-container'); // کانتینر دکمه‌های پیشرفته
+            // Check for post-payment redirect FIRST
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('payment');
+            let justPaid = false;
+
+            if (paymentStatus === 'success') {
+                justPaid = true;
+                alert('خرید شما با موفقیت انجام شد! قابلیت‌های جدید تقویم برای شما فعال شده است.');
+                window.history.replaceState({}, document.title, "/calendar.html"); // Clean URL
+            }
 
             if (session && session.user) {
                 if (loginBtn) loginBtn.style.display = 'none';
@@ -387,12 +396,11 @@
 
                 const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
 
-                if (profile && profile.has_premium_calendar) {
+                // If user just paid OR the database confirms they are premium
+                if (justPaid || (profile && profile.has_premium_calendar)) {
                     isPremiumUser = true;
-                    // به جای دکمه‌های تکی، کانتینر اصلی آنها را نمایش می‌دهیم
                     if (premiumButtons) premiumButtons.style.display = 'block';
                     if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
-
                     fetchPersonalEvents(currentMoment.jYear(), session.user);
                     checkForUpcomingTasks(session.user);
                 } else {
@@ -412,6 +420,7 @@
                 renderCalendar();
             }
         });
+
         if (profileToggleBtn) {
             profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
@@ -428,23 +437,6 @@
             }
             updateClock();
             setInterval(updateClock, 1000);
-
-            // Post-Payment Alert & UI Update
-            const urlParams = new URLSearchParams(window.location.search);
-            const paymentStatus = urlParams.get('payment');
-            if (paymentStatus === 'success') {
-                alert('خرید شما با موفقیت انجام شد! قابلیت‌های جدید تقویم برای شما فعال شده است.');
-
-                const upgradePrompt = document.getElementById('upgrade-calendar-prompt');
-                const addEventBtn = document.getElementById('add-event-btn');
-                const weeklyViewBtnInHeader = document.getElementById('weekly-view-btn');
-
-                if (upgradePrompt) upgradePrompt.style.display = 'none';
-                if (addEventBtn) addEventBtn.style.display = 'block';
-                if (weeklyViewBtnInHeader) weeklyViewBtnInHeader.style.display = 'flex';
-
-                window.history.replaceState({}, document.title, "/calendar.html");
-            }
 
             prevMonthBtn.addEventListener('click', () => navigateMonths(-1));
             nextMonthBtn.addEventListener('click', () => navigateMonths(1));
@@ -491,7 +483,7 @@
 
         // --- 6. RENDERING & EVENT HANDLERS ---
         function renderCalendar() {
-            if (!daysGrid) return; // Safety check
+            if (!daysGrid) return;
             daysGrid.innerHTML = '';
             monthDisplay.textContent = currentMoment.format('jMMMM jYYYY');
             const today = moment().format('YYYY-MM-DD');

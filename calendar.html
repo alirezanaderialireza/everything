@@ -376,57 +376,42 @@
         let isPremiumUser = false; // Flag for premium access
 
         _supabase.auth.onAuthStateChange(async (event, session) => {
-            // پیدا کردن دکمه‌های مربوط به قابلیت‌های پیشرفته در بدنه صفحه
+            // پیدا کردن دکمه‌های صحیح از بدنه HTML
             const addEventBtn = document.getElementById('add-event-btn');
             const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
-            const weeklyViewLink = document.getElementById('weekly-view-link'); // دکمه نمای هفتگی در بدنه
+            const premiumButtons = document.getElementById('premium-buttons-container'); // کانتینر دکمه‌های پیشرفته
 
-            // اگر کاربر لاگین کرده باشد
             if (session && session.user) {
                 if (loginBtn) loginBtn.style.display = 'none';
                 if (userMenu) userMenu.style.display = 'block';
 
                 const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
 
-                // اگر کاربر نسخه پیشرفته را خریده بود
                 if (profile && profile.has_premium_calendar) {
                     isPremiumUser = true;
-                    if (addEventBtn) addEventBtn.style.display = 'inline-block';
-                    if (weeklyViewLink) weeklyViewLink.style.display = 'inline-block';
+                    // به جای دکمه‌های تکی، کانتینر اصلی آنها را نمایش می‌دهیم
+                    if (premiumButtons) premiumButtons.style.display = 'block';
                     if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
 
                     fetchPersonalEvents(currentMoment.jYear(), session.user);
                     checkForUpcomingTasks(session.user);
-                }
-                // اگر کاربر نسخه پیشرفته را نخریده بود
-                else {
+                } else {
                     isPremiumUser = false;
-                    if (addEventBtn) addEventBtn.style.display = 'none';
-                    if (weeklyViewLink) weeklyViewLink.style.display = 'none';
+                    if (premiumButtons) premiumButtons.style.display = 'none';
                     if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-
                     userPersonalEvents = [];
                     renderCalendar();
                 }
-            }
-            // اگر کاربر لاگین نکرده باشد
-            else {
+            } else {
                 isPremiumUser = false;
                 if (loginBtn) loginBtn.style.display = 'flex';
                 if (userMenu) userMenu.style.display = 'none';
-
-                // دکمه خرید برای همه نمایش داده می‌شود
                 if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-
-                // دکمه‌های پیشرفته مخفی هستند
-                if (addEventBtn) addEventBtn.style.display = 'none';
-                if (weeklyViewLink) weeklyViewLink.style.display = 'none';
-
+                if (premiumButtons) premiumButtons.style.display = 'none';
                 userPersonalEvents = [];
                 renderCalendar();
             }
         });
-
         if (profileToggleBtn) {
             profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });

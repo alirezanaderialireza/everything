@@ -7,14 +7,9 @@
     <title>تقویم هوشمند حسابداری - آیدا شیرازی</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
-
     <style>
         :root {
             --navy: #0A192F;
@@ -58,21 +53,6 @@
             padding-bottom: 4px;
         }
 
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            right: 0;
-            background-color: var(--gold);
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
         .nav-link:hover {
             color: var(--navy);
         }
@@ -83,6 +63,12 @@
             border-radius: 0.5rem;
             font-weight: 600;
             padding: 0.75rem 1.75rem;
+            transition: all 0.2s;
+        }
+
+        .btn-gold:hover {
+            background-color: #b98d1e;
+            transform: translateY(-2px);
         }
 
         #live-clock-display {
@@ -93,7 +79,6 @@
             letter-spacing: 1.5px;
         }
 
-        /* استایل‌های اصلی تقویم */
         #calendar-container {
             background: white;
             border-radius: 12px;
@@ -197,16 +182,25 @@
             margin-top: 4px;
         }
 
-        .event-title-inline {
+        .event-title-inline,
+        .personal-event-inline {
             display: block;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            background: var(--navy);
-            color: white;
             padding: 2px 6px;
             border-radius: 4px;
             margin-bottom: 3px;
+        }
+
+        .event-title-inline {
+            background: var(--navy);
+            color: white;
+        }
+
+        .personal-event-inline {
+            background-color: var(--event-color, var(--gold));
+            color: white;
         }
 
         #day-details-container {
@@ -228,20 +222,6 @@
             border-radius: 6px;
             margin-bottom: 0.5rem;
             border-right: 4px solid var(--gold);
-        }
-
-        .personal-event-inline {
-            background-color: var(--event-color, var(--gold));
-            color: white;
-            /* بقیه استایل‌ها مشابه event-title-inline است */
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-bottom: 3px;
-            font-size: 0.75rem;
         }
 
         #notification-toast.show {
@@ -272,19 +252,19 @@
                 <a href="index.html#about" class="nav-link">درباره من</a>
             </div>
             <div id="profile-section" class="relative">
-                <a href="login.html" id="login-btn"
-                    class="btn btn-gold flex items-center justify-center gap-2 px-6 py-2">
+                <a href="login.html" id="login-btn" class="btn-gold flex items-center justify-center gap-2 px-6 py-2">
                     <i class="fa-solid fa-right-to-bracket"></i>
                     <span>ورود / ثبت‌نام</span>
                 </a>
-                <div id="user-menu" class="hidden">
+                <div id="user-menu" style="display: none;">
                     <button id="profile-toggle-btn"
                         class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--gold)]">
                         <i class="fa-solid fa-user text-slate-600"></i>
                     </button>
                     <div id="dropdown-menu"
                         class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 z-50">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات پروفایل</a>
+                        <a href="settings.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">تنظیمات
+                            پروفایل</a>
                         <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">خروج
                             از حساب</a>
                     </div>
@@ -296,58 +276,62 @@
     <main class="container mx-auto px-6 py-12">
         <h1 class="text-4xl md:text-5xl font-display text-center mb-12" style="color: var(--navy);">تقویم هوشمند
             حسابداری</h1>
+
         <div class="max-w-4xl mx-auto mb-8 text-center" id="premium-features-section">
-
-            <div id="upgrade-calendar-prompt">
+            <div id="upgrade-calendar-prompt" style="display: none;">
                 <a href="checkout-calendar.html" class="inline-block">
-                    <button class="btn btn-gold">
-                        <i class="fa-solid fa-crown ml-2"></i>
-                        <span>خرید و فعال‌سازی نسخه پیشرفته (۵۰,۰۰۰ تومان)</span>
-                    </button>
+                    <button class="btn-gold"><i class="fa-solid fa-crown ml-2"></i><span>خرید و فعال‌سازی نسخه
+                            پیشرفته</span></button>
                 </a>
             </div>
-
             <div id="premium-buttons-container" class="space-x-4 space-x-reverse" style="display: none;">
-                <button id="add-event-btn" class="btn btn-gold">
-                    <i class="fa-solid fa-plus ml-2"></i>
-                    <span>افزودن رویداد</span>
-                </button>
+                <a href="weekly-calendar.html#add-event" id="add-event-btn" class="btn-gold"><i
+                        class="fa-solid fa-plus ml-2"></i><span>افزودن رویداد</span></a>
                 <a href="weekly-calendar.html" id="weekly-view-link"
-                    class="btn btn-gold bg-slate-700 text-white hover:bg-slate-800">
-                    <i class="fa-solid fa-calendar-week ml-2"></i>
-                    <span>نمای هفتگی</span>
-                </a>
+                    class="btn-gold bg-slate-700 text-white hover:bg-slate-800"><i
+                        class="fa-solid fa-calendar-week ml-2"></i><span>نمای هفتگی</span></a>
             </div>
-
         </div>
-        <div id="calendar-container">ّ
 
-            <div id="calendar-container">
-                <div class="calendar-header">
-                    <button id="prev-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-right"></i></button>
-                    <div id="month-display" class="calendar-month-display">...</div>
-                    <button id="next-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-left"></i></button>
-                </div>
-                <div class="calendar-grid weekday-grid">
-                    <div class="weekday-header">شنبه</div>
-                    <div class="weekday-header">یکشنبه</div>
-                    <div class="weekday-header">دوشنبه</div>
-                    <div class="weekday-header">سه‌شنبه</div>
-                    <div class="weekday-header">چهارشنبه</div>
-                    <div class="weekday-header">پنجشنبه</div>
-                    <div class="weekday-header">جمعه</div>
-                </div>
-                <div id="calendar-days-grid" class="calendar-grid">
-                </div>
+        <div id="calendar-container">
+            <div class="calendar-header">
+                <button id="prev-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-right"></i></button>
+                <div id="month-display" class="calendar-month-display">...</div>
+                <button id="next-month-btn" class="calendar-nav-btn"><i class="fa fa-chevron-left"></i></button>
             </div>
+            <div class="calendar-grid weekday-grid">
+                <div class="weekday-header">شنبه</div>
+                <div class="weekday-header">یکشنبه</div>
+                <div class="weekday-header">دوشنبه</div>
+                <div class="weekday-header">سه‌شنبه</div>
+                <div class="weekday-header">چهارشنبه</div>
+                <div class="weekday-header">پنجشنبه</div>
+                <div class="weekday-header">جمعه</div>
+            </div>
+            <div id="calendar-days-grid" class="calendar-grid"></div>
+        </div>
 
-            <div id="day-details-container" class="mt-8">
-                <h3 class="text-2xl mb-4">رویدادهای روز انتخاب شده:</h3>
-                <ul id="details-list">
-                    <li>روزی را برای مشاهده جزئیات انتخاب کنید.</li>
-                </ul>
-            </div>
+        <div id="day-details-container" class="mt-8">
+            <h3 class="text-2xl mb-4">رویدادهای روز انتخاب شده:</h3>
+            <ul id="details-list">
+                <li>روزی را برای مشاهده جزئیات انتخاب کنید.</li>
+            </ul>
+        </div>
     </main>
+
+    <div id="notification-toast"
+        class="fixed bottom-5 left-5 bg-white rounded-lg shadow-2xl p-5 w-80 border-t-4 border-[var(--gold)] transition-transform duration-500 translate-x-[-120%]"
+        style="z-index: 100;">
+        <div class="flex items-start gap-4">
+            <i class="fa-solid fa-bell text-2xl text-[var(--gold)] mt-1"></i>
+            <div>
+                <h3 class="font-display text-lg text-slate-800">کارهای امروز شما</h3>
+                <div id="toast-task-list" class="text-sm text-slate-600 mt-2 space-y-1"></div>
+            </div>
+            <button onclick="document.getElementById('notification-toast').classList.remove('show')"
+                class="text-slate-400 hover:text-slate-600">&times;</button>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -377,17 +361,15 @@
         let selectedDate = null;
         let isPremiumUser = false;
 
-        // --- 3. UNIFIED AUTH & UI MANAGEMENT (THE SINGLE SOURCE OF TRUTH) ---
+        // --- 3. UNIFIED AUTH, PAYMENT CHECK & UI MANAGEMENT ---
         _supabase.auth.onAuthStateChange(async (event, session) => {
-            // Check for post-payment redirect FIRST
             const urlParams = new URLSearchParams(window.location.search);
             const paymentStatus = urlParams.get('payment');
-            let justPaid = false;
+            let justPaid = paymentStatus === 'success';
 
-            if (paymentStatus === 'success') {
-                justPaid = true;
+            if (justPaid) {
                 alert('خرید شما با موفقیت انجام شد! قابلیت‌های جدید تقویم برای شما فعال شده است.');
-                window.history.replaceState({}, document.title, "/calendar.html"); // Clean URL
+                window.history.replaceState({}, document.title, "/calendar.html");
             }
 
             if (session && session.user) {
@@ -396,7 +378,6 @@
 
                 const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
 
-                // If user just paid OR the database confirms they are premium
                 if (justPaid || (profile && profile.has_premium_calendar)) {
                     isPremiumUser = true;
                     if (premiumButtons) premiumButtons.style.display = 'block';
@@ -424,18 +405,10 @@
         if (profileToggleBtn) {
             profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await _supabase.auth.signOut();
-                    // به جای رفرش، به صفحه اصلی برو
-                    window.location.href = '/index.html';
-                });
-            }
+            if (logoutBtn) logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.href = '/index.html'; });
         }
 
-        // --- 4. PAGE INITIALIZATION (DOMContentLoaded) ---
+        // --- 4. PAGE INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', function () {
             moment.locale('fa');
 
@@ -558,20 +531,7 @@
             }
         }
     </script>
-    <div id="notification-toast"
-        class="fixed bottom-5 left-5 bg-white rounded-lg shadow-2xl p-5 w-80 border-t-4 border-[var(--gold)] transition-transform duration-500 translate-x-[-120%]"
-        style="z-index: 100;">
-        <div class="flex items-start gap-4">
-            <i class="fa-solid fa-bell text-2xl text-[var(--gold)] mt-1"></i>
-            <div>
-                <h3 class="font-display text-lg text-slate-800">کارهای امروز شما</h3>
-                <div id="toast-task-list" class="text-sm text-slate-600 mt-2 space-y-1">
-                </div>
-            </div>
-            <button onclick="document.getElementById('notification-toast').classList.remove('show')"
-                class="text-slate-400 hover:text-slate-600">&times;</button>
-        </div>
-    </div>
+
 </body>
 
 </html>

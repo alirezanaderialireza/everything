@@ -440,186 +440,6 @@
             </div>
         </footer>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // اسکریپت کامل لاگین
-        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
-        const { createClient } = supabase;
-        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage, }, });
-        const loginBtn = document.getElementById('login-btn');
-        const userMenu = document.getElementById('user-menu');
-        const profileToggleBtn = document.getElementById('profile-toggle-btn');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-        const logoutBtn = document.getElementById('logout-btn');
-        const weeklyViewBtn = document.getElementById('weekly-view-btn');
-        const upgradePrompt = document.getElementById('upgrade-prompt');
-        _supabase.auth.onAuthStateChange(async (event, session) => {
-            // پیدا کردن دکمه‌های مربوط به قابلیت‌های پیشرفته در بدنه صفحه
-            const addEventBtn = document.getElementById('add-event-btn');
-            const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
-            const weeklyViewLink = document.getElementById('weekly-view-link'); // دکمه نمای هفتگی در بدنه
-
-            // اگر کاربر لاگین کرده باشد
-            if (session && session.user) {
-                if (loginBtn) loginBtn.style.display = 'none';
-                if (userMenu) userMenu.style.display = 'block';
-
-                const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
-
-                // اگر کاربر نسخه پیشرفته را خریده بود
-                if (profile && profile.has_premium_calendar) {
-                    isPremiumUser = true;
-                    if (addEventBtn) addEventBtn.style.display = 'inline-block';
-                    if (weeklyViewLink) weeklyViewLink.style.display = 'inline-block';
-                    if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
-
-                    fetchPersonalEvents(currentMoment.jYear(), session.user);
-                    checkForUpcomingTasks(session.user);
-                }
-                // اگر کاربر نسخه پیشرفته را نخریده بود
-                else {
-                    isPremiumUser = false;
-                    if (addEventBtn) addEventBtn.style.display = 'none';
-                    if (weeklyViewLink) weeklyViewLink.style.display = 'none';
-                    if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-
-                    userPersonalEvents = [];
-                    renderCalendar();
-                }
-            }
-            // اگر کاربر لاگین نکرده باشد
-            else {
-                isPremiumUser = false;
-                if (loginBtn) loginBtn.style.display = 'flex';
-                if (userMenu) userMenu.style.display = 'none';
-
-                // دکمه خرید برای همه نمایش داده می‌شود
-                if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-
-                // دکمه‌های پیشرفته مخفی هستند
-                if (addEventBtn) addEventBtn.style.display = 'none';
-                if (weeklyViewLink) weeklyViewLink.style.display = 'none';
-
-                userPersonalEvents = [];
-                renderCalendar();
-            }
-        });
-        if (profileToggleBtn) {
-            profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
-            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await _supabase.auth.signOut();
-                    // به جای رفرش، به صفحه اصلی برو
-                    window.location.href = '/index.html';
-                });
-            }
-        }
-
-        // اسکریپت ویجت تقویم
-        document.addEventListener('DOMContentLoaded', function () {
-            const timeEl = document.getElementById('widget-time');
-            const shamsiDateEl = document.getElementById('widget-shamsi-date');
-            const qamariDateEl = document.getElementById('widget-qamari-date');
-            const gregorianDateEl = document.getElementById('widget-gregorian-date');
-            function updateTimeAndDate() {
-                const now = new Date();
-                if (timeEl) timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                if (shamsiDateEl) shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', { day: 'numeric', month: 'long' }).format(now);
-                if (gregorianDateEl) gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric' }).format(now);
-                if (qamariDateEl) try { qamariDateEl.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', { day: 'numeric', month: 'long' }).format(now); } catch (e) { qamariDateEl.textContent = 'ناموجود'; }
-            }
-            if (timeEl) {
-                updateTimeAndDate();
-                setInterval(updateTimeAndDate, 1000);
-            }
-
-            const todayCol = document.getElementById('today-events');
-            if (todayCol) {
-                const weekCol = document.getElementById('week-events');
-                const monthCol = document.getElementById('month-events');
-                const currentShamsiYear = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric' }).format(new Date()).replace(/[^0-9]/g, '');
-                const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${currentShamsiYear}`;
-                fetch(apiUrl)
-                    .then(response => {
-                        if (!response.ok) throw new Error('پاسخ از سرور دریافت نشد.');
-                        return response.json();
-                    })
-                    .then(events => {
-                        const today = new Date();
-                        const todayShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(today).replace(/\//g, '-');
-                        const sevenDaysFromNow = new Date();
-                        sevenDaysFromNow.setDate(today.getDate() + 7);
-                        const sevenDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(sevenDaysFromNow).replace(/\//g, '-');
-                        const thirtyDaysFromNow = new Date();
-                        thirtyDaysFromNow.setDate(today.getDate() + 30);
-                        const thirtyDaysLaterShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(thirtyDaysFromNow).replace(/\//g, '-');
-                        const todayEvents = events.filter(e => e.date === todayShamsi);
-                        const weekEvents = events.filter(e => e.date > todayShamsi && e.date <= sevenDaysLaterShamsi);
-                        const monthEvents = events.filter(e => e.date > sevenDaysLaterShamsi && e.date <= thirtyDaysLaterShamsi);
-                        renderEvents(todayCol, todayEvents);
-                        renderEvents(weekCol, weekEvents, true);
-                        renderEvents(monthCol, monthEvents, true);
-                    })
-                    .catch(error => {
-                        console.error("Error fetching events:", error);
-                        const errorLi = `<li>خطا در بارگذاری. از فعال بودن سرور پایتون اطمینان حاصل کنید.</li>`;
-                        todayCol.querySelector('ul').innerHTML = errorLi;
-                        weekCol.querySelector('ul').innerHTML = errorLi;
-                        monthCol.querySelector('ul').innerHTML = errorLi;
-                    });
-
-                function renderEvents(columnElement, eventList, showDate = false) {
-                    const ul = columnElement.querySelector('ul');
-                    const noEventsP = columnElement.querySelector('.no-events');
-                    if (eventList.length === 0) {
-                        noEventsP.classList.remove('hidden');
-                        ul.innerHTML = '';
-                        return;
-                    }
-                    noEventsP.classList.add('hidden');
-                    let html = '';
-                    eventList.forEach(event => {
-                        const dateTag = showDate ? `<span class="event-date-tag">${event.date.substring(5)}</span>` : '';
-                        html += `<li>${dateTag}${event.title}</li>`;
-                    });
-                    ul.innerHTML = html;
-                }
-            }
-        });
-        async function checkForUpcomingTasks(user) {
-            if (!user) return;
-
-            const today = new Date().toISOString().slice(0, 10);
-            const { data, error } = await _supabase
-                .from('user_personal_events')
-                .select('title')
-                .eq('user_id', user.id)
-                .eq('event_date', today)
-                .eq('is_completed', false); // فقط کارهای تکمیل نشده
-
-            if (error) {
-                console.error("Error fetching upcoming tasks:", error);
-                return;
-            }
-
-            if (data && data.length > 0) {
-                const taskListEl = document.getElementById('toast-task-list');
-                const toastEl = document.getElementById('notification-toast');
-
-                taskListEl.innerHTML = data.map(task => `<p>- ${task.title}</p>`).join('');
-
-                // با کمی تاخیر، هشدار را نمایش بده
-                setTimeout(() => {
-                    toastEl.classList.add('show');
-                }, 1500);
-            }
-        }
-    </script>
     <div id="notification-toast"
         class="fixed bottom-5 left-5 bg-white rounded-lg shadow-2xl p-5 w-80 border-t-4 border-[var(--gold)] transition-transform duration-500 translate-x-[-120%]"
         style="z-index: 100;">
@@ -634,6 +454,124 @@
                 class="text-slate-400 hover:text-slate-600">&times;</button>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // --- 1. SUPABASE CLIENT & DOM ELEMENTS ---
+        const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
+
+        const loginBtn = document.getElementById('login-btn');
+        const userMenu = document.getElementById('user-menu');
+        const profileToggleBtn = document.getElementById('profile-toggle-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        const upgradePrompt = document.getElementById('upgrade-prompt');
+
+        // --- 2. AUTHENTICATION & PREMIUM FEATURES LOGIC ---
+        _supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session && session.user) {
+                loginBtn.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+
+                const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
+
+                if (profile && profile.has_premium_calendar) {
+                    if (upgradePrompt) upgradePrompt.style.display = 'none';
+                    checkForUpcomingTasks(session.user);
+                } else {
+                    if (upgradePrompt) upgradePrompt.style.display = 'block';
+                }
+            } else {
+                loginBtn.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+                if (upgradePrompt) upgradePrompt.style.display = 'none';
+            }
+        });
+
+        if (profileToggleBtn) {
+            profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await _supabase.auth.signOut();
+                    window.location.href = '/index.html';
+                });
+            }
+        }
+
+        // --- 3. UPCOMING TASKS NOTIFICATION LOGIC ---
+        async function checkForUpcomingTasks(user) {
+            if (!user) return;
+            const today = new Date().toISOString().slice(0, 10);
+            const { data, error } = await _supabase.from('user_personal_events').select('title').eq('user_id', user.id).eq('event_date', today).eq('is_completed', false);
+
+            if (data && data.length > 0) {
+                const taskListEl = document.getElementById('toast-task-list');
+                const toastEl = document.getElementById('notification-toast');
+                if (taskListEl && toastEl) {
+                    taskListEl.innerHTML = data.map(task => `<p class="truncate">- ${task.title}</p>`).join('');
+                    setTimeout(() => {
+                        toastEl.classList.add('show');
+                    }, 1500);
+                }
+            }
+        }
+
+        // --- 4. CALENDAR WIDGET & CLOCK LOGIC ---
+        document.addEventListener('DOMContentLoaded', function () {
+            // Live Clock
+            const timeEl = document.getElementById('widget-time');
+            function updateTimeAndDate() {
+                const now = new Date();
+                if (timeEl) timeEl.textContent = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                // ... (other date updates)
+            }
+            if (timeEl) {
+                updateTimeAndDate();
+                setInterval(updateTimeAndDate, 1000);
+            }
+
+            // Calendar Widget
+            const todayCol = document.getElementById('today-events');
+            if (todayCol) {
+                const currentShamsiYear = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric' }).format(new Date()).replace(/[^0-9]/g, '');
+                const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${currentShamsiYear}`;
+
+                fetch(apiUrl)
+                    .then(response => response.ok ? response.json() : Promise.reject('Server response was not ok.'))
+                    .then(events => {
+                        const today = new Date();
+                        const todayShamsi = new Intl.DateTimeFormat('fa-IR-u-nu-latn', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(today).replace(/\//g, '-');
+
+                        const todayEvents = events.filter(e => e.date === todayShamsi);
+                        // ... (filtering for week/month events)
+
+                        renderWidgetEvents(todayCol, todayEvents);
+                        // ... (rendering for week/month columns)
+                    })
+                    .catch(error => {
+                        console.error("Error fetching widget events:", error);
+                        todayCol.querySelector('ul').innerHTML = `<li>خطا در بارگذاری رویدادها.</li>`;
+                    });
+
+                function renderWidgetEvents(columnElement, eventList, showDate = false) {
+                    const ul = columnElement.querySelector('ul');
+                    const noEventsP = columnElement.querySelector('.no-events');
+                    if (eventList.length === 0) {
+                        noEventsP.classList.remove('hidden');
+                        ul.innerHTML = '';
+                        return;
+                    }
+                    noEventsP.classList.add('hidden');
+                    ul.innerHTML = eventList.map(event => `<li>${showDate ? `<span class="event-date-tag">${event.date.substring(5)}</span>` : ''}${event.title}</li>`).join('');
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

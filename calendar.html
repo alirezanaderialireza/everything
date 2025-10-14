@@ -342,7 +342,7 @@
             let selectedDate = null;
             let isPremiumUser = false;
 
-            // --- 3. UNIFIED AUTH, PAYMENT CHECK & UI MANAGEMENT ---
+            // --- 3. UNIFIED AUTH, PAYMENT CHECK & UI MANAGEMENT (Corrected & Unified) ---
             _supabase.auth.onAuthStateChange(async (event, session) => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const paymentStatus = urlParams.get('payment');
@@ -354,6 +354,7 @@
                 }
 
                 if (session && session.user) {
+                    // User is logged in
                     if (loginBtn) loginBtn.style.display = 'none';
                     if (userMenu) userMenu.style.display = 'block';
 
@@ -373,6 +374,7 @@
                         renderCalendar();
                     }
                 } else {
+                    // User is logged out
                     isPremiumUser = false;
                     if (loginBtn) loginBtn.style.display = 'flex';
                     if (userMenu) userMenu.style.display = 'none';
@@ -383,18 +385,27 @@
                 }
             });
 
-            // --- 4. PROFILE MENU & LOGOUT LOGIC ---
+            // --- 4. PROFILE MENU & LOGOUT LOGIC (Corrected & Unified) ---
             if (profileToggleBtn) {
-                profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
-                window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', async (e) => {
-                        e.preventDefault();
-                        await _supabase.auth.signOut();
-                        window.location.href = '/index.html';
-                    });
-                }
+                profileToggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevents the window click from closing it immediately
+                    dropdownMenu.classList.toggle('hidden');
+                });
             }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await _supabase.auth.signOut();
+                    window.location.href = 'index.html'; // Redirect to home page
+                });
+            }
+
+            window.addEventListener('click', () => {
+                if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
 
             // --- 5. PAGE INITIALIZATION ---
             moment.locale('fa');

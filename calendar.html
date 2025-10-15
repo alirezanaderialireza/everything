@@ -429,10 +429,15 @@
             const { createClient } = supabase;
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
-            // (All DOM elements are defined here)
             const loginBtn = document.getElementById('login-btn');
             const userMenu = document.getElementById('user-menu');
-            // ... and so on for all elements
+            const profileToggleBtn = document.getElementById('profile-toggle-btn');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            const logoutBtn = document.getElementById('logout-btn');
+            const monthDisplay = document.getElementById('month-display');
+            const daysGrid = document.getElementById('calendar-days-grid');
+            const detailsList = document.getElementById('details-list');
+            // ... (سایر DOM elements)
 
             // --- 2. STATE VARIABLES ---
             let currentMoment = moment();
@@ -444,36 +449,75 @@
             moment.locale('fa');
 
             _supabase.auth.onAuthStateChange(async (event, session) => {
-                // (The complete and correct auth logic is here)
+                if (session && session.user) {
+                    loginBtn.style.display = 'none';
+                    userMenu.style.display = 'block';
+                } else {
+                    loginBtn.style.display = 'flex';
+                    userMenu.style.display = 'none';
+                }
+                // Load public events for everyone
+                fetchPublicEvents(currentMoment.jYear());
             });
 
             // --- 4. EVENT LISTENERS ---
-            // (All event listeners for profile, clock, and navigation are here)
+            document.getElementById('prev-month-btn').addEventListener('click', () => {
+                currentMoment.subtract(1, 'jMonth');
+                fetchPublicEvents(currentMoment.jYear()); // Fetch new year's data if changed
+            });
 
-            // --- 5. NEW & COMPLETE JAVASCRIPT DATE CALCULATION LOGIC ---
+            document.getElementById('next-month-btn').addEventListener('click', () => {
+                currentMoment.add(1, 'jMonth');
+                fetchPublicEvents(currentMoment.jYear()); // Fetch new year's data if changed
+            });
 
-            // Official holidays for the year 1404 (as an example)
+            if (profileToggleBtn) {
+                profileToggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('hidden');
+                });
+            }
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await _supabase.auth.signOut();
+                    sessionStorage.clear();
+                    window.location.replace('index.html');
+                });
+            }
+
+            window.addEventListener('click', () => {
+                if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
+                    dropdownMenu.classList.add('hidden');
+                }
+            });
+
+
+            // --- 5. CORRECTED JAVASCRIPT DATE CALCULATION LOGIC ---
+
             const officialHolidays = [
-                { date: '1404-01-01', title: 'جشن نوروز' },
-                { date: '1404-01-02', title: 'جشن نوروز' },
-                { date: '1404-01-03', title: 'جشن نوروز' },
-                { date: '1404-01-04', title: 'جشن نوروز' },
-                { date: '1404-01-12', title: 'روز جمهوری اسلامی' },
-                { date: '1404-01-13', title: 'روز طبیعت' },
-                { date: '1404-03-14', title: 'رحلت امام خمینی' },
-                { date: '1404-03-15', title: 'قیام ۱۵ خرداد' },
-                { date: '1404-11-22', title: 'پیروزی انقلاب اسلامی' },
-                { date: '1404-12-29', title: 'روز ملی شدن صنعت نفت' },
+                { date: '1404-01-01', title: 'جشن نوروز', isHoliday: true },
+                { date: '1404-01-02', title: 'جشن نوروز', isHoliday: true },
+                { date: '1404-01-03', title: 'جشن نوروز', isHoliday: true },
+                { date: '1404-01-04', title: 'جشن نوروز', isHoliday: true },
+                { date: '1404-01-12', title: 'روز جمهوری اسلامی', isHoliday: true },
+                { date: '1404-01-13', title: 'روز طبیعت', isHoliday: true },
+                { date: '1404-03-14', title: 'رحلت امام خمینی', isHoliday: true },
+                { date: '1404-03-15', title: 'قیام ۱۵ خرداد', isHoliday: true },
+                { date: '1404-11-22', title: 'پیروزی انقلاب اسلامی', isHoliday: true },
+                { date: '1404-12-29', title: 'روز ملی شدن صنعت نفت', isHoliday: true },
             ];
 
             function adjustForWeekend(gregorianDate) {
-                // Friday is day 5 in jalali-moment's day() for Persian calendar
+                // Friday is day 5 in jalali-moment's day() for Persian calendar (Saturday is 6, Sunday is 0)
                 if (gregorianDate.day() === 5) {
                     return gregorianDate.add(1, 'days');
                 }
                 return gregorianDate;
             }
 
+            // FIX: Replaced all `moment.jMoment` with `moment`
             function calculateEventsFromRules(rules, year) {
                 let finalEvents = [];
                 rules.forEach(rule => {
@@ -481,20 +525,21 @@
                         switch (rule.rule_type) {
                             case 'DAYS_AFTER_QUARTER_END':
                                 [3, 6, 9, 12].forEach(month => {
-                                    const day = (month <= 6) ? 31 : (month === 12 ? 29 : 30); // Simplified for non-leap year
-                                    const endOfQuarter = moment.jMoment(`${year}/${month}/${day}`, 'jYYYY/jM/jD');
+                                    const day = (month <= 6) ? 31 : (month < 12 ? 30 : 29); // Simplified for non-leap year
+                                    const endOfQuarter = moment(`${year}/${month}/${day}`, 'jYYYY/jM/jD');
+                                    if (!endOfQuarter.isValid()) return;
                                     const eventDate = endOfQuarter.add(parseInt(rule.rule_value), 'days');
                                     const adjustedDate = adjustForWeekend(eventDate);
                                     finalEvents.push({
-                                        title: `${rule.event_name} - فصل ${moment.jMoment(`${year}/${month}/1`, 'jYYYY/jM/jD').format('jMMMM')}`,
+                                        title: `${rule.event_name} - فصل ${moment(`${year}/${month}/1`, 'jYYYY/jM/jD').format('jMMMM')}`,
                                         date: adjustedDate.format('YYYY-MM-DD')
                                     });
                                 });
                                 break;
                             case 'END_OF_MONTH':
                                 for (let m = 1; m <= 12; m++) {
-                                    let currentMonth = moment.jMoment(`${year}/${m}/1`, 'jYYYY/jM/jD');
-                                    // Go to the end of the *next* month
+                                    let currentMonth = moment(`${year}/${m}/1`, 'jYYYY/jM/jD');
+                                    if (!currentMonth.isValid()) continue;
                                     let endOfNextMonth = currentMonth.clone().add(1, 'jMonth').endOf('jMonth');
                                     let adjustedDate = adjustForWeekend(endOfNextMonth);
                                     finalEvents.push({
@@ -504,14 +549,16 @@
                                 }
                                 break;
                             case 'DAYS_AFTER_YEAR_END':
-                                const yearEnd = moment.jMoment(`${year}/12/29`, 'jYYYY/jM/jD');
+                                const yearEnd = moment(`${year}/12/29`, 'jYYYY/jM/jD'); // Assuming non-leap year
+                                if (!yearEnd.isValid()) break;
                                 const eventDate = yearEnd.add(parseInt(rule.rule_value), 'days');
                                 const adjustedDate = adjustForWeekend(eventDate);
                                 finalEvents.push({ title: rule.event_name, date: adjustedDate.format('YYYY-MM-DD') });
                                 break;
                             case 'FIXED_SHAMSI_DATE':
                                 const [month, day] = rule.rule_value.split('-');
-                                const fixedDate = moment.jMoment(`${year}/${month}/${day}`, 'jYYYY/jM/jD');
+                                const fixedDate = moment(`${year}/${month}/${day}`, 'jYYYY/jM/jD');
+                                if (!fixedDate.isValid()) break;
                                 const adjustedFixedDate = adjustForWeekend(fixedDate);
                                 finalEvents.push({ title: rule.event_name, date: adjustedFixedDate.format('YYYY-MM-DD') });
                                 break;
@@ -534,45 +581,97 @@
                     console.error("Could not load or calculate public events:", error);
                 }
 
-                // Merge rule-based events with official holidays
-                allPublicEvents = [...ruleBasedEvents, ...officialHolidays.map(h => ({ ...h, isHoliday: true }))];
+                allPublicEvents = [...ruleBasedEvents, ...officialHolidays];
                 allPublicEvents.sort((a, b) => a.date.localeCompare(b.date));
 
                 renderCalendar();
             }
 
-            // --- 7. UPDATED RENDER & OTHER FUNCTIONS ---
+            // --- 7. RENDER & OTHER FUNCTIONS ---
             function renderCalendar() {
                 if (!daysGrid) return;
                 daysGrid.innerHTML = '';
                 monthDisplay.textContent = currentMoment.format('jMMMM jYYYY');
 
-                // ... (rest of the renderCalendar function is the same, but we add a check for holidays)
+                const startOfMonth = currentMoment.clone().startOf('jMonth');
+                const endOfMonth = currentMoment.clone().endOf('jMonth');
+
+                const daysInMonth = currentMoment.jDaysInMonth();
+                const firstDayOfWeek = startOfMonth.day(); // 6 for Saturday in Persian locale
+
+                // Add empty cells for days before the first day of the month
+                const offset = (firstDayOfWeek === 6) ? 0 : firstDayOfWeek + 1;
+                for (let i = 0; i < offset; i++) {
+                    daysGrid.innerHTML += `<div class="day-cell other-month"></div>`;
+                }
 
                 for (let i = 1; i <= daysInMonth; i++) {
-                    // ...
+                    const dayMoment = moment(startOfMonth).add(i - 1, 'days');
+                    const dateString = dayMoment.format('YYYY-MM-DD');
+
                     const publicEvents = allPublicEvents.filter(e => e.date === dateString);
                     const isHoliday = publicEvents.some(e => e.isHoliday);
+                    const isToday = dayMoment.isSame(moment(), 'day');
 
                     let cellClasses = 'day-cell';
+                    if (isToday) cellClasses += ' today';
                     if (isHoliday) cellClasses += ' holiday-cell'; // You can style this class in CSS
-                    //...
 
-                    // Add a visual indicator for holidays in the event list
-                    publicEvents.slice(0, 1).forEach(event => {
+                    let eventsHtml = '';
+                    publicEvents.slice(0, 2).forEach(event => {
                         eventsHtml += `<div class="event-title-inline ${event.isHoliday ? 'bg-red-600' : ''}">${event.title}</div>`;
                     });
-                    // ...
+
+                    if (publicEvents.length > 2) {
+                        eventsHtml += `<div class="text-xs text-center mt-1 text-slate-500">+${publicEvents.length - 2} مورد دیگر</div>`;
+                    }
+
+                    const dayCellHtml = `
+                    <div class="${cellClasses}" data-date="${dateString}">
+                        <div class="day-number">${i}</div>
+                        <div class="day-events-list">${eventsHtml}</div>
+                    </div>
+                `;
+                    daysGrid.innerHTML += dayCellHtml;
+                }
+
+                // Attach event listeners to new cells
+                document.querySelectorAll('.day-cell[data-date]').forEach(cell => {
+                    cell.addEventListener('click', handleDayClick);
+                });
+
+                // Select today by default
+                const todayCell = document.querySelector(`.day-cell[data-date="${moment().format('YYYY-MM-DD')}"]`);
+                if (todayCell) {
+                    handleDayClick({ currentTarget: todayCell });
                 }
             }
 
-            // (All other functions like fetchPersonalEvents, handleDayClick, etc., are here in their complete and final form)
+            function handleDayClick(e) {
+                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+                e.currentTarget.classList.add('selected');
+                const date = e.currentTarget.dataset.date;
+
+                const publicEvents = allPublicEvents.filter(ev => ev.date === date);
+
+                detailsList.innerHTML = ''; // Clear previous details
+
+                if (publicEvents.length > 0) {
+                    publicEvents.forEach(event => {
+                        const li = document.createElement('li');
+                        li.textContent = event.title;
+                        if (event.isHoliday) li.classList.add('font-bold', 'text-red-600');
+                        detailsList.appendChild(li);
+                    });
+                } else {
+                    detailsList.innerHTML = '<li>رویدادی برای این روز ثبت نشده است.</li>';
+                }
+            }
 
             // --- Initial Data Load ---
             fetchPublicEvents(currentMoment.jYear());
         });
     </script>
-
 </body>
 
 </html>

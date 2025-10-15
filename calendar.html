@@ -342,46 +342,13 @@
             let selectedDate = null;
             let isPremiumUser = false;
 
-            // --- 3. UNIFIED AUTH, PAYMENT CHECK & UI MANAGEMENT (Corrected & Unified) ---
-            _supabase.auth.onAuthStateChange(async (event, session) => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const paymentStatus = urlParams.get('payment');
-                let justPaid = paymentStatus === 'success';
-
-                if (justPaid) {
-                    alert('خرید شما با موفقیت انجام شد! قابلیت‌های جدید تقویم برای شما فعال شده است.');
-                    window.history.replaceState({}, document.title, "/calendar.html");
-                }
-
+            _supabase.auth.onAuthStateChange((event, session) => {
                 if (session && session.user) {
-                    // User is logged in
                     if (loginBtn) loginBtn.style.display = 'none';
                     if (userMenu) userMenu.style.display = 'block';
-
-                    const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
-
-                    if (justPaid || (profile && profile.has_premium_calendar)) {
-                        isPremiumUser = true;
-                        if (premiumButtons) premiumButtons.style.display = 'block';
-                        if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
-                        fetchPersonalEvents(currentMoment.jYear(), session.user);
-                        checkForUpcomingTasks(session.user);
-                    } else {
-                        isPremiumUser = false;
-                        if (premiumButtons) premiumButtons.style.display = 'none';
-                        if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-                        userPersonalEvents = [];
-                        renderCalendar();
-                    }
                 } else {
-                    // User is logged out
-                    isPremiumUser = false;
                     if (loginBtn) loginBtn.style.display = 'flex';
                     if (userMenu) userMenu.style.display = 'none';
-                    if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-                    if (premiumButtons) premiumButtons.style.display = 'none';
-                    userPersonalEvents = [];
-                    renderCalendar();
                 }
             });
 
@@ -400,6 +367,8 @@
             }
             if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
 
+
+            // Close the dropdown if clicking anywhere else on the page
             window.addEventListener('click', () => {
                 if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
                     dropdownMenu.classList.add('hidden');

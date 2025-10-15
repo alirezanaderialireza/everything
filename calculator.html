@@ -597,11 +597,11 @@
 
         _supabase.auth.onAuthStateChange((event, session) => {
             if (session && session.user) {
-                loginBtn.classList.add('hidden');
-                userMenu.classList.remove('hidden');
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (userMenu) userMenu.style.display = 'block';
             } else {
-                loginBtn.classList.remove('hidden');
-                userMenu.classList.add('hidden');
+                if (loginBtn) loginBtn.style.display = 'flex';
+                if (userMenu) userMenu.style.display = 'none';
             }
         });
 
@@ -619,18 +619,14 @@
             }
         }
         if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
+
+
+        // Close the dropdown if clicking anywhere else on the page
         window.addEventListener('click', () => {
             if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
                 dropdownMenu.classList.add('hidden');
             }
         });
-
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                await _supabase.auth.signOut();
-            });
-        }
         document.addEventListener('DOMContentLoaded', () => {
             const formatToman = (num) => new Intl.NumberFormat('fa-IR').format(Math.round(num)) + ' تومان';
             // این آبجکت را به کد خود اضافه کنید

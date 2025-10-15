@@ -447,27 +447,13 @@
             const logoutBtn = document.getElementById('logout-btn');
             const upgradePrompt = document.getElementById('upgrade-prompt');
 
-            // --- 2. AUTHENTICATION & PROFILE MENU LOGIC (Corrected & Unified) ---
-            _supabase.auth.onAuthStateChange(async (event, session) => {
+            _supabase.auth.onAuthStateChange((event, session) => {
                 if (session && session.user) {
-                    // User is logged in
-                    loginBtn.classList.add('hidden');
-                    userMenu.classList.remove('hidden');
-
-                    // Check for premium calendar access
-                    const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
-
-                    if (profile && profile.has_premium_calendar) {
-                        if (upgradePrompt) upgradePrompt.style.display = 'none';
-                        checkForUpcomingTasks(session.user); // Check for tasks if premium
-                    } else {
-                        if (upgradePrompt) upgradePrompt.style.display = 'block';
-                    }
+                    if (loginBtn) loginBtn.style.display = 'none';
+                    if (userMenu) userMenu.style.display = 'block';
                 } else {
-                    // User is logged out
-                    loginBtn.classList.remove('hidden');
-                    userMenu.classList.add('hidden');
-                    if (upgradePrompt) upgradePrompt.style.display = 'none';
+                    if (loginBtn) loginBtn.style.display = 'flex';
+                    if (userMenu) userMenu.style.display = 'none';
                 }
             });
 
@@ -485,7 +471,6 @@
                 }
             }
             if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
-
 
             // Close the dropdown if clicking anywhere else on the page
             window.addEventListener('click', () => {

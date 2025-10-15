@@ -419,7 +419,6 @@
                 class="text-slate-400 hover:text-slate-600">&times;</button>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
     <script>
@@ -444,17 +443,6 @@
             const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
             const premiumButtons = document.getElementById('premium-buttons-container');
             const clockEl = document.getElementById('live-clock-display');
-            const modal = document.getElementById('event-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const addEventBtn = document.getElementById('add-event-btn-main'); // Note the new ID
-            const cancelBtn = document.getElementById('cancel-btn');
-            const eventForm = document.getElementById('event-form');
-            const isAllDayCheckbox = document.getElementById('is-all-day');
-            const timeInputs = document.getElementById('time-inputs');
-            const deleteEventBtn = document.getElementById('delete-event-btn');
-            const isRecurringCheckbox = document.getElementById('is-recurring');
-            const recurringOptions = document.getElementById('recurring-options');
-            const weekdaySelector = document.getElementById('weekday-selector');
 
             // --- 3. STATE VARIABLES ---
             let currentMoment = moment();
@@ -466,8 +454,8 @@
             // --- 4. AUTHENTICATION & INITIALIZATION FLOW ---
             moment.locale('fa');
 
+            // This block handles UI changes and fetching PERSONAL events
             _supabase.auth.onAuthStateChange(async (event, session) => {
-                // This block handles UI changes and fetching PERSONAL events
                 const urlParams = new URLSearchParams(window.location.search);
                 const paymentStatus = urlParams.get('payment');
                 if (paymentStatus === 'success') {
@@ -484,7 +472,7 @@
                         isPremiumUser = true;
                         if (premiumButtons) premiumButtons.style.display = 'block';
                         if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
-                        await fetchPersonalEvents(currentMoment.jYear(), session.user); // Fetch personal events
+                        await fetchPersonalEvents(currentMoment.jYear(), session.user);
                         checkForUpcomingTasks(session.user);
                     } else {
                         isPremiumUser = false;
@@ -524,7 +512,7 @@
                     console.error("Could not fetch public events:", error);
                     allPublicEvents = [];
                 }
-                renderCalendar(); // Render calendar with public events (or empty if failed)
+                renderCalendar();
             }
 
             async function fetchPersonalEvents(year, user) {
@@ -539,7 +527,7 @@
                 } catch (error) {
                     console.error("Could not fetch personal events:", error);
                 }
-                renderCalendar(); // Re-render with personal events
+                renderCalendar();
             }
 
             function renderCalendar() {
@@ -587,7 +575,7 @@
                             detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
                         }
                         if (!isPremiumUser && session && session.user) {
-                            // Optional: alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقویم فعال است.');
+                            // alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقویم فعال است.');
                         }
                     }
                 });
@@ -601,7 +589,11 @@
                 if (newYear !== oldYear) {
                     await fetchPublicEvents(newYear);
                 }
-                // Always re-render to show the new month
+                // Always fetch personal events for the new month if user is premium
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (isPremiumUser && session && session.user) {
+                    await fetchPersonalEvents(newYear, session.user);
+                }
                 renderCalendar();
             }
 
@@ -622,49 +614,6 @@
             // --- Initial Data Load ---
             fetchPublicEvents(currentMoment.jYear());
 
-        });
-        // --- Modal & Form Logic Listeners ---
-        addEventBtn.addEventListener('click', () => {
-            if (!isPremiumUser) {
-                alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقوim فعال است.');
-                return;
-            }
-            modalTitle.textContent = 'ثبت رویداد جدید';
-            eventForm.reset();
-            document.getElementById('show-on-dashboard').checked = true;
-            isRecurringCheckbox.disabled = false;
-            timeInputs.style.display = 'grid';
-            eventForm['start-time'].required = true;
-            eventForm['end-time'].required = true;
-            recurringOptions.classList.add('hidden');
-            document.getElementById('end-date').required = false;
-            deleteEventBtn.classList.add('hidden');
-            modal.classList.remove('hidden');
-        });
-
-        cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
-
-        isAllDayCheckbox.addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
-            timeInputs.style.display = isChecked ? 'none' : 'grid';
-            eventForm['start-time'].required = !isChecked;
-            eventForm['end-time'].required = !isChecked;
-        });
-
-        isRecurringCheckbox.addEventListener('change', (e) => {
-            recurringOptions.style.display = e.target.checked ? 'block' : 'none';
-            document.getElementById('end-date').required = e.target.checked;
-        });
-
-        eventForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            // (اینجا همان کد کامل و طولانی مربوط به ذخیره رویداد تکی و تکرارشونده قرار می‌گیرد)
-            // ...
-            // After saving:
-            modal.classList.add('hidden');
-            // Refresh the calendar view
-            const { data: { session } } = await _supabase.auth.getSession();
-            await loadAllEventData(currentMoment.jYear(), session?.user);
         });
     </script>
 

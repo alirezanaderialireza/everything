@@ -366,6 +366,7 @@
                         if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
                         fetchPersonalEvents(currentMoment.jYear(), session.user);
                         checkForUpcomingTasks(session.user);
+                        renderCalendar();
                     } else {
                         isPremiumUser = false;
                         if (premiumButtons) premiumButtons.style.display = 'none';

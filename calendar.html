@@ -266,8 +266,8 @@
                 </a>
             </div>
             <div id="premium-buttons-container" class="space-x-4 space-x-reverse">
-                <a href="weekly-calendar.html#add-event" class="btn-gold"><i
-                        class="fa-solid fa-plus ml-2"></i><span>افزودن رویداد</span></a>
+                <button id="add-event-btn-main" class="btn-gold"><i class="fa-solid fa-plus ml-2"></i><span>افزودن
+                        رویداد</span></button>
                 <a href="weekly-calendar.html" class="btn-gold bg-slate-700 text-white hover:bg-slate-800"><i
                         class="fa-solid fa-calendar-week ml-2"></i><span>نمای هفتگی</span></a>
             </div>
@@ -296,6 +296,113 @@
             <ul id="details-list">
                 <li>روزی را برای مشاهده جزئیات انتخاب کنید.</li>
             </ul>
+        </div>
+        <div id="event-modal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+            <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+                <h2 id="modal-title" class="text-2xl font-display text-[var(--navy)] mb-6">ثبت رویداد جدید</h2>
+                <form id="event-form" class="space-y-4">
+                    <input type="hidden" id="event-id">
+                    <div>
+                        <label for="event-title" class="text-sm font-medium text-slate-700">عنوان رویداد</label>
+                        <input id="event-title" type="text" required
+                            class="mt-1 w-full p-2 border rounded-md focus:ring-2 focus:ring-[var(--gold)] outline-none">
+                    </div>
+                    <div>
+                        <label class="text-sm font-medium text-slate-700">دسته‌بندی</label>
+                        <div class="category-selector mt-1">
+                            <input type="radio" name="category" id="cat-meeting"
+                                value='{"name": "جلسه", "color": "#0A192F"}' checked><label for="cat-meeting"
+                                style="--cat-color: #0A192F;">جلسه</label>
+                            <input type="radio" name="category" id="cat-deadline"
+                                value='{"name": "مهلت قانونی", "color": "#ef4444"}'><label for="cat-deadline"
+                                style="--cat-color: #ef4444;">مهلت قانونی</label>
+                            <input type="radio" name="category" id="cat-personal"
+                                value='{"name": "شخصی", "color": "#22c55e"}'><label for="cat-personal"
+                                style="--cat-color: #22c55e;">شخصی</label>
+                            <input type="radio" name="category" id="cat-reminder"
+                                value='{"name": "یادآوری", "color": "#c49827"}'><label for="cat-reminder"
+                                style="--cat-color: #c49827;">یادآوری</label>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="event-date" class="text-sm font-medium text-slate-700">تاریخ شروع</label>
+                            <input id="event-date" type="date" required class="mt-1 w-full p-2 border rounded-md">
+                        </div>
+                        <div class="flex items-center pt-6">
+                            <input id="is-all-day" type="checkbox"
+                                class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]">
+                            <label for="is-all-day" class="mr-2 text-sm font-medium text-slate-700">رویداد تمام
+                                روز</label>
+                        </div>
+                    </div>
+                    <div id="time-inputs" class="grid grid-cols-2 gap-4">
+                        <div><label for="start-time" class="text-sm font-medium text-slate-700">ساعت شروع</label><input
+                                id="start-time" type="time" required class="mt-1 w-full p-2 border rounded-md"></div>
+                        <div><label for="end-time" class="text-sm font-medium text-slate-700">ساعت پایان</label><input
+                                id="end-time" type="time" required class="mt-1 w-full p-2 border rounded-md"></div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <div class="flex items-center">
+                            <input id="is-recurring" type="checkbox"
+                                class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]">
+                            <label for="is-recurring" class="mr-2 text-sm font-bold text-slate-800">رویداد
+                                تکرارشونده</label>
+                        </div>
+                    </div>
+                    <div id="recurring-options" class="hidden space-y-4 p-4 bg-slate-50 rounded-lg border">
+                        <div>
+                            <label class="text-sm font-medium text-slate-700 mb-2 block">تکرار در روزهای:</label>
+                            <div class="flex flex-wrap gap-x-4 gap-y-2" id="weekday-selector">
+                                <div class="flex items-center"><input type="checkbox" id="day-6" value="6"
+                                        class="form-checkbox h-4 w-4"><label for="day-6"
+                                        class="mr-2 text-sm">شنبه</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="day-0" value="0"
+                                        class="form-checkbox h-4 w-4"><label for="day-0"
+                                        class="mr-2 text-sm">یکشنبه</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="day-1" value="1"
+                                        class="form-checkbox h-4 w-4"><label for="day-1"
+                                        class="mr-2 text-sm">دوشنبه</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="day-2" value="2"
+                                        class="form-checkbox h-4 w-4"><label for="day-2"
+                                        class="mr-2 text-sm">سه‌شنبه</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="day-3" value="3"
+                                        class="form-checkbox h-4 w-4"><label for="day-3"
+                                        class="mr-2 text-sm">چهارشنبه</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="day-4" value="4"
+                                        class="form-checkbox h-4 w-4"><label for="day-4"
+                                        class="mr-2 text-sm">پنجشنبه</label></div>
+                                <div class="flex items-center"><input type="checkbox" id="day-5" value="5"
+                                        class="form-checkbox h-4 w-4"><label for="day-5"
+                                        class="mr-2 text-sm">جمعه</label></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="end-date" class="text-sm font-medium text-slate-700">تاریخ پایان تکرار</label>
+                            <input id="end-date" type="date" class="mt-1 w-full p-2 border rounded-md">
+                        </div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <div class="flex items-center">
+                            <input id="show-on-dashboard" type="checkbox"
+                                class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]"
+                                checked>
+                            <label for="show-on-dashboard" class="mr-2 text-sm font-medium text-slate-700">نمایش در ویجت
+                                صفحه اصلی</label>
+                        </div>
+                    </div>
+                    <div class="pt-4 flex justify-between items-center">
+                        <button type="button" id="delete-event-btn"
+                            class="px-4 py-2 rounded-md text-red-600 hover:bg-red-50 hidden">حذف رویداد</button>
+                        <div class="flex gap-4">
+                            <button type="button" id="cancel-btn"
+                                class="px-4 py-2 rounded-md bg-slate-100 hover:bg-slate-200">انصراف</button>
+                            <button type="submit" class="btn-gold">ذخیره</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </main>
 
@@ -337,6 +444,17 @@
             const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
             const premiumButtons = document.getElementById('premium-buttons-container');
             const clockEl = document.getElementById('live-clock-display');
+            const modal = document.getElementById('event-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const addEventBtn = document.getElementById('add-event-btn-main'); // Note the new ID
+            const cancelBtn = document.getElementById('cancel-btn');
+            const eventForm = document.getElementById('event-form');
+            const isAllDayCheckbox = document.getElementById('is-all-day');
+            const timeInputs = document.getElementById('time-inputs');
+            const deleteEventBtn = document.getElementById('delete-event-btn');
+            const isRecurringCheckbox = document.getElementById('is-recurring');
+            const recurringOptions = document.getElementById('recurring-options');
+            const weekdaySelector = document.getElementById('weekday-selector');
 
             // --- 3. STATE VARIABLES ---
             let currentMoment = moment();
@@ -504,6 +622,49 @@
             // --- Initial Data Load ---
             fetchPublicEvents(currentMoment.jYear());
 
+        });
+        // --- Modal & Form Logic Listeners ---
+        addEventBtn.addEventListener('click', () => {
+            if (!isPremiumUser) {
+                alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقوim فعال است.');
+                return;
+            }
+            modalTitle.textContent = 'ثبت رویداد جدید';
+            eventForm.reset();
+            document.getElementById('show-on-dashboard').checked = true;
+            isRecurringCheckbox.disabled = false;
+            timeInputs.style.display = 'grid';
+            eventForm['start-time'].required = true;
+            eventForm['end-time'].required = true;
+            recurringOptions.classList.add('hidden');
+            document.getElementById('end-date').required = false;
+            deleteEventBtn.classList.add('hidden');
+            modal.classList.remove('hidden');
+        });
+
+        cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+        isAllDayCheckbox.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            timeInputs.style.display = isChecked ? 'none' : 'grid';
+            eventForm['start-time'].required = !isChecked;
+            eventForm['end-time'].required = !isChecked;
+        });
+
+        isRecurringCheckbox.addEventListener('change', (e) => {
+            recurringOptions.style.display = e.target.checked ? 'block' : 'none';
+            document.getElementById('end-date').required = e.target.checked;
+        });
+
+        eventForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // (اینجا همان کد کامل و طولانی مربوط به ذخیره رویداد تکی و تکرارشونده قرار می‌گیرد)
+            // ...
+            // After saving:
+            modal.classList.add('hidden');
+            // Refresh the calendar view
+            const { data: { session } } = await _supabase.auth.getSession();
+            await loadAllEventData(currentMoment.jYear(), session?.user);
         });
     </script>
 

@@ -314,14 +314,16 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // --- 1. SUPABASE CLIENT & ALL OTHER VARIABLES ---
+            // --- 1. SUPABASE CLIENT & GLOBAL VARIABLES ---
             const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
             const { createClient } = supabase;
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
+            // --- 2. DOM ELEMENTS ---
             const loginBtn = document.getElementById('login-btn');
             const userMenu = document.getElementById('user-menu');
             const profileToggleBtn = document.getElementById('profile-toggle-btn');
@@ -334,14 +336,18 @@
             const nextMonthBtn = document.getElementById('next-month-btn');
             const upgradeCalendarPrompt = document.getElementById('upgrade-calendar-prompt');
             const premiumButtons = document.getElementById('premium-buttons-container');
+            const clockEl = document.getElementById('live-clock-display');
 
+            // --- 3. STATE VARIABLES ---
             let currentMoment = moment();
-            let allEvents = [];
+            let allPublicEvents = [];
             let userPersonalEvents = [];
             let selectedDate = null;
             let isPremiumUser = false;
 
-            // --- 3. AUTH & UI MANAGEMENT ---
+            // --- 4. AUTHENTICATION & INITIALIZATION FLOW ---
+            moment.locale('fa');
+
             _supabase.auth.onAuthStateChange(async (event, session) => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const paymentStatus = urlParams.get('payment');
@@ -356,18 +362,18 @@
                     loginBtn.style.display = 'none';
                     userMenu.style.display = 'block';
                     const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
+
                     if (justPaid || (profile && profile.has_premium_calendar)) {
                         isPremiumUser = true;
                         if (premiumButtons) premiumButtons.style.display = 'block';
                         if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
-                        fetchPersonalEvents(currentMoment.jYear(), session.user);
+                        await loadAllEventData(currentMoment.jYear(), session.user);
                         checkForUpcomingTasks(session.user);
                     } else {
                         isPremiumUser = false;
                         if (premiumButtons) premiumButtons.style.display = 'none';
                         if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-                        userPersonalEvents = [];
-                        fetchEvents(currentMoment.jYear());
+                        await loadAllEventData(currentMoment.jYear(), null);
                     }
                 } else {
                     isPremiumUser = false;
@@ -375,107 +381,51 @@
                     userMenu.style.display = 'none';
                     if (premiumButtons) premiumButtons.style.display = 'none';
                     if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-                    userPersonalEvents = [];
-                    fetchEvents(currentMoment.jYear());
+                    await loadAllEventData(currentMoment.jYear(), null);
                 }
             });
 
-            // --- 4. PROFILE MENU & LOGOUT LOGIC ---
-            if (profileToggleBtn) {
-                profileToggleBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('hidden');
-                });
-            }
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await _supabase.auth.signOut();
-                    sessionStorage.clear();
-                    window.location.replace('index.html');
-                });
-            }
-            window.addEventListener('click', () => {
-                if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
-                    dropdownMenu.classList.add('hidden');
-                }
-            });
+            // --- 5. EVENT LISTENERS ---
+            // Profile Menu
+            if (profileToggleBtn) profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
+            if (logoutBtn) logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); sessionStorage.clear(); window.location.replace('index.html'); });
+            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) dropdownMenu.classList.add('hidden'); });
 
-            // --- 5. PAGE INITIALIZATION ---
-            moment.locale('fa');
-            const clockEl = document.getElementById('live-clock-display');
-            function updateClock() {
-                if (clockEl) clockEl.textContent = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            }
+            // Clock
+            function updateClock() { if (clockEl) clockEl.textContent = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
             updateClock();
             setInterval(updateClock, 1000);
+
+            // Calendar Navigation
             prevMonthBtn.addEventListener('click', () => navigateMonths(-1));
             nextMonthBtn.addEventListener('click', () => navigateMonths(1));
 
-            // --- 6. DATA FETCHING, RENDERING & EVENT HANDLERS ---
-
-            // ** NEW MODIFIED CLICK HANDLER **
-            function handleDayClick(event) {
-                selectedDate = event.currentTarget.dataset.date;
-
-                // Highlight the selected day for everyone
-                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
-                event.currentTarget.classList.add('selected');
-
-                // Find both public and personal events for the clicked day
-                const publicEvents = allEvents.filter(e => e.date === selectedDate);
-                const personalEvents = userPersonalEvents.filter(e => e.event_date === selectedDate);
-
-                detailsList.innerHTML = ''; // Clear the previous details
-
-                // If any event exists, display it in the list below
-                if (publicEvents.length > 0 || personalEvents.length > 0) {
-                    publicEvents.forEach(e => {
-                        detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
-                    });
-                    // For premium users, also show their personal events in the same list
-                    personalEvents.forEach(e => {
-                        detailsList.insertAdjacentHTML('beforeend', `<li style="border-color: ${e.color};">${e.title} (رویداد شخصی)</li>`);
-                    });
-                } else {
-                    detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
-                }
-            }
-
-            async function fetchEvents(year) {
-                const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
+            // --- 6. CORE FUNCTIONS (DATA FETCHING, RENDERING, HANDLERS) ---
+            async function loadAllEventData(year, user) {
                 try {
+                    const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
                     const response = await fetch(apiUrl);
                     if (!response.ok) throw new Error('Public events fetch failed.');
-                    allEvents = await response.json();
-                    renderCalendar();
+                    allPublicEvents = await response.json();
                 } catch (error) {
-                    console.error("Failed to fetch public events:", error);
+                    console.error("Could not fetch public events:", error);
+                    allPublicEvents = [];
                 }
-            }
 
-            async function fetchPersonalEvents(year, user) {
-                await fetchEvents(year);
-                if (!user) return;
-                const yearStart = moment().jYear(year).startOf('jYear').toDate();
-                const yearEnd = moment().jYear(year).endOf('jYear').toDate();
-                const { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', user.id).gte('event_date', yearStart.toISOString()).lte('event_date', yearEnd.toISOString());
-                userPersonalEvents = error ? [] : data;
-                renderCalendar();
-            }
-
-            async function checkForUpcomingTasks(user) {
-                if (!user) return;
-                const today = new Date().toISOString().slice(0, 10);
-                const { data, error } = await _supabase.from('user_personal_events').select('title').eq('user_id', user.id).eq('event_date', today).eq('is_completed', false);
-                if (!error && data && data.length > 0) {
-                    const taskListEl = document.getElementById('toast-task-list');
-                    const toastEl = document.getElementById('notification-toast');
-                    if (taskListEl && toastEl) {
-                        taskListEl.innerHTML = data.map(task => `<p class="truncate">- ${task.title}</p>`).join('');
-                        setTimeout(() => toastEl.classList.add('show'), 1500);
+                userPersonalEvents = [];
+                if (user) {
+                    try {
+                        const yearStart = moment().jYear(year).startOf('jYear').toDate();
+                        const yearEnd = moment().jYear(year).endOf('jYear').toDate();
+                        const { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', user.id).gte('event_date', yearStart.toISOString()).lte('event_date', yearEnd.toISOString());
+                        if (error) throw error;
+                        userPersonalEvents = data || [];
+                    } catch (error) {
+                        console.error("Could not fetch personal events:", error);
                     }
                 }
+
+                renderCalendar();
             }
 
             function renderCalendar() {
@@ -490,7 +440,7 @@
                 for (let i = 1; i <= daysInMonth; i++) {
                     const dayMoment = currentMoment.clone().jDate(i);
                     const dateString = dayMoment.format('YYYY-MM-DD');
-                    const publicEvents = allEvents.filter(e => e.date === dateString);
+                    const publicEvents = allPublicEvents.filter(e => e.date === dateString);
                     const personalEvents = userPersonalEvents.filter(e => e.event_date === dateString);
                     let eventsHtml = '<div class="day-events-list">';
                     publicEvents.slice(0, 1).forEach(event => { eventsHtml += `<div class="event-title-inline">${event.title}</div>`; });
@@ -505,20 +455,46 @@
                 document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
             }
 
-            function navigateMonths(direction) {
-                const currentYear = currentMoment.jYear();
-                currentMoment.add(direction, 'jMonth');
-                const newYear = currentMoment.jYear();
-                if (newYear !== currentYear) {
-                    if (isPremiumUser) {
-                        _supabase.auth.getSession().then(({ data: { session } }) => {
-                            if (session) fetchPersonalEvents(newYear, session.user);
-                        });
-                    } else {
-                        fetchEvents(newYear);
+            function handleDayClick(event) {
+                selectedDate = event.currentTarget.dataset.date;
+                _supabase.auth.getSession().then(({ data: { session } }) => {
+                    if (!session || !session.user) {
+                        document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+                        event.currentTarget.classList.add('selected');
+                        const publicEvents = allPublicEvents.filter(e => e.date === selectedDate);
+                        detailsList.innerHTML = '';
+                        if (publicEvents.length > 0) {
+                            publicEvents.forEach(e => { detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`); });
+                        } else {
+                            detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+                        }
+                        return;
                     }
-                } else {
-                    renderCalendar();
+                    if (isPremiumUser) {
+                        window.location.href = `daily-view.html?date=${selectedDate}`;
+                    } else {
+                        alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقویم فعال است.');
+                    }
+                });
+            }
+
+            async function navigateMonths(direction) {
+                currentMoment.add(direction, 'jMonth');
+                const { data: { session } } = await _supabase.auth.getSession();
+                await loadAllEventData(currentMoment.jYear(), session?.user);
+            }
+
+            async function checkForUpcomingTasks(user) {
+                if (!user) return;
+                const today = new Date().toISOString().slice(0, 10);
+                const { data, error } = await _supabase.from('user_personal_events').select('title').eq('user_id', user.id).eq('event_date', today).eq('is_completed', false);
+                if (!error && data && data.length > 0) {
+                    const taskListEl = document.getElementById('toast-task-list');
+                    const toastEl = document.getElementById('notification-toast');
+                    if (taskListEl && toastEl) {
+                        taskListEl.innerHTML = data.map(task => `<p class="truncate">- ${task.title}</p>`).join('');
+                        setTimeout(() => toastEl.classList.add('show'), 1500);
+                    }
                 }
             }
         });

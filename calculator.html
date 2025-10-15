@@ -605,20 +605,25 @@
             }
         });
 
+        // Event listener for the profile icon to toggle the dropdown
         if (profileToggleBtn) {
-            profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
-            window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) { dropdownMenu.classList.add('hidden'); } });
-
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    await _supabase.auth.signOut();
-                    // به جای رفرش، به صفحه اصلی برو
-                    window.location.href = '/index.html';
-                });
-            }
+            profileToggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('hidden');
+            });
         }
-        if (logoutBtn) { logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); window.location.reload(); }); }
+
+        // Event listener for the logout button (Your Golden Solution)
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await _supabase.auth.signOut();
+                // Clear session storage to ensure a clean logout
+                sessionStorage.clear();
+                // Use replace() to prevent returning to the page via the back button
+                window.location.replace('index.html'); // Redirect to home page
+            });
+        }
 
 
         // Close the dropdown if clicking anywhere else on the page

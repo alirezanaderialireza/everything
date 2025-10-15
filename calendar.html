@@ -356,7 +356,6 @@
                 if (session && session.user) {
                     loginBtn.style.display = 'none';
                     userMenu.style.display = 'block';
-
                     const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
 
                     if (justPaid || (profile && profile.has_premium_calendar)) {
@@ -412,7 +411,6 @@
             }
             updateClock();
             setInterval(updateClock, 1000);
-
             prevMonthBtn.addEventListener('click', () => navigateMonths(-1));
             nextMonthBtn.addEventListener('click', () => navigateMonths(1));
 
@@ -435,7 +433,7 @@
                     if (isPremiumUser) {
                         window.location.href = `daily-view.html?date=${selectedDate}`;
                     } else {
-                        alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقوim فعال است.');
+                        alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقویم فعال است.');
                     }
                 });
             }
@@ -484,9 +482,7 @@
                 const startOfMonth = currentMoment.clone().startOf('jMonth');
                 const daysInMonth = currentMoment.jDaysInMonth();
                 const firstDayOfWeek = (startOfMonth.day() + 1) % 7;
-
                 for (let i = 0; i < firstDayOfWeek; i++) { daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`); }
-
                 for (let i = 1; i <= daysInMonth; i++) {
                     const dayMoment = currentMoment.clone().jDate(i);
                     const dateString = dayMoment.format('YYYY-MM-DD');
@@ -510,11 +506,12 @@
                 currentMoment.add(direction, 'jMonth');
                 const newYear = currentMoment.jYear();
                 if (newYear !== currentYear) {
-                    fetchEvents(newYear);
                     if (isPremiumUser) {
                         _supabase.auth.getSession().then(({ data: { session } }) => {
                             if (session) fetchPersonalEvents(newYear, session.user);
                         });
+                    } else {
+                        fetchEvents(newYear);
                     }
                 } else {
                     renderCalendar();

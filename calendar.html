@@ -671,6 +671,65 @@
             // --- Initial Data Load ---
             fetchPublicEvents(currentMoment.jYear());
         });
+        // --- START: Live Clock Logic for Header and Widget ---
+
+        // Find clock elements on the page
+        const headerClockEl = document.getElementById('live-clock-display');
+        const widgetTimeEl = document.getElementById('widget-time');
+        const shamsiDateEl = document.getElementById('widget-shamsi-date');
+        const qamariDateEl = document.getElementById('widget-qamari-date');
+        const gregorianDateEl = document.getElementById('widget-gregorian-date');
+
+        function updateLiveClocks() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fa-IR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            // Update the header clock if it exists
+            if (headerClockEl) {
+                headerClockEl.textContent = timeString;
+            }
+
+            // Update the main widget clock if it exists
+            if (widgetTimeEl) {
+                widgetTimeEl.textContent = timeString;
+            }
+
+            // Update the date parts of the widget if they exist
+            if (shamsiDateEl) {
+                shamsiDateEl.textContent = new Intl.DateTimeFormat('fa-IR', {
+                    day: 'numeric',
+                    month: 'long'
+                }).format(now);
+            }
+            if (gregorianDateEl) {
+                gregorianDateEl.textContent = new Intl.DateTimeFormat('en-US', {
+                    month: 'long',
+                    day: 'numeric'
+                }).format(now);
+            }
+            if (qamariDateEl) {
+                try {
+                    qamariDateEl.textContent = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', {
+                        day: 'numeric',
+                        month: 'long'
+                    }).format(now);
+                } catch (e) {
+                    qamariDateEl.textContent = 'ناموجود';
+                }
+            }
+        }
+
+        // Run the clock update function every second
+        if (headerClockEl || widgetTimeEl) {
+            updateLiveClocks(); // Call it once immediately
+            setInterval(updateLiveClocks, 1000); // Then update every second
+        }
+
+        // --- END: Live Clock Logic ---
     </script>
 </body>
 

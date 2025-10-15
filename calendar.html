@@ -499,32 +499,33 @@
                 document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
             }
 
-            function handleDayClick(event) {
+            async function handleDayClick(event) {
                 selectedDate = event.currentTarget.dataset.date;
 
                 console.log("Clicked date:", selectedDate, "Is premium?", isPremiumUser);
 
-                if (isPremiumUser) {
-                    const targetUrl = `daily-view.html?date=${selectedDate}`;
-                    console.log("Redirecting to:", targetUrl);
+                // --- بررسی مستقیم لاگین و وضعیت پریمیوم در لحظه کلیک ---
+                const { data: { session } } = await _supabase.auth.getSession();
+                if (!session || !session.user) {
+                    alert('برای مشاهده نمای روزانه ابتدا وارد حساب شوید.');
+                    window.location.href = 'login.html';
+                    return;
+                }
 
-                    // --- تست ریدایرکت ---
-                    try {
-                        window.location.href = targetUrl;
+                // واکشی مستقیم پروفایل
+                const { data: profile } = await _supabase.from('profiles')
+                    .select('has_premium_calendar')
+                    .eq('id', session.user.id)
+                    .single();
 
-                        // اگر بعد از 500میلی‌ثانیه ریدایرکت انجام نشد، fallback فعال شود
-                        setTimeout(() => {
-                            if (window.location.href.indexOf("daily-view.html") === -1) {
-                                console.warn("Redirect blocked - showing inline fallback");
-                                showInlineDetails(selectedDate);
-                            }
-                        }, 500);
-                    } catch (e) {
-                        console.error("Redirect failed:", e);
-                        showInlineDetails(selectedDate);
-                    }
+                const hasPremium = profile?.has_premium_calendar === true;
 
+                console.log("Live Premium Check:", hasPremium);
+
+                if (hasPremium) {
+                    window.location.href = `daily-view.html?date=${selectedDate}`;
                 } else {
+                    alert('این قابلیت مخصوص کاربران نسخه پیشرفته است.');
                     showInlineDetails(selectedDate);
                 }
             }

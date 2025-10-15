@@ -568,6 +568,46 @@
                     }
                 }
             }
+            async function fetchAndRenderPersonalEvents(user) {
+                if (!user) return;
+
+                const today = moment().format('YYYY-MM-DD');
+                const sevenDaysLater = moment().add(7, 'days').format('YYYY-MM-DD');
+                const thirtyDaysLater = moment().add(30, 'days').format('YYYY-MM-DD');
+
+                const { data, error } = await _supabase
+                    .from('user_personal_events')
+                    .select('title, event_date')
+                    .eq('user_id', user.id)
+                    .eq('show_on_dashboard', true) // **فقط رویدادهایی که باید نمایش داده شوند**
+                    .gte('event_date', today)
+                    .lte('event_date', thirtyDaysLater);
+
+                if (error || !data) return;
+
+                const todayEvents = data.filter(e => e.event_date === today);
+                const weekEvents = data.filter(e => e.event_date > today && e.event_date <= sevenDaysLater);
+                const monthEvents = data.filter(e => e.event_date > sevenDaysLater && e.event_date <= thirtyDaysLater);
+
+                // Append personal events to the widget
+                appendPersonalEvents(todayCol, todayEvents);
+                appendPersonalEvents(weekCol, weekEvents, true);
+                appendPersonalEvents(monthCol, monthEvents, true);
+            }
+
+            function appendPersonalEvents(columnElement, eventList, showDate = false) {
+                if (!eventList || eventList.length === 0) return;
+
+                const ul = columnElement.querySelector('ul');
+                const noEventsP = columnElement.querySelector('.no-events');
+                if (noEventsP) noEventsP.classList.add('hidden');
+
+                const personalHtml = eventList.map(event =>
+                    `<li>${showDate ? `<span class="event-date-tag">${moment(event.event_date).format('jM/jD')}</span>` : ''}${event.title} <span class="text-xs text-blue-500">(شخصی)</span></li>`
+                ).join('');
+
+                ul.insertAdjacentHTML('beforeend', personalHtml);
+            }
         });
     </script>
 </body>

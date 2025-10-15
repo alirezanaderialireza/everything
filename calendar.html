@@ -316,13 +316,12 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // --- 1. SUPABASE CLIENT & GLOBAL VARIABLES ---
+            // --- 1. SUPABASE CLIENT & ALL OTHER VARIABLES ---
             const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
             const { createClient } = supabase;
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
-            // --- 2. DOM ELEMENTS & STATE ---
             const loginBtn = document.getElementById('login-btn');
             const userMenu = document.getElementById('user-menu');
             const profileToggleBtn = document.getElementById('profile-toggle-btn');
@@ -342,7 +341,7 @@
             let selectedDate = null;
             let isPremiumUser = false;
 
-            // --- 3. UNIFIED AUTH, PREMIUM CHECK & UI MANAGEMENT (The Complete Version) ---
+            // --- 3. AUTH & UI MANAGEMENT ---
             _supabase.auth.onAuthStateChange(async (event, session) => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const paymentStatus = urlParams.get('payment');
@@ -354,53 +353,40 @@
                 }
 
                 if (session && session.user) {
-                    // User is logged in
                     loginBtn.style.display = 'none';
                     userMenu.style.display = 'block';
-
                     const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
-
                     if (justPaid || (profile && profile.has_premium_calendar)) {
                         isPremiumUser = true;
                         if (premiumButtons) premiumButtons.style.display = 'block';
                         if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
                         fetchPersonalEvents(currentMoment.jYear(), session.user);
                         checkForUpcomingTasks(session.user);
-                        renderCalendar();
                     } else {
                         isPremiumUser = false;
                         if (premiumButtons) premiumButtons.style.display = 'none';
                         if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
                         userPersonalEvents = [];
-                        renderCalendar();
+                        fetchEvents(currentMoment.jYear());
                     }
                 } else {
-                    // User is logged out
                     isPremiumUser = false;
                     loginBtn.style.display = 'flex';
                     userMenu.style.display = 'none';
                     if (premiumButtons) premiumButtons.style.display = 'none';
                     if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
                     userPersonalEvents = [];
-                    renderCalendar();
+                    fetchEvents(currentMoment.jYear());
                 }
             });
-            _supabase.auth.getSession().then(async ({ data: { session } }) => {
-                const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
-                console.log("SESSION USER:", session?.user?.id);
-                console.log("PROFILE LOADED:", profile);
-                console.log("HAS PREMIUM?", profile?.has_premium_calendar);
-            });
 
-
-            // --- 4. PROFILE MENU & LOGOUT LOGIC (Your Golden Solution) ---
+            // --- 4. PROFILE MENU & LOGOUT LOGIC ---
             if (profileToggleBtn) {
                 profileToggleBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     dropdownMenu.classList.toggle('hidden');
                 });
             }
-
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
@@ -409,33 +395,58 @@
                     window.location.replace('index.html');
                 });
             }
-
             window.addEventListener('click', () => {
                 if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
                     dropdownMenu.classList.add('hidden');
                 }
             });
 
-            // --- 5. PAGE INITIALIZATION & OTHER FUNCTIONS ---
+            // --- 5. PAGE INITIALIZATION ---
             moment.locale('fa');
-
             const clockEl = document.getElementById('live-clock-display');
             function updateClock() {
                 if (clockEl) clockEl.textContent = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             }
             updateClock();
             setInterval(updateClock, 1000);
-
             prevMonthBtn.addEventListener('click', () => navigateMonths(-1));
             nextMonthBtn.addEventListener('click', () => navigateMonths(1));
 
-            fetchEvents(currentMoment.jYear());
+            // --- 6. DATA FETCHING, RENDERING & EVENT HANDLERS ---
+
+            // ** NEW MODIFIED CLICK HANDLER **
+            function handleDayClick(event) {
+                selectedDate = event.currentTarget.dataset.date;
+
+                // Highlight the selected day for everyone
+                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+                event.currentTarget.classList.add('selected');
+
+                // Find both public and personal events for the clicked day
+                const publicEvents = allEvents.filter(e => e.date === selectedDate);
+                const personalEvents = userPersonalEvents.filter(e => e.event_date === selectedDate);
+
+                detailsList.innerHTML = ''; // Clear the previous details
+
+                // If any event exists, display it in the list below
+                if (publicEvents.length > 0 || personalEvents.length > 0) {
+                    publicEvents.forEach(e => {
+                        detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
+                    });
+                    // For premium users, also show their personal events in the same list
+                    personalEvents.forEach(e => {
+                        detailsList.insertAdjacentHTML('beforeend', `<li style="border-color: ${e.color};">${e.title} (رویداد شخصی)</li>`);
+                    });
+                } else {
+                    detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+                }
+            }
 
             async function fetchEvents(year) {
                 const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
                 try {
                     const response = await fetch(apiUrl);
-                    if (!response.ok) throw new Error('پاسخ سرور عمومی دریافت نشد.');
+                    if (!response.ok) throw new Error('Public events fetch failed.');
                     allEvents = await response.json();
                     renderCalendar();
                 } catch (error) {
@@ -444,10 +455,10 @@
             }
 
             async function fetchPersonalEvents(year, user) {
+                await fetchEvents(year);
                 if (!user) return;
                 const yearStart = moment().jYear(year).startOf('jYear').toDate();
                 const yearEnd = moment().jYear(year).endOf('jYear').toDate();
-
                 const { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', user.id).gte('event_date', yearStart.toISOString()).lte('event_date', yearEnd.toISOString());
                 userPersonalEvents = error ? [] : data;
                 renderCalendar();
@@ -475,90 +486,36 @@
                 const startOfMonth = currentMoment.clone().startOf('jMonth');
                 const daysInMonth = currentMoment.jDaysInMonth();
                 const firstDayOfWeek = (startOfMonth.day() + 1) % 7;
-
                 for (let i = 0; i < firstDayOfWeek; i++) { daysGrid.insertAdjacentHTML('beforeend', `<div class="day-cell other-month"></div>`); }
-
                 for (let i = 1; i <= daysInMonth; i++) {
                     const dayMoment = currentMoment.clone().jDate(i);
                     const dateString = dayMoment.format('YYYY-MM-DD');
                     const publicEvents = allEvents.filter(e => e.date === dateString);
                     const personalEvents = userPersonalEvents.filter(e => e.event_date === dateString);
-
                     let eventsHtml = '<div class="day-events-list">';
                     publicEvents.slice(0, 1).forEach(event => { eventsHtml += `<div class="event-title-inline">${event.title}</div>`; });
                     personalEvents.slice(0, 1).forEach(event => { eventsHtml += `<div class="personal-event-inline" style="--event-color: ${event.color};">${event.title}</div>`; });
                     eventsHtml += '</div>';
-
                     if ((publicEvents.length + personalEvents.length) > 2) { eventsHtml += '<div class="event-dot"></div>'; }
-
                     let cellClasses = 'day-cell';
                     if (dateString === today) cellClasses += ' today';
-                    if (dateString === selectedDate) cellClasses += ' selected';
                     const cellHtml = `<div class="${cellClasses}" data-date="${dateString}"><div class="day-number">${i}</div>${eventsHtml}</div>`;
                     daysGrid.insertAdjacentHTML('beforeend', cellHtml);
                 }
                 document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
             }
 
-            async function handleDayClick(event) {
-                selectedDate = event.currentTarget.dataset.date;
-
-                console.log("Clicked date:", selectedDate, "Is premium?", isPremiumUser);
-
-                // --- بررسی مستقیم لاگین و وضعیت پریمیوم در لحظه کلیک ---
-                const { data: { session } } = await _supabase.auth.getSession();
-                if (!session || !session.user) {
-                    alert('برای مشاهده نمای روزانه ابتدا وارد حساب شوید.');
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                // واکشی مستقیم پروفایل
-                const { data: profile } = await _supabase.from('profiles')
-                    .select('has_premium_calendar')
-                    .eq('id', session.user.id)
-                    .single();
-
-                const hasPremium = profile?.has_premium_calendar === true;
-
-                console.log("Live Premium Check:", hasPremium);
-
-                if (hasPremium) {
-                    window.location.href = `daily-view.html?date=${selectedDate}`;
-                } else {
-                    alert('این قابلیت مخصوص کاربران نسخه پیشرفته است.');
-                    showInlineDetails(selectedDate);
-                }
-            }
-
-            function showInlineDetails(date) {
-                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
-                const clicked = document.querySelector(`.day-cell[data-date="${date}"]`);
-                if (clicked) clicked.classList.add('selected');
-
-                const publicEvents = allEvents.filter(e => e.date === date);
-                detailsList.innerHTML = '';
-
-                if (publicEvents.length > 0) {
-                    publicEvents.forEach(e => {
-                        detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
-                    });
-                } else {
-                    detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
-                }
-            }
-
-
             function navigateMonths(direction) {
                 const currentYear = currentMoment.jYear();
                 currentMoment.add(direction, 'jMonth');
                 const newYear = currentMoment.jYear();
                 if (newYear !== currentYear) {
-                    fetchEvents(newYear);
                     if (isPremiumUser) {
                         _supabase.auth.getSession().then(({ data: { session } }) => {
                             if (session) fetchPersonalEvents(newYear, session.user);
                         });
+                    } else {
+                        fetchEvents(newYear);
                     }
                 } else {
                     renderCalendar();

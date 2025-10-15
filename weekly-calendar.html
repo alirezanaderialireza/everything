@@ -461,16 +461,15 @@
             if (logoutBtn) logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); sessionStorage.clear(); window.location.replace('index.html'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) dropdownMenu.classList.add('hidden'); });
             // --- Navigation & Header Event Listeners ---
-            // --- Navigation & Header Event Listeners (FINAL) ---
             document.getElementById('prev-week-btn').addEventListener('click', () => {
-                console.log('تاریخ قبل از تغییر:', currentMoment.format('jYYYY/jMM/jDD'));
-                currentMoment.subtract(1, 'jWeek');
-                console.log('تاریخ بعد از تغییر:', currentMoment.format('jYYYY/jMM/jDD'));
+                // کم کردن ۷ روز برای رفتن به هفته قبل
+                currentMoment = currentMoment.clone().subtract(7, 'days');
                 setupWeekView(currentMoment);
             });
 
             document.getElementById('next-week-btn').addEventListener('click', () => {
-                currentMoment.add(1, 'jWeek');
+                // اضافه کردن ۷ روز برای رفتن به هفته بعد
+                currentMoment = currentMoment.clone().add(7, 'days');
                 setupWeekView(currentMoment);
             });
 

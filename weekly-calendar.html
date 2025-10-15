@@ -508,10 +508,13 @@
 
             eventForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                console.log("1. دکمه ذخیره کلیک شد. فرآیند شروع می‌شود...");
+
                 const eventId = e.target['event-id'].value;
                 const isRecurring = isRecurringCheckbox.checked;
 
                 if (isRecurring && !eventId) {
+                    console.log("2. در حال ساخت رویدادهای تکرارشونده...");
                     const startDate = moment(e.target['event-date'].value, 'YYYY-MM-DD');
                     const endDate = moment(e.target['end-date'].value, 'YYYY-MM-DD');
                     const selectedWeekdays = Array.from(weekdaySelector.querySelectorAll('input:checked')).map(cb => parseInt(cb.value));
@@ -541,7 +544,10 @@
 
                     if (eventsToInsert.length === 0) return alert('هیچ روزی مطابق با روزهای انتخابی شما در بازه زمانی مشخص شده یافت نشد.');
 
-                    const { error } = await _supabase.from('user_personal_events').insert(eventsToInsert);
+                    console.log("3. در حال ارسال داده‌های تکرارشونده به سوپابیس:", eventsToInsert);
+                    const { data, error } = await _supabase.from('user_personal_events').insert(eventsToInsert).select();
+                    console.log("4. پاسخ از سوپابیس دریافت شد:", { data, error });
+
                     if (error) {
                         alert("خطا در ذخیره رویدادهای تکرارشونده: " + error.message);
                     } else {
@@ -549,6 +555,7 @@
                         setupWeekView(currentMoment);
                     }
                 } else {
+                    console.log("2. در حال ساخت رویداد تکی یا ویرایش...");
                     const categoryData = JSON.parse(e.target['category'].value);
                     const eventData = {
                         title: e.target['event-title'].value,
@@ -562,15 +569,19 @@
                         user_id: currentUser.id,
                     };
 
-                    let error;
+                    let response;
                     if (eventId) {
-                        ({ error } = await _supabase.from('user_personal_events').update(eventData).eq('id', eventId));
+                        console.log("3. در حال ارسال درخواست ویرایش به سوپابیس:", eventData);
+                        response = await _supabase.from('user_personal_events').update(eventData).eq('id', eventId).select();
                     } else {
-                        ({ error } = await _supabase.from('user_personal_events').insert([eventData]));
+                        console.log("3. در حال ارسال درخواست ثبت به سوپابیس:", eventData);
+                        response = await _supabase.from('user_personal_events').insert([eventData]).select();
                     }
 
-                    if (error) {
-                        alert("خطا در ذخیره رویداد: " + error.message);
+                    console.log("4. پاسخ از سوپابیس دریافت شد:", response);
+
+                    if (response.error) {
+                        alert("خطا در ذخیره رویداد: " + response.error.message);
                     } else {
                         modal.classList.add('hidden');
                         setupWeekView(currentMoment);

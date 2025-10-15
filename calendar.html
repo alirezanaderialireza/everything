@@ -349,12 +349,11 @@
             moment.locale('fa');
 
             _supabase.auth.onAuthStateChange(async (event, session) => {
+                // This block handles UI changes and fetching PERSONAL events
                 const urlParams = new URLSearchParams(window.location.search);
                 const paymentStatus = urlParams.get('payment');
-                let justPaid = paymentStatus === 'success';
-
-                if (justPaid) {
-                    alert('خرید شما با موفقیت انجام شد! قابلیت‌های جدید تقویم برای شما فعال شده است.');
+                if (paymentStatus === 'success') {
+                    alert('خرید شما با موفقیت انجام شد!');
                     window.history.replaceState({}, document.title, "/calendar.html");
                 }
 
@@ -363,17 +362,16 @@
                     userMenu.style.display = 'block';
                     const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
 
-                    if (justPaid || (profile && profile.has_premium_calendar)) {
+                    if (profile && profile.has_premium_calendar) {
                         isPremiumUser = true;
                         if (premiumButtons) premiumButtons.style.display = 'block';
                         if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
-                        await loadAllEventData(currentMoment.jYear(), session.user);
+                        await fetchPersonalEvents(currentMoment.jYear(), session.user); // Fetch personal events
                         checkForUpcomingTasks(session.user);
                     } else {
                         isPremiumUser = false;
                         if (premiumButtons) premiumButtons.style.display = 'none';
                         if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-                        await loadAllEventData(currentMoment.jYear(), null);
                     }
                 } else {
                     isPremiumUser = false;
@@ -381,8 +379,8 @@
                     userMenu.style.display = 'none';
                     if (premiumButtons) premiumButtons.style.display = 'none';
                     if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
-                    await loadAllEventData(currentMoment.jYear(), null);
                 }
+                renderCalendar(); // Re-render the calendar after auth state changes
             });
 
             // --- 5. EVENT LISTENERS ---
@@ -397,8 +395,8 @@
             prevMonthBtn.addEventListener('click', () => navigateMonths(-1));
             nextMonthBtn.addEventListener('click', () => navigateMonths(1));
 
-            // --- 6. CORE FUNCTIONS (Full Implementation) ---
-            async function loadAllEventData(year, user) {
+            // --- 6. CORE FUNCTIONS ---
+            async function fetchPublicEvents(year) {
                 try {
                     const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
                     const response = await fetch(apiUrl);
@@ -408,21 +406,22 @@
                     console.error("Could not fetch public events:", error);
                     allPublicEvents = [];
                 }
+                renderCalendar(); // Render calendar with public events (or empty if failed)
+            }
 
+            async function fetchPersonalEvents(year, user) {
                 userPersonalEvents = [];
-                if (user) {
-                    try {
-                        const yearStart = moment().jYear(year).startOf('jYear').toDate();
-                        const yearEnd = moment().jYear(year).endOf('jYear').toDate();
-                        const { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', user.id).gte('event_date', yearStart.toISOString()).lte('event_date', yearEnd.toISOString());
-                        if (error) throw error;
-                        userPersonalEvents = data || [];
-                    } catch (error) {
-                        console.error("Could not fetch personal events:", error);
-                    }
+                if (!user) return;
+                try {
+                    const yearStart = moment().jYear(year).startOf('jYear').toDate();
+                    const yearEnd = moment().jYear(year).endOf('jYear').toDate();
+                    const { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', user.id).gte('event_date', yearStart.toISOString()).lte('event_date', yearEnd.toISOString());
+                    if (error) throw error;
+                    userPersonalEvents = data || [];
+                } catch (error) {
+                    console.error("Could not fetch personal events:", error);
                 }
-
-                renderCalendar();
+                renderCalendar(); // Re-render with personal events
             }
 
             function renderCalendar() {
@@ -455,30 +454,37 @@
             function handleDayClick(event) {
                 selectedDate = event.currentTarget.dataset.date;
                 _supabase.auth.getSession().then(({ data: { session } }) => {
-                    if (!session || !session.user) {
+                    if (isPremiumUser && session && session.user) {
+                        window.location.href = `daily-view.html?date=${selectedDate}`;
+                    } else {
                         document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
                         event.currentTarget.classList.add('selected');
                         const publicEvents = allPublicEvents.filter(e => e.date === selectedDate);
+                        const personalEvents = userPersonalEvents.filter(e => e.event_date === selectedDate);
                         detailsList.innerHTML = '';
-                        if (publicEvents.length > 0) {
-                            publicEvents.forEach(e => { detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`); });
+                        if (publicEvents.length > 0 || personalEvents.length > 0) {
+                            publicEvents.forEach(e => detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`));
+                            personalEvents.forEach(e => detailsList.insertAdjacentHTML('beforeend', `<li style="border-color: ${e.color};">${e.title} (شخصی)</li>`));
                         } else {
                             detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
                         }
-                        return;
-                    }
-                    if (isPremiumUser) {
-                        window.location.href = `daily-view.html?date=${selectedDate}`;
-                    } else {
-                        alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقویم فعال است.');
+                        if (!isPremiumUser && session && session.user) {
+                            // Optional: alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقویم فعال است.');
+                        }
                     }
                 });
             }
 
             async function navigateMonths(direction) {
+                const oldYear = currentMoment.jYear();
                 currentMoment.add(direction, 'jMonth');
-                const { data: { session } } = await _supabase.auth.getSession();
-                await loadAllEventData(currentMoment.jYear(), session?.user);
+                const newYear = currentMoment.jYear();
+                // Only re-fetch public events if the year changes
+                if (newYear !== oldYear) {
+                    await fetchPublicEvents(newYear);
+                }
+                // Always re-render to show the new month
+                renderCalendar();
             }
 
             async function checkForUpcomingTasks(user) {
@@ -494,6 +500,10 @@
                     }
                 }
             }
+
+            // --- Initial Data Load ---
+            fetchPublicEvents(currentMoment.jYear());
+
         });
     </script>
 

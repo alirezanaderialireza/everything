@@ -384,6 +384,11 @@
                     renderCalendar();
                 }
             });
+            _supabase.auth.getSession().then(async ({ data: { session } }) => {
+                const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
+                console.log("Profile value:", profile);
+            });
+
 
             // --- 4. PROFILE MENU & LOGOUT LOGIC (Your Golden Solution) ---
             if (profileToggleBtn) {
@@ -494,22 +499,22 @@
 
             function handleDayClick(event) {
                 selectedDate = event.currentTarget.dataset.date;
-                if (isPremiumUser) {
-                    window.location.href = `daily-view.html?date=${selectedDate}`;
-                } else {
-                    document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
-                    event.currentTarget.classList.add('selected');
 
-                    const publicEvents = allEvents.filter(e => e.date === selectedDate);
-                    detailsList.innerHTML = '';
-
-                    if (publicEvents.length > 0) {
-                        publicEvents.forEach(e => { detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`); });
-                    } else {
-                        detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+                _supabase.auth.getSession().then(({ data: { session } }) => {
+                    if (!session || !session.user) {
+                        alert('برای مشاهده نمای روزانه، ابتدا وارد حساب خود شوید.');
+                        window.location.href = 'login.html';
+                        return;
                     }
-                }
+
+                    if (isPremiumUser) {
+                        window.location.href = `daily-view.html?date=${selectedDate}`;
+                    } else {
+                        alert('این قابلیت فقط مخصوص کاربران نسخه پیشرفته است.');
+                    }
+                });
             }
+
 
             function navigateMonths(direction) {
                 const currentYear = currentMoment.jYear();

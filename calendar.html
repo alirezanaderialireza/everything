@@ -500,19 +500,48 @@
             function handleDayClick(event) {
                 selectedDate = event.currentTarget.dataset.date;
 
-                _supabase.auth.getSession().then(({ data: { session } }) => {
-                    if (!session || !session.user) {
-                        alert('برای مشاهده نمای روزانه، ابتدا وارد حساب خود شوید.');
-                        window.location.href = 'login.html';
-                        return;
+                console.log("Clicked date:", selectedDate, "Is premium?", isPremiumUser);
+
+                if (isPremiumUser) {
+                    const targetUrl = `daily-view.html?date=${selectedDate}`;
+                    console.log("Redirecting to:", targetUrl);
+
+                    // --- تست ریدایرکت ---
+                    try {
+                        window.location.href = targetUrl;
+
+                        // اگر بعد از 500میلی‌ثانیه ریدایرکت انجام نشد، fallback فعال شود
+                        setTimeout(() => {
+                            if (window.location.href.indexOf("daily-view.html") === -1) {
+                                console.warn("Redirect blocked - showing inline fallback");
+                                showInlineDetails(selectedDate);
+                            }
+                        }, 500);
+                    } catch (e) {
+                        console.error("Redirect failed:", e);
+                        showInlineDetails(selectedDate);
                     }
 
-                    if (isPremiumUser) {
-                        window.location.href = `daily-view.html?date=${selectedDate}`;
-                    } else {
-                        alert('این قابلیت فقط مخصوص کاربران نسخه پیشرفته است.');
-                    }
-                });
+                } else {
+                    showInlineDetails(selectedDate);
+                }
+            }
+
+            function showInlineDetails(date) {
+                document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+                const clicked = document.querySelector(`.day-cell[data-date="${date}"]`);
+                if (clicked) clicked.classList.add('selected');
+
+                const publicEvents = allEvents.filter(e => e.date === date);
+                detailsList.innerHTML = '';
+
+                if (publicEvents.length > 0) {
+                    publicEvents.forEach(e => {
+                        detailsList.insertAdjacentHTML('beforeend', `<li>${e.title}</li>`);
+                    });
+                } else {
+                    detailsList.innerHTML = `<li>هیچ رویدادی برای این روز ثبت نشده است.</li>`;
+                }
             }
 
 

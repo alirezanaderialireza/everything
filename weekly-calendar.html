@@ -62,13 +62,63 @@
             transform: translateY(-2px);
         }
 
-        /* New styles inspired by calendar.html */
+        #calendar-wrapper {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: var(--navy);
+            color: white;
+        }
+
+        .week-title-display {
+            font-family: var(--font-display);
+            font-size: 1.75rem;
+        }
+
+        .calendar-nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .calendar-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .today-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--navy);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            margin: 0 0.5rem;
+        }
+
         .day-header-cell {
             text-align: center;
             padding: 0.75rem 0.25rem;
             font-weight: 600;
             color: var(--slate-600);
+            background-color: var(--slate-100);
+            border-left: 1px solid #e2e8f0;
         }
+
+        .day-header-cell:last-child {
+            border-left: none;
+        }
+
 
         .day-header-cell.today .day-number-weekly {
             background-color: var(--gold);
@@ -94,6 +144,10 @@
             top: -8px;
         }
 
+        #time-labels-container {
+            border-left: 1px solid #e2e8f0;
+        }
+
         .day-column {
             border-left: 1px solid #e2e8f0;
             position: relative;
@@ -101,6 +155,10 @@
 
         .day-column:last-child {
             border-left: none;
+        }
+
+        #all-day-events-container .day-column {
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .hour-line {
@@ -134,14 +192,12 @@
         }
 
         .all-day-event-block {
-            margin-bottom: 4px;
+            margin: 2px;
             font-weight: 500;
         }
 
         #current-time-indicator {
             position: absolute;
-            left: 0;
-            right: 80px;
             height: 2px;
             background-color: #ef4444;
             z-index: 20;
@@ -224,36 +280,36 @@
     </header>
 
     <main class="container mx-auto p-4 md:p-6 mt-8">
-        <div class="flex justify-between items-center mb-6">
-            <div class="flex items-center gap-4">
-                <h1 id="week-title" class="text-3xl md:text-4xl font-display text-[var(--navy)]"></h1>
-                <div class="flex items-center gap-2">
-                    <button id="prev-week-btn"
-                        class="bg-white rounded-full w-9 h-9 shadow-sm hover:bg-slate-50 transition"><i
-                            class="fa fa-chevron-left"></i></button>
-                    <button id="next-week-btn"
-                        class="bg-white rounded-full w-9 h-9 shadow-sm hover:bg-slate-50 transition"><i
-                            class="fa fa-chevron-right"></i></button>
-                    <button id="today-btn"
-                        class="text-sm font-semibold bg-white rounded-lg px-3 py-1.5 shadow-sm hover:bg-slate-50 transition">امروز</button>
-                </div>
-            </div>
+        <div class="flex justify-end mb-6">
             <button id="add-event-btn" class="btn-gold"><i class="fa-solid fa-plus ml-2"></i><span>افزودن
                     رویداد</span></button>
         </div>
 
-        <div id="weekly-container" class="bg-white rounded-xl shadow-xl overflow-hidden">
-            <div id="day-headers" class="grid grid-cols-[80px_repeat(7,1fr)] bg-slate-50 z-10 border-b"></div>
-            <div id="all-day-section" class="grid grid-cols-[80px_1fr] border-b">
-                <div class="text-center font-semibold text-xs py-2 border-l text-slate-500">تمام روز</div>
-                <div id="all-day-events-container" class="grid grid-cols-7 relative"></div>
-            </div>
-            <div class="relative overflow-y-auto" style="height: calc(16 * 60px);">
-                <div id="weekly-grid" class="grid grid-cols-[80px_1fr]">
-                    <div id="time-labels"></div>
-                    <div id="timeline-grid" class="grid grid-cols-7"></div>
+        <div id="calendar-wrapper">
+            <div class="calendar-header">
+                <button id="prev-week-btn" class="calendar-nav-btn"><i class="fa fa-chevron-right"></i></button>
+                <div class="flex items-center">
+                    <h1 id="week-title" class="week-title-display"></h1>
+                    <button id="today-btn" class="today-btn">امروز</button>
                 </div>
-                <div id="current-time-indicator" class="hidden"></div>
+                <button id="next-week-btn" class="calendar-nav-btn"><i class="fa fa-chevron-left"></i></button>
+            </div>
+
+            <div id="weekly-container" class="grid grid-cols-[80px_1fr]">
+                <div>
+                    <div class="h-16"></div>
+                    <div class="text-center font-semibold text-xs py-2 h-12 border-t">تمام روز</div>
+                    <div id="time-labels-container"></div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <div id="day-headers" class="grid grid-cols-7"></div>
+                    <div id="all-day-events-container" class="grid grid-cols-7 h-12"></div>
+                    <div class="relative overflow-y-auto" style="height: calc(16 * 60px);">
+                        <div id="timeline-grid" class="grid grid-cols-7"></div>
+                        <div id="current-time-indicator" class="hidden"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -270,7 +326,7 @@
                 </div>
                 <div>
                     <label class="text-sm font-medium text-slate-700">دسته‌بندی</label>
-                    <div class="category-selector mt-1">
+                    <div class="category-selector mt-1 flex flex-wrap gap-2">
                         <input type="radio" name="category" id="cat-meeting"
                             value='{"name": "جلسه", "color": "#0A192F"}' checked><label for="cat-meeting"
                             style="--cat-color: #0A192F;">جلسه</label>
@@ -287,13 +343,13 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="event-date" class="text-sm font-medium text-slate-700">تاریخ شروع</label>
+                        <label for="event-date" class="text-sm font-medium text-slate-700">تاریخ</label>
                         <input id="event-date" type="date" required class="mt-1 w-full p-2 border rounded-md">
                     </div>
                     <div class="flex items-center pt-6">
                         <input id="is-all-day" type="checkbox"
                             class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]">
-                        <label for="is-all-day" class="mr-2 text-sm font-medium text-slate-700">رویداد تمام روز</label>
+                        <label for="is-all-day" class="mr-2 text-sm font-medium text-slate-700">تمام روز</label>
                     </div>
                 </div>
                 <div id="time-inputs" class="grid grid-cols-2 gap-4">
@@ -302,39 +358,15 @@
                     <div><label for="end-time" class="text-sm font-medium text-slate-700">ساعت پایان</label><input
                             id="end-time" type="time" required class="mt-1 w-full p-2 border rounded-md"></div>
                 </div>
-                <div class="border-t pt-4">
-                    <div class="flex items-center">
-                        <input id="is-recurring" type="checkbox"
-                            class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]">
-                        <label for="is-recurring" class="mr-2 text-sm font-bold text-slate-800">رویداد
-                            تکرارشونده</label>
-                    </div>
+                <div class="border-t pt-4 flex items-center">
+                    <input id="is-recurring" type="checkbox"
+                        class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]">
+                    <label for="is-recurring" class="mr-2 text-sm font-bold text-slate-800">رویداد تکرارشونده</label>
                 </div>
                 <div id="recurring-options" class="hidden space-y-4 p-4 bg-slate-50 rounded-lg border">
                     <div>
                         <label class="text-sm font-medium text-slate-700 mb-2 block">تکرار در روزهای:</label>
                         <div class="flex flex-wrap gap-x-4 gap-y-2" id="weekday-selector">
-                            <div class="flex items-center"><input type="checkbox" id="day-6" value="6"
-                                    class="form-checkbox h-4 w-4"><label for="day-6" class="mr-2 text-sm">شنبه</label>
-                            </div>
-                            <div class="flex items-center"><input type="checkbox" id="day-0" value="0"
-                                    class="form-checkbox h-4 w-4"><label for="day-0" class="mr-2 text-sm">یکشنبه</label>
-                            </div>
-                            <div class="flex items-center"><input type="checkbox" id="day-1" value="1"
-                                    class="form-checkbox h-4 w-4"><label for="day-1" class="mr-2 text-sm">دوشنبه</label>
-                            </div>
-                            <div class="flex items-center"><input type="checkbox" id="day-2" value="2"
-                                    class="form-checkbox h-4 w-4"><label for="day-2"
-                                    class="mr-2 text-sm">سه‌شنبه</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="day-3" value="3"
-                                    class="form-checkbox h-4 w-4"><label for="day-3"
-                                    class="mr-2 text-sm">چهارشنبه</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="day-4" value="4"
-                                    class="form-checkbox h-4 w-4"><label for="day-4"
-                                    class="mr-2 text-sm">پنجشنبه</label></div>
-                            <div class="flex items-center"><input type="checkbox" id="day-5" value="5"
-                                    class="form-checkbox h-4 w-4"><label for="day-5" class="mr-2 text-sm">جمعه</label>
-                            </div>
                         </div>
                     </div>
                     <div>
@@ -342,13 +374,11 @@
                         <input id="end-date" type="date" class="mt-1 w-full p-2 border rounded-md">
                     </div>
                 </div>
-                <div class="border-t pt-4">
-                    <div class="flex items-center">
-                        <input id="show-on-dashboard" type="checkbox"
-                            class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]" checked>
-                        <label for="show-on-dashboard" class="mr-2 text-sm font-medium text-slate-700">نمایش در ویجت
-                            صفحه اصلی</label>
-                    </div>
+                <div class="border-t pt-4 flex items-center">
+                    <input id="show-on-dashboard" type="checkbox"
+                        class="h-4 w-4 rounded border-gray-300 text-[var(--gold)] focus:ring-[var(--gold)]" checked>
+                    <label for="show-on-dashboard" class="mr-2 text-sm font-medium text-slate-700">نمایش در ویجت صفحه
+                        اصلی</label>
                 </div>
                 <div class="pt-4 flex justify-between items-center">
                     <button type="button" id="delete-event-btn"
@@ -367,18 +397,18 @@
     <script src="https://cdn.jsdelivr.net/npm/jalali-moment@3.3.11/dist/jalali-moment.browser.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // --- SUPABASE & DOM ELEMENTS ---
             const SUPABASE_URL = 'https://evfgzegtplkhocfxcjpp.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2Zmd6ZWd0cGxraG9jZnhjanBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkxNDgyOTUsImV4cCI6MjA3NDcyNDI5NX0.eUDSqjhSK7Tk8rHfXV_tFTBzGbT3jBHJnLG70WVpV44';
             const { createClient } = supabase;
             const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { storage: window.sessionStorage } });
 
+            // --- DOM Elements ---
             const dayHeadersContainer = document.getElementById('day-headers');
             const allDayContainer = document.getElementById('all-day-events-container');
-            const timeLabelsContainer = document.getElementById('time-labels');
+            const timeLabelsContainer = document.getElementById('time-labels-container');
             const timelineGrid = document.getElementById('timeline-grid');
             const timeIndicator = document.getElementById('current-time-indicator');
-            const weekTitle = document.getElementById('week-title');
+            const weekTitleEl = document.getElementById('week-title');
             const modal = document.getElementById('event-modal');
             const modalTitle = document.getElementById('modal-title');
             const addEventBtn = document.getElementById('add-event-btn');
@@ -402,197 +432,149 @@
 
             moment.locale('fa');
 
-            // --- NEW: LOGIC FROM MONTHLY CALENDAR ---
+            // --- Logic from monthly calendar ---
             const officialHolidays = [
-                { date: '1404-01-01', title: 'جشن نوروز', isHoliday: true },
-                { date: '1404-01-02', title: 'جشن نوروز', isHoliday: true },
-                { date: '1404-01-03', title: 'جشن نوروز', isHoliday: true },
-                { date: '1404-01-04', title: 'جشن نوروز', isHoliday: true },
-                { date: '1404-01-12', title: 'روز جمهوری اسلامی', isHoliday: true },
-                { date: '1404-01-13', title: 'روز طبیعت', isHoliday: true },
-                { date: '1404-03-14', title: 'رحلت امام خمینی', isHoliday: true },
-                { date: '1404-03-15', title: 'قیام ۱۵ خرداد', isHoliday: true },
-                { date: '1404-11-22', title: 'پیروزی انقلاب اسلامی', isHoliday: true },
-                { date: '1404-12-29', title: 'روز ملی شدن صنعت نفت', isHoliday: true },
+                { date: '1404-01-01', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-02', title: 'جشن نوروز', isHoliday: true },
+                { date: '1404-01-03', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-04', title: 'جشن نوروز', isHoliday: true },
+                { date: '1404-01-12', title: 'روز جمهوری اسلامی', isHoliday: true }, { date: '1404-01-13', title: 'روز طبیعت', isHoliday: true },
+                { date: '1404-03-14', title: 'رحلت امام خمینی', isHoliday: true }, { date: '1404-03-15', title: 'قیام ۱۵ خرداد', isHoliday: true },
+                { date: '1404-11-22', title: 'پیروزی انقلاب اسلامی', isHoliday: true }, { date: '1404-12-29', title: 'روز ملی شدن صنعت نفت', isHoliday: true },
             ];
+            function adjustForWeekend(gregorianDate) { if (gregorianDate.day() === 5) return gregorianDate.add(1, 'days'); return gregorianDate; }
+            function calculateEventsFromRules(rules, year) { let finalEvents = []; rules.forEach(rule => { try { switch (rule.rule_type) { case 'DAYS_AFTER_QUARTER_END': [3, 6, 9, 12].forEach(month => { const day = (month <= 6) ? 31 : (month < 12 ? 30 : 29); const endOfQuarter = moment(`${year}/${month}/${day}`, 'jYYYY/jM/jD'); if (!endOfQuarter.isValid()) return; const eventDate = endOfQuarter.add(parseInt(rule.rule_value), 'days'); const adjustedDate = adjustForWeekend(eventDate); finalEvents.push({ title: `${rule.event_name} - فصل ${moment(`${year}/${month}/1`, 'jYYYY/jM/jD').format('jMMMM')}`, date: adjustedDate.format('YYYY-MM-DD') }); }); break; case 'END_OF_MONTH': for (let m = 1; m <= 12; m++) { let currentMonth = moment(`${year}/${m}/1`, 'jYYYY/jM/jD'); if (!currentMonth.isValid()) continue; let endOfNextMonth = currentMonth.clone().add(1, 'jMonth').endOf('jMonth'); let adjustedDate = adjustForWeekend(endOfNextMonth); finalEvents.push({ title: `${rule.event_name} (مربوط به ${currentMonth.format('jMMMM')})`, date: adjustedDate.format('YYYY-MM-DD') }); } break; case 'DAYS_AFTER_YEAR_END': const yearEnd = moment(`${year}/12/29`, 'jYYYY/jM/jD'); if (!yearEnd.isValid()) break; const eventDate = yearEnd.add(parseInt(rule.rule_value), 'days'); const adjustedDate = adjustForWeekend(eventDate); finalEvents.push({ title: rule.event_name, date: adjustedDate.format('YYYY-MM-DD') }); break; case 'FIXED_SHAMSI_DATE': const [month, day] = rule.rule_value.split('-'); const fixedDate = moment(`${year}/${month}/${day}`, 'jYYYY/jM/jD'); if (!fixedDate.isValid()) break; const adjustedFixedDate = adjustForWeekend(fixedDate); finalEvents.push({ title: rule.event_name, date: adjustedFixedDate.format('YYYY-MM-DD') }); break; } } catch (e) { console.error("Error processing rule:", rule, e); } }); return finalEvents; }
 
-            function adjustForWeekend(gregorianDate) {
-                if (gregorianDate.day() === 5) { // 5 is Friday
-                    return gregorianDate.add(1, 'days');
-                }
-                return gregorianDate;
-            }
-
-            function calculateEventsFromRules(rules, year) {
-                let finalEvents = [];
-                rules.forEach(rule => {
-                    try {
-                        switch (rule.rule_type) {
-                            case 'DAYS_AFTER_QUARTER_END':
-                                [3, 6, 9, 12].forEach(month => {
-                                    const day = (month <= 6) ? 31 : (month < 12 ? 30 : 29);
-                                    const endOfQuarter = moment(`${year}/${month}/${day}`, 'jYYYY/jM/jD');
-                                    if (!endOfQuarter.isValid()) return;
-                                    const eventDate = endOfQuarter.add(parseInt(rule.rule_value), 'days');
-                                    const adjustedDate = adjustForWeekend(eventDate);
-                                    finalEvents.push({
-                                        title: `${rule.event_name} - فصل ${moment(`${year}/${month}/1`, 'jYYYY/jM/jD').format('jMMMM')}`,
-                                        date: adjustedDate.format('YYYY-MM-DD')
-                                    });
-                                });
-                                break;
-                            case 'END_OF_MONTH':
-                                for (let m = 1; m <= 12; m++) {
-                                    let currentMonth = moment(`${year}/${m}/1`, 'jYYYY/jM/jD');
-                                    if (!currentMonth.isValid()) continue;
-                                    let endOfNextMonth = currentMonth.clone().add(1, 'jMonth').endOf('jMonth');
-                                    let adjustedDate = adjustForWeekend(endOfNextMonth);
-                                    finalEvents.push({
-                                        title: `${rule.event_name} (مربوط به ${currentMonth.format('jMMMM')})`,
-                                        date: adjustedDate.format('YYYY-MM-DD')
-                                    });
-                                }
-                                break;
-                            case 'DAYS_AFTER_YEAR_END':
-                                const yearEnd = moment(`${year}/12/29`, 'jYYYY/jM/jD');
-                                if (!yearEnd.isValid()) break;
-                                const eventDate = yearEnd.add(parseInt(rule.rule_value), 'days');
-                                const adjustedDate = adjustForWeekend(eventDate);
-                                finalEvents.push({ title: rule.event_name, date: adjustedDate.format('YYYY-MM-DD') });
-                                break;
-                            case 'FIXED_SHAMSI_DATE':
-                                const [month, day] = rule.rule_value.split('-');
-                                const fixedDate = moment(`${year}/${month}/${day}`, 'jYYYY/jM/jD');
-                                if (!fixedDate.isValid()) break;
-                                const adjustedFixedDate = adjustForWeekend(fixedDate);
-                                finalEvents.push({ title: rule.event_name, date: adjustedFixedDate.format('YYYY-MM-DD') });
-                                break;
-                        }
-                    } catch (e) {
-                        console.error("Error processing rule:", rule, e);
-                    }
-                });
-                return finalEvents;
-            }
-
-            // --- AUTHENTICATION ---
+            // --- AUTH & Initialization ---
             _supabase.auth.onAuthStateChange(async (event, session) => {
                 if (session && session.user) {
                     currentUser = session.user;
-                    loginBtn.style.display = 'none';
-                    userMenu.style.display = 'block';
-
+                    loginBtn.style.display = 'none'; userMenu.style.display = 'block';
                     const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', currentUser.id).single();
-                    if (!profile || !profile.has_premium_calendar) {
-                        alert('دسترسی به این بخش نیازمند خرید تقویم پیشرفته است.');
-                        window.location.href = 'calendar.html';
-                        return;
-                    }
-
+                    if (!profile || !profile.has_premium_calendar) { alert('دسترسی به این بخش نیازمند خرید تقویم پیشرفته است.'); window.location.href = 'calendar.html'; return; }
                     setupWeekView(currentMoment);
                     updateCurrentTimeIndicator();
                     setInterval(updateCurrentTimeIndicator, 60000);
-                } else {
-                    window.location.href = 'login.html';
-                }
+                } else { window.location.href = 'login.html'; }
             });
 
-            // --- EVENT LISTENERS (No changes here) ---
+            // --- Navigation & Header Event Listeners ---
             if (profileToggleBtn) profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
             if (logoutBtn) logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); sessionStorage.clear(); window.location.replace('index.html'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) dropdownMenu.classList.add('hidden'); });
-            document.getElementById('prev-week-btn').addEventListener('click', () => { currentMoment.subtract(1, 'week'); setupWeekView(currentMoment); });
-            document.getElementById('next-week-btn').addEventListener('click', () => { currentMoment.add(1, 'week'); setupWeekView(currentMoment); });
+            document.getElementById('prev-week-btn').addEventListener('click', () => { currentMoment.subtract(1, 'jWeek'); setupWeekView(currentMoment); });
+            document.getElementById('next-week-btn').addEventListener('click', () => { currentMoment.add(1, 'jWeek'); setupWeekView(currentMoment); });
             document.getElementById('today-btn').addEventListener('click', () => { currentMoment = moment(); setupWeekView(currentMoment); });
-            addEventBtn.addEventListener('click', () => { /* ... modal logic ... */ });
-            // ... (The rest of the modal and form event listeners remain the same) ...
 
-            // --- MAIN FUNCTIONS ---
+            // --- Main Calendar Setup Function ---
             async function setupWeekView(date) {
-                dayHeadersContainer.innerHTML = '<div class="border-l"></div>';
-                allDayContainer.innerHTML = '';
-                timeLabelsContainer.innerHTML = '';
-                timelineGrid.innerHTML = '';
                 const startOfWeek = date.clone().startOf('jWeek');
-                weekTitle.textContent = `هفته ${startOfWeek.format('jD jMMMM')}`;
+                weekTitleEl.textContent = `هفته ${startOfWeek.format('jD jMMMM')}`;
+
+                let headersHtml = '', allDayColsHtml = '', timelineColsHtml = '';
 
                 for (let i = 0; i < 7; i++) {
                     const dayMoment = startOfWeek.clone().add(i, 'days');
                     const isToday = dayMoment.isSame(moment(), 'day');
-                    dayHeadersContainer.innerHTML += `<div class="day-header-cell ${isToday ? 'today' : ''}"><span class="day-name">${dayMoment.format('dddd')}</span><div class="day-number-weekly">${dayMoment.format('jD')}</div></div>`;
-                    allDayContainer.innerHTML += `<div id="all-day-col-${dayMoment.format('YYYY-MM-DD')}" class="border-l p-1 space-y-1"></div>`;
-                    timelineGrid.innerHTML += `<div id="day-col-${dayMoment.format('YYYY-MM-DD')}" class="day-column">${Array(16).fill('<div class="hour-line"></div>').join('')}</div>`;
+                    headersHtml += `<div class="day-header-cell ${isToday ? 'today' : ''}"><span class="day-name">${dayMoment.format('dddd')}</span><div class="day-number-weekly">${dayMoment.format('jD')}</div></div>`;
+                    allDayColsHtml += `<div id="all-day-col-${dayMoment.format('YYYY-MM-DD')}" class="day-column p-1 space-y-1"></div>`;
+                    timelineColsHtml += `<div id="day-col-${dayMoment.format('YYYY-MM-DD')}" class="day-column">${Array(16).fill('<div class="hour-line"></div>').join('')}</div>`;
                 }
 
+                dayHeadersContainer.innerHTML = headersHtml;
+                allDayContainer.innerHTML = allDayColsHtml;
+                timelineGrid.innerHTML = timelineColsHtml;
+
+                let timeLabelsHtml = '';
                 for (let i = 8; i <= 23; i++) {
-                    timeLabelsContainer.innerHTML += `<div class="time-label h-[60px]">${i}:00</div>`;
+                    timeLabelsHtml += `<div class="time-label h-[60px]">${i}:00</div>`;
                 }
+                timeLabelsContainer.innerHTML = timeLabelsHtml;
 
                 await loadAndRenderAllEvents(date);
             }
 
-            // --- MODIFIED: Data Loading Function ---
+            // --- Data Loading and Rendering ---
             async function loadAndRenderAllEvents(date) {
                 const startOfWeek = date.clone().startOf('jWeek');
                 const endOfWeek = date.clone().endOf('jWeek');
                 const year = date.jYear();
 
-                // 1. Fetch and calculate public events using the new logic
                 let ruleBasedEvents = [];
                 try {
                     const { data: rules, error } = await _supabase.from('public_event_rules').select('*');
                     if (error) throw error;
                     ruleBasedEvents = calculateEventsFromRules(rules, year);
-                } catch (error) {
-                    console.error("Could not load or calculate public events:", error);
-                }
+                } catch (error) { console.error("Could not load public events:", error); }
 
                 const allPublicEventsForYear = [...ruleBasedEvents, ...officialHolidays];
                 const weekPublicEvents = allPublicEventsForYear.filter(e => moment(e.date, 'YYYY-MM-DD').isBetween(startOfWeek, endOfWeek, 'day', '[]'));
                 weekPublicEvents.forEach(renderPublicEvent);
 
-                // 2. Fetch personal events (this part is unchanged)
                 const { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', currentUser.id).gte('event_date', startOfWeek.format('YYYY-MM-DD')).lte('event_date', endOfWeek.format('YYYY-MM-DD'));
                 if (error) return console.error("Error fetching personal events:", error);
-
                 allPersonalEvents = data;
                 allPersonalEvents.forEach(renderPersonalEvent);
             }
 
-            // --- MODIFIED: Public Event Rendering ---
             function renderPublicEvent(event) {
-                const eventDateStr = event.date;
-                const dayColumn = document.getElementById(`all-day-col-${eventDateStr}`);
+                const dayColumn = document.getElementById(`all-day-col-${event.date}`);
                 if (!dayColumn) return;
                 const eventElement = document.createElement('div');
                 eventElement.className = 'all-day-event-block';
-
-                // Check if it's a holiday to set a different color
-                if (event.isHoliday) {
-                    eventElement.style.backgroundColor = '#ef4444'; // Red for holidays
-                } else {
-                    eventElement.style.backgroundColor = 'var(--navy)'; // Navy for accounting events
-                }
-
+                eventElement.style.backgroundColor = event.isHoliday ? '#ef4444' : 'var(--navy)';
                 eventElement.textContent = event.title;
                 dayColumn.appendChild(eventElement);
             }
+            function renderPersonalEvent(event) {
+                const eventDateStr = event.event_date;
+                const eventElement = document.createElement('div');
+                eventElement.dataset.eventId = event.id;
+                eventElement.style.backgroundColor = event.color;
+                if (event.is_all_day) {
+                    eventElement.className = 'all-day-event-block';
+                    eventElement.textContent = event.title;
+                    const dayCol = document.getElementById(`all-day-col-${eventDateStr}`);
+                    if (dayCol) dayCol.appendChild(eventElement);
+                } else {
+                    const dayColumn = document.getElementById(`day-col-${eventDateStr}`);
+                    if (!dayColumn || !event.start_time || !event.end_time) return;
+                    const startMinutes = timeToMinutes(event.start_time), endMinutes = timeToMinutes(event.end_time);
+                    if (startMinutes >= endMinutes) return;
+                    const topOffset = ((startMinutes - (8 * 60)) / 60) * 60;
+                    const height = ((endMinutes - startMinutes) / 60) * 60;
+                    eventElement.className = 'event-block';
+                    eventElement.style.cssText += `top: ${topOffset}px; height: ${height}px;`;
+                    eventElement.innerHTML = `<p class="font-bold">${event.title}</p><p class="text-xs opacity-80">${event.start_time} - ${event.end_time}</p>`;
+                    dayColumn.appendChild(eventElement);
+                }
+                eventElement.addEventListener('click', () => openEditModal(event));
+            }
 
-            // --- UNCHANGED: Personal Event Rendering and other functions ---
-            function renderPersonalEvent(event) { /* ... same as before ... */ }
-            function openEditModal(event) { /* ... same as before ... */ }
-            function timeToMinutes(timeStr) { /* ... same as before ... */ }
-            function updateCurrentTimeIndicator() { /* ... same as before ... */ }
+            // --- Modal and Form Logic ---
+            function openEditModal(event) {
+                modalTitle.textContent = 'ویرایش رویداد'; eventForm.reset(); isRecurringCheckbox.checked = false; isRecurringCheckbox.disabled = true;
+                recurringOptions.classList.add('hidden'); eventForm['event-id'].value = event.id; eventForm['event-title'].value = event.title;
+                eventForm['event-date'].value = event.event_date; document.getElementById('show-on-dashboard').checked = event.show_on_dashboard;
+                const categoryRadio = document.querySelector(`input[name="category"][value*='"color": "${event.color}"']`); if (categoryRadio) categoryRadio.checked = true;
+                isAllDayCheckbox.checked = event.is_all_day;
+                if (event.is_all_day) { timeInputs.style.display = 'none'; eventForm['start-time'].required = false; eventForm['end-time'].required = false; }
+                else { timeInputs.style.display = 'grid'; eventForm['start-time'].required = true; eventForm['end-time'].required = true; eventForm['start-time'].value = event.start_time; eventForm['end-time'].value = event.end_time; }
+                deleteEventBtn.classList.remove('hidden'); modal.classList.remove('hidden');
+            }
+            function timeToMinutes(timeStr) { if (!timeStr) return 0; const [hours, minutes] = timeStr.split(':').map(Number); return hours * 60 + minutes; }
+            function updateCurrentTimeIndicator() { const now = moment(); if (!now.isSame(currentMoment, 'week')) { timeIndicator.classList.add('hidden'); return; } const dayDateStr = now.format('YYYY-MM-DD'); const dayColumn = document.getElementById(`day-col-${dayDateStr}`); if (!dayColumn) { timeIndicator.classList.add('hidden'); return; } const startOfDay = now.clone().hour(8).minute(0).second(0); if (now.hour() < 8 || now.hour() >= 24) { timeIndicator.classList.add('hidden'); return; } const minutesSince8AM = now.diff(startOfDay, 'minutes'); const topPosition = (minutesSince8AM / 60) * 60; timeIndicator.style.top = `${topPosition}px`; timeIndicator.style.left = `${dayColumn.offsetLeft}px`; timeIndicator.style.width = `${dayColumn.offsetWidth}px`; timeIndicator.classList.remove('hidden'); }
 
-            // (The full modal and form event listeners should also be here)
-            // NOTE: The following section is collapsed for brevity but should be in your final code.
-            addEventBtn.addEventListener('click', () => { modalTitle.textContent = 'ثبت رویداد جدید'; eventForm.reset(); document.getElementById('show-on-dashboard').checked = true; isRecurringCheckbox.disabled = false; timeInputs.style.display = 'grid'; eventForm['start-time'].required = true; eventForm['end-time'].required = true; recurringOptions.classList.add('hidden'); document.getElementById('end-date').required = false; deleteEventBtn.classList.add('hidden'); modal.classList.remove('hidden'); });
+            // --- Event Listeners for Modal ---
+            addEventBtn.addEventListener('click', () => { modalTitle.textContent = 'ثبت رویداد جدید'; eventForm.reset(); document.getElementById('show-on-dashboard').checked = true; isRecurringCheckbox.checked = false; isRecurringCheckbox.disabled = false; timeInputs.style.display = 'grid'; eventForm['start-time'].required = true; eventForm['end-time'].required = true; recurringOptions.classList.add('hidden'); document.getElementById('end-date').required = false; deleteEventBtn.classList.add('hidden'); modal.classList.remove('hidden'); });
             cancelBtn.addEventListener('click', () => modal.classList.add('hidden'));
             isAllDayCheckbox.addEventListener('change', (e) => { const isChecked = e.target.checked; timeInputs.style.display = isChecked ? 'none' : 'grid'; eventForm['start-time'].required = !isChecked; eventForm['end-time'].required = !isChecked; });
             isRecurringCheckbox.addEventListener('change', (e) => { recurringOptions.classList.toggle('hidden', !e.target.checked); document.getElementById('end-date').required = e.target.checked; });
-            deleteEventBtn.addEventListener('click', async () => { const eventId = eventForm['event-id'].value; if (!eventId || !confirm('آیا از حذف این رویداد مطمئن هستید؟')) return; const { error } = await _supabase.from('user_personal_events').delete().eq('id', eventId); if (error) { alert("خطا در حذف رویداد: " + error.message); } else { modal.classList.add('hidden'); setupWeekView(currentMoment); } });
-            eventForm.addEventListener('submit', async (e) => { e.preventDefault(); const eventId = e.target['event-id'].value; const isRecurring = isRecurringCheckbox.checked; if (isRecurring && !eventId) { const startDate = moment(e.target['event-date'].value, 'YYYY-MM-DD'); const endDate = moment(e.target['end-date'].value, 'YYYY-MM-DD'); const selectedWeekdays = Array.from(weekdaySelector.querySelectorAll('input:checked')).map(cb => parseInt(cb.value)); if (selectedWeekdays.length === 0) return alert('لطفاً حداقل یک روز از هفته را برای تکرار انتخاب کنید.'); if (!endDate.isAfter(startDate)) return alert('تاریخ پایان تکرار باید بعد از تاریخ شروع باشد.'); const eventsToInsert = []; const categoryData = JSON.parse(e.target['category'].value); let currentDay = startDate.clone(); while (currentDay.isSameOrBefore(endDate)) { if (selectedWeekdays.includes(currentDay.day())) { eventsToInsert.push({ title: e.target['event-title'].value, event_date: currentDay.format('YYYY-MM-DD'), is_all_day: e.target['is-all-day'].checked, category: categoryData.name, color: categoryData.color, start_time: e.target['is-all-day'].checked ? null : e.target['start-time'].value, end_time: e.target['is-all-day'].checked ? null : e.target['end-time'].value, show_on_dashboard: document.getElementById('show-on-dashboard').checked, user_id: currentUser.id, }); } currentDay.add(1, 'day'); } if (eventsToInsert.length === 0) return alert('هیچ روزی مطابق با روزهای انتخابی شما در بازه زمانی مشخص شده یافت نشد.'); const { error } = await _supabase.from('user_personal_events').insert(eventsToInsert); if (error) { alert("خطا در ذخیره رویدادهای تکرارشونده: " + error.message); } else { modal.classList.add('hidden'); setupWeekView(currentMoment); } } else { const categoryData = JSON.parse(e.target['category'].value); const eventData = { title: e.target['event-title'].value, event_date: e.target['event-date'].value, is_all_day: e.target['is-all-day'].checked, category: categoryData.name, color: categoryData.color, start_time: e.target['is-all-day'].checked ? null : e.target['start-time'].value, end_time: e.target['is-all-day'].checked ? null : e.target['end-time'].value, show_on_dashboard: document.getElementById('show-on-dashboard').checked, user_id: currentUser.id, }; let error; if (eventId) { ({ error } = await _supabase.from('user_personal_events').update(eventData).eq('id', eventId)); } else { ({ error } = await _supabase.from('user_personal_events').insert([eventData])); } if (error) { alert("خطا در ذخیره رویداد: " + error.message); } else { modal.classList.add('hidden'); setupWeekView(currentMoment); } } });
+            deleteEventBtn.addEventListener('click', async () => { const eventId = eventForm['event-id'].value; if (!eventId || !confirm('آیا از حذف این رویداد مطمئن هستید؟')) return; const { error } = await _supabase.from('user_personal_events').delete().eq('id', eventId); if (error) { alert("خطا در حذف: " + error.message); } else { modal.classList.add('hidden'); setupWeekView(currentMoment); } });
 
+            // Weekday selector for recurring events
+            const days = [{ fa: 'شنبه', val: '6' }, { fa: 'یکشنبه', val: '0' }, { fa: 'دوشنبه', val: '1' }, { fa: 'سه‌شنبه', val: '2' }, { fa: 'چهارشنبه', val: '3' }, { fa: 'پنجشنبه', val: '4' }, { fa: 'جمعه', val: '5' }];
+            weekdaySelector.innerHTML = days.map(day => `<div class="flex items-center"><input type="checkbox" id="day-${day.val}" value="${day.val}" class="form-checkbox h-4 w-4"><label for="day-${day.val}" class="mr-2 text-sm">${day.fa}</label></div>`).join('');
+
+            eventForm.addEventListener('submit', async (e) => { e.preventDefault(); const eventId = e.target['event-id'].value; const isRecurring = isRecurringCheckbox.checked; if (isRecurring && !eventId) { const startDate = moment(e.target['event-date'].value, 'YYYY-MM-DD'); const endDate = moment(e.target['end-date'].value, 'YYYY-MM-DD'); const selectedWeekdays = Array.from(weekdaySelector.querySelectorAll('input:checked')).map(cb => parseInt(cb.value)); if (selectedWeekdays.length === 0 || !endDate.isAfter(startDate)) { alert('لطفا روزهای هفته و تاریخ پایان معتبر را انتخاب کنید.'); return; } const eventsToInsert = []; const categoryData = JSON.parse(e.target['category'].value); let currentDay = startDate.clone(); while (currentDay.isSameOrBefore(endDate)) { if (selectedWeekdays.includes(currentDay.day())) { eventsToInsert.push({ title: e.target['event-title'].value, event_date: currentDay.format('YYYY-MM-DD'), is_all_day: e.target['is-all-day'].checked, category: categoryData.name, color: categoryData.color, start_time: e.target['is-all-day'].checked ? null : e.target['start-time'].value, end_time: e.target['is-all-day'].checked ? null : e.target['end-time'].value, show_on_dashboard: document.getElementById('show-on-dashboard').checked, user_id: currentUser.id, }); } currentDay.add(1, 'day'); } if (eventsToInsert.length > 0) { const { error } = await _supabase.from('user_personal_events').insert(eventsToInsert); if (error) alert("خطا: " + error.message); else { modal.classList.add('hidden'); setupWeekView(currentMoment); } } } else { const categoryData = JSON.parse(e.target['category'].value); const eventData = { title: e.target['event-title'].value, event_date: e.target['event-date'].value, is_all_day: e.target['is-all-day'].checked, category: categoryData.name, color: categoryData.color, start_time: e.target['is-all-day'].checked ? null : e.target['start-time'].value, end_time: e.target['is-all-day'].checked ? null : e.target['end-time'].value, show_on_dashboard: document.getElementById('show-on-dashboard').checked, user_id: currentUser.id, }; let res; if (eventId) res = await _supabase.from('user_personal_events').update(eventData).eq('id', eventId); else res = await _supabase.from('user_personal_events').insert([eventData]); if (res.error) alert("خطا: " + res.error.message); else { modal.classList.add('hidden'); setupWeekView(currentMoment); } } });
         });
     </script>
 </body>

@@ -386,21 +386,18 @@
             });
 
             // --- 5. EVENT LISTENERS ---
-            // Profile Menu
             if (profileToggleBtn) profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
             if (logoutBtn) logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); sessionStorage.clear(); window.location.replace('index.html'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) dropdownMenu.classList.add('hidden'); });
 
-            // Clock
             function updateClock() { if (clockEl) clockEl.textContent = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
             updateClock();
             setInterval(updateClock, 1000);
 
-            // Calendar Navigation
             prevMonthBtn.addEventListener('click', () => navigateMonths(-1));
             nextMonthBtn.addEventListener('click', () => navigateMonths(1));
 
-            // --- 6. CORE FUNCTIONS (DATA FETCHING, RENDERING, HANDLERS) ---
+            // --- 6. CORE FUNCTIONS (Full Implementation) ---
             async function loadAllEventData(year, user) {
                 try {
                     const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;

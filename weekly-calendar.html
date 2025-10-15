@@ -460,10 +460,17 @@
             if (profileToggleBtn) profileToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('hidden'); });
             if (logoutBtn) logoutBtn.addEventListener('click', async (e) => { e.preventDefault(); await _supabase.auth.signOut(); sessionStorage.clear(); window.location.replace('index.html'); });
             window.addEventListener('click', () => { if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) dropdownMenu.classList.add('hidden'); });
-            document.getElementById('prev-week-btn').addEventListener('click', () => { currentMoment.subtract(1, 'jWeek'); setupWeekView(currentMoment); });
-            document.getElementById('next-week-btn').addEventListener('click', () => { currentMoment.add(1, 'jWeek'); setupWeekView(currentMoment); });
-            document.getElementById('today-btn').addEventListener('click', () => { currentMoment = moment(); setupWeekView(currentMoment); });
+            document.getElementById('prev-week-btn').addEventListener('click', () => {
+                alert('دکمه هفته قبل کار می‌کند!');
+            });
 
+            document.getElementById('next-week-btn').addEventListener('click', () => {
+                alert('دکمه هفته بعد کار می‌کند!');
+            });
+
+            document.getElementById('today-btn').addEventListener('click', () => {
+                alert('دکمه امروز کار می‌کند!');
+            });
             // --- Main Calendar Setup Function ---
             async function setupWeekView(date) {
                 const startOfWeek = date.clone().startOf('jWeek');

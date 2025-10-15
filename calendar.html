@@ -342,17 +342,50 @@
             let selectedDate = null;
             let isPremiumUser = false;
 
-            _supabase.auth.onAuthStateChange((event, session) => {
+            // --- 3. UNIFIED AUTH, PREMIUM CHECK & UI MANAGEMENT (The Complete Version) ---
+            _supabase.auth.onAuthStateChange(async (event, session) => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const paymentStatus = urlParams.get('payment');
+                let justPaid = paymentStatus === 'success';
+
+                if (justPaid) {
+                    alert('خرید شما با موفقیت انجام شد! قابلیت‌های جدید تقویم برای شما فعال شده است.');
+                    window.history.replaceState({}, document.title, "/calendar.html");
+                }
+
                 if (session && session.user) {
-                    if (loginBtn) loginBtn.style.display = 'none';
-                    if (userMenu) userMenu.style.display = 'block';
+                    // User is logged in
+                    loginBtn.style.display = 'none';
+                    userMenu.style.display = 'block';
+
+                    const { data: profile } = await _supabase.from('profiles').select('has_premium_calendar').eq('id', session.user.id).single();
+
+                    if (justPaid || (profile && profile.has_premium_calendar)) {
+                        isPremiumUser = true;
+                        if (premiumButtons) premiumButtons.style.display = 'block';
+                        if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'none';
+                        fetchPersonalEvents(currentMoment.jYear(), session.user);
+                        checkForUpcomingTasks(session.user);
+                    } else {
+                        isPremiumUser = false;
+                        if (premiumButtons) premiumButtons.style.display = 'none';
+                        if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
+                        userPersonalEvents = [];
+                        renderCalendar();
+                    }
                 } else {
-                    if (loginBtn) loginBtn.style.display = 'flex';
-                    if (userMenu) userMenu.style.display = 'none';
+                    // User is logged out
+                    isPremiumUser = false;
+                    loginBtn.style.display = 'flex';
+                    userMenu.style.display = 'none';
+                    if (premiumButtons) premiumButtons.style.display = 'none';
+                    if (upgradeCalendarPrompt) upgradeCalendarPrompt.style.display = 'block';
+                    userPersonalEvents = [];
+                    renderCalendar();
                 }
             });
 
-            // Event listener for the profile icon to toggle the dropdown
+            // --- 4. PROFILE MENU & LOGOUT LOGIC (Your Golden Solution) ---
             if (profileToggleBtn) {
                 profileToggleBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -360,26 +393,22 @@
                 });
             }
 
-            // Event listener for the logout button (Your Golden Solution)
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
                     await _supabase.auth.signOut();
-                    // Clear session storage to ensure a clean logout
                     sessionStorage.clear();
-                    // Use replace() to prevent returning to the page via the back button
-                    window.location.replace('index.html'); // Redirect to home page
+                    window.location.replace('index.html');
                 });
             }
 
-            // Close the dropdown if clicking anywhere else on the page
             window.addEventListener('click', () => {
                 if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
                     dropdownMenu.classList.add('hidden');
                 }
             });
 
-            // --- 5. PAGE INITIALIZATION ---
+            // --- 5. PAGE INITIALIZATION & OTHER FUNCTIONS ---
             moment.locale('fa');
 
             const clockEl = document.getElementById('live-clock-display');
@@ -394,7 +423,6 @@
 
             fetchEvents(currentMoment.jYear());
 
-            // --- 6. DATA FETCHING FUNCTIONS ---
             async function fetchEvents(year) {
                 const apiUrl = `https://alireza0naderiii.pythonanywhere.com/api/events/${year}`;
                 try {
@@ -431,7 +459,6 @@
                 }
             }
 
-            // --- 7. RENDERING & EVENT HANDLERS ---
             function renderCalendar() {
                 if (!daysGrid) return;
                 daysGrid.innerHTML = '';

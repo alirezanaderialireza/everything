@@ -476,7 +476,21 @@
                 setupWeekView(currentMoment);
             });
             // --- Main Calendar Setup Function ---
+            // --- Main Calendar Setup Function (FINAL) ---
             async function setupWeekView(date) {
+                // Clear previous content to prevent bugs
+                const dayHeadersContainer = document.getElementById('day-headers');
+                const allDayContainer = document.getElementById('all-day-events-container');
+                const timelineGrid = document.getElementById('timeline-grid');
+                const timeLabelsContainer = document.getElementById('time-labels-container');
+                const weekTitleEl = document.getElementById('week-title');
+
+                dayHeadersContainer.innerHTML = '';
+                allDayContainer.innerHTML = '';
+                timelineGrid.innerHTML = '';
+                timeLabelsContainer.innerHTML = '';
+
+                // --- Start drawing the new week ---
                 const startOfWeek = date.clone().startOf('jWeek');
                 weekTitleEl.textContent = `هفته ${startOfWeek.format('jD jMMMM')}`;
 
@@ -485,6 +499,7 @@
                 for (let i = 0; i < 7; i++) {
                     const dayMoment = startOfWeek.clone().add(i, 'days');
                     const isToday = dayMoment.isSame(moment(), 'day');
+
                     headersHtml += `<div class="day-header-cell ${isToday ? 'today' : ''}"><span class="day-name">${dayMoment.format('dddd')}</span><div class="day-number-weekly">${dayMoment.format('jD')}</div></div>`;
                     allDayColsHtml += `<div id="all-day-col-${dayMoment.format('YYYY-MM-DD')}" class="day-column p-1 space-y-1"></div>`;
                     timelineColsHtml += `<div id="day-col-${dayMoment.format('YYYY-MM-DD')}" class="day-column">${Array(16).fill('<div class="hour-line"></div>').join('')}</div>`;

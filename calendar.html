@@ -390,7 +390,6 @@
                     dropdownMenu.classList.toggle('hidden');
                 });
             }
-
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', async (e) => {
                     e.preventDefault();
@@ -399,7 +398,6 @@
                     window.location.replace('index.html');
                 });
             }
-
             window.addEventListener('click', () => {
                 if (dropdownMenu && !dropdownMenu.classList.contains('hidden')) {
                     dropdownMenu.classList.add('hidden');
@@ -418,16 +416,11 @@
             prevMonthBtn.addEventListener('click', () => navigateMonths(-1));
             nextMonthBtn.addEventListener('click', () => navigateMonths(1));
 
-            // --- 6. DATA FETCHING & RENDERING FUNCTIONS ---
-
-            // (This function now includes your golden solution)
+            // --- 6. DATA FETCHING, RENDERING & EVENT HANDLERS (Full Implementation) ---
             function handleDayClick(event) {
                 selectedDate = event.currentTarget.dataset.date;
-
                 _supabase.auth.getSession().then(({ data: { session } }) => {
-                    // First, check if user is logged in at all
                     if (!session || !session.user) {
-                        // Show public events for guests
                         document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
                         event.currentTarget.classList.add('selected');
                         const publicEvents = allEvents.filter(e => e.date === selectedDate);
@@ -439,12 +432,10 @@
                         }
                         return;
                     }
-
-                    // If logged in, check premium status
                     if (isPremiumUser) {
                         window.location.href = `daily-view.html?date=${selectedDate}`;
                     } else {
-                        alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقویم فعال است.');
+                        alert('این قابلیت فقط برای کاربران نسخه پیشرفته تقوim فعال است.');
                     }
                 });
             }
@@ -471,7 +462,19 @@
                 renderCalendar();
             }
 
-            async function checkForUpcomingTasks(user) { /* ... code remains the same ... */ }
+            async function checkForUpcomingTasks(user) {
+                if (!user) return;
+                const today = new Date().toISOString().slice(0, 10);
+                const { data, error } = await _supabase.from('user_personal_events').select('title').eq('user_id', user.id).eq('event_date', today).eq('is_completed', false);
+                if (!error && data && data.length > 0) {
+                    const taskListEl = document.getElementById('toast-task-list');
+                    const toastEl = document.getElementById('notification-toast');
+                    if (taskListEl && toastEl) {
+                        taskListEl.innerHTML = data.map(task => `<p class="truncate">- ${task.title}</p>`).join('');
+                        setTimeout(() => toastEl.classList.add('show'), 1500);
+                    }
+                }
+            }
 
             function renderCalendar() {
                 if (!daysGrid) return;
@@ -499,11 +502,24 @@
                     const cellHtml = `<div class="${cellClasses}" data-date="${dateString}"><div class="day-number">${i}</div>${eventsHtml}</div>`;
                     daysGrid.insertAdjacentHTML('beforeend', cellHtml);
                 }
-                // Attach the new, robust click handler
                 document.querySelectorAll('.day-cell[data-date]').forEach(cell => { cell.addEventListener('click', handleDayClick); });
             }
 
-            function navigateMonths(direction) { /* ... (code remains the same) ... */ }
+            function navigateMonths(direction) {
+                const currentYear = currentMoment.jYear();
+                currentMoment.add(direction, 'jMonth');
+                const newYear = currentMoment.jYear();
+                if (newYear !== currentYear) {
+                    fetchEvents(newYear);
+                    if (isPremiumUser) {
+                        _supabase.auth.getSession().then(({ data: { session } }) => {
+                            if (session) fetchPersonalEvents(newYear, session.user);
+                        });
+                    }
+                } else {
+                    renderCalendar();
+                }
+            }
         });
     </script>
 </body>

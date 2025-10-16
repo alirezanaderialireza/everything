@@ -431,87 +431,16 @@
             document.getElementById('next-week-btn').addEventListener('click', () => { currentMoment = currentMoment.clone().add(7, 'days'); setupWeekView(currentMoment); });
             document.getElementById('today-btn').addEventListener('click', () => { currentMoment = moment(); setupWeekView(currentMoment); });
 
-            async function setupWeekView(date) {
-                const startOfWeek = date.clone().startOf('jWeek');
-                weekTitleEl.textContent = `هفته ${startOfWeek.format('jD jMMMM')}`;
-                let headersHtml = '', allDayColsHtml = '', timelineColsHtml = '';
-                for (let i = 0; i < 7; i++) {
-                    const dayMoment = startOfWeek.clone().add(i, 'days');
-                    const isToday = dayMoment.isSame(moment(), 'day');
-                    const dateStr = dayMoment.format('YYYY-MM-DD');
-                    headersHtml += `<div class="day-header-cell ${isToday ? 'today' : ''}" data-date="${dateStr}"><span class="day-name">${dayMoment.format('dddd')}</span><div class="day-number-weekly">${dayMoment.format('jD')}</div></div>`;
-                    allDayColsHtml += `<div id="all-day-col-${dateStr}" class="day-column p-1 space-y-1" data-date="${dateStr}"></div>`;
-                    timelineColsHtml += `<div id="day-col-${dateStr}" class="day-column" data-date="${dateStr}">${Array(16).fill('<div class="hour-line"></div>').join('')}</div>`;
-                }
-                dayHeadersContainer.innerHTML = headersHtml;
-                allDayContainer.innerHTML = allDayColsHtml;
-                timelineGrid.innerHTML = timelineColsHtml;
-                let timeLabelsHtml = '';
-                for (let i = 8; i <= 23; i++) { timeLabelsHtml += `<div class="time-label h-[60px]">${i}:00</div>`; }
-                timeLabelsContainer.innerHTML = timeLabelsHtml;
-                document.querySelectorAll('.day-column, .day-header-cell').forEach(cell => {
-                    cell.addEventListener('click', (e) => {
-                        if (e.target.closest('.event-block') || e.target.closest('.all-day-event-block')) return;
-                        const date = cell.dataset.date;
-                        if (date) openAddModal(date);
-                    });
-                });
-                await loadAndRenderAllEvents(date);
-            }
+            async function setupWeekView(date) { /* ... same as before ... */ }
+            async function loadAndRenderAllEvents(date) { /* ... same as before ... */ }
+            function renderPublicEvent(event) { /* ... same as before ... */ }
+            function renderPersonalEvent(event) { /* ... same as before ... */ }
 
-            async function loadAndRenderAllEvents(date) {
-                const startOfWeek = date.clone().startOf('jWeek'), endOfWeek = date.clone().endOf('jWeek');
-                let ruleBasedEvents = [];
-                try {
-                    const { data: rules, error } = await _supabase.from('public_event_rules').select('*');
-                    if (error) throw error;
-                    ruleBasedEvents = calculateEventsFromRules(rules, date.jYear());
-                } catch (error) { console.error(error); }
-                const allPublicEventsForYear = [...ruleBasedEvents, ...officialHolidays];
-                const weekPublicEvents = allPublicEventsForYear.filter(e => moment(e.date, 'YYYY-MM-DD').isBetween(startOfWeek, endOfWeek, 'day', '[]'));
-                weekPublicEvents.forEach(renderPublicEvent);
-                const { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', currentUser.id).gte('event_date', startOfWeek.format('YYYY-MM-DD')).lte('event_date', endOfWeek.format('YYYY-MM-DD'));
-                if (error) return console.error("Error fetching personal events:", error);
-                data.forEach(renderPersonalEvent);
-            }
-
-            function renderPublicEvent(event) {
-                const dayColumn = document.getElementById(`all-day-col-${event.date}`);
-                if (!dayColumn) return;
-                const eventElement = document.createElement('div');
-                eventElement.className = 'all-day-event-block';
-                eventElement.style.backgroundColor = event.isHoliday ? '#ef4444' : 'var(--navy)';
-                eventElement.textContent = event.title;
-                dayColumn.appendChild(eventElement);
-            }
-
-            function renderPersonalEvent(event) {
-                const eventElement = document.createElement('div');
-                eventElement.dataset.eventId = event.id;
-                eventElement.style.backgroundColor = event.color;
-                if (event.is_all_day) {
-                    eventElement.className = 'all-day-event-block';
-                    eventElement.textContent = event.title;
-                    const dayCol = document.getElementById(`all-day-col-${event.event_date}`);
-                    if (dayCol) dayCol.appendChild(eventElement);
-                } else {
-                    const dayColumn = document.getElementById(`day-col-${event.event_date}`);
-                    if (!dayColumn || !event.start_time || !event.end_time) return;
-                    const startMinutes = timeToMinutes(event.start_time), endMinutes = timeToMinutes(event.end_time);
-                    if (startMinutes >= endMinutes) return;
-                    const topOffset = ((startMinutes - (8 * 60)) / 60) * 60, height = ((endMinutes - startMinutes) / 60) * 60;
-                    eventElement.className = 'event-block';
-                    eventElement.style.cssText += `top: ${topOffset}px; height: ${height}px;`;
-                    eventElement.innerHTML = `<p class="font-bold">${event.title}</p><p class="text-xs opacity-80">${event.start_time} - ${event.end_time}</p>`;
-                    dayColumn.appendChild(eventElement);
-                }
-                eventElement.addEventListener('click', () => openEditModal(event));
-            }
-
+            // --- CORRECTED: Modal opening functions ---
             function openAddModal(date) {
                 modalTitle.textContent = 'ثبت رویداد جدید';
                 eventForm.reset();
-                eventDateInput.value = moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD');
+                eventDateInput.value = moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD'); // Set value in standard Jalali format
                 const defaultEndDate = moment(date, 'YYYY-MM-DD').add(1, 'month').format('jYYYY/jMM/jDD');
                 endDateInput.value = defaultEndDate;
                 document.getElementById('show-on-dashboard').checked = true;
@@ -550,15 +479,9 @@
             isRecurringCheckbox.addEventListener('change', (e) => { recurringOptions.classList.toggle('hidden', !e.target.checked); endDateInput.required = e.target.checked; });
             const days = [{ fa: 'شنبه', val: '6' }, { fa: 'یکشنبه', val: '0' }, { fa: 'دوشنبه', val: '1' }, { fa: 'سه‌شنبه', val: '2' }, { fa: 'چهارشنبه', val: '3' }, { fa: 'پنجشنبه', val: '4' }, { fa: 'جمعه', val: '5' }];
             weekdaySelector.innerHTML = days.map(day => `<div class="flex items-center"><input type="checkbox" id="day-${day.val}" value="${day.val}" class="form-checkbox h-4 w-4"><label for="day-${day.val}" class="mr-2 text-sm">${day.fa}</label></div>`).join('');
+            deleteEventBtn.addEventListener('click', async () => { /* ... same as before ... */ });
 
-            deleteEventBtn.addEventListener('click', async () => {
-                const eventId = eventForm['event-id'].value;
-                if (!eventId || !confirm('آیا از حذف این رویداد مطمئن هستید؟')) return;
-                const { error } = await _supabase.from('user_personal_events').delete().eq('id', eventId);
-                if (error) { alert("خطا در حذف: " + error.message); }
-                else { modal.classList.add('hidden'); setupWeekView(currentMoment); }
-            });
-
+            // --- FINAL CORRECTED: Event Form Submission Logic ---
             eventForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const submitButton = e.target.querySelector('button[type="submit"]');
@@ -572,8 +495,9 @@
                     const categoryData = JSON.parse(e.target['category'].value);
                     const isRecurring = isRecurringCheckbox.checked;
 
+                    // --- FINAL FIX: Use the correct format 'jYYYY/jMM/jDD' to parse ---
                     const gregorianDate = moment(e.target['event-date'].value, 'jYYYY/jMM/jDD').format('YYYY-MM-DD');
-                    if (!moment(gregorianDate).isValid()) throw new Error('فرمت تاریخ شروع نامعتبر است.');
+                    if (!moment(gregorianDate).isValid()) throw new Error('فرمت تاریخ شروع نامعتبر است. لطفاً تاریخ را به صورت YYYY/MM/DD وارد کنید.');
 
                     let response;
 
@@ -622,6 +546,23 @@
                     submitButton.textContent = 'ذخیره';
                 }
             });
+
+            // --- Placeholder for other functions ---
+            async function setupWeekView(date) {
+                let startOfWeek = date.clone().startOf('jWeek'); weekTitleEl.textContent = `هفته ${startOfWeek.format('jD jMMMM')}`; let headersHtml = '', allDayColsHtml = '', timelineColsHtml = ''; for (let i = 0; i < 7; i++) { let dayMoment = startOfWeek.clone().add(i, 'days'); let isToday = dayMoment.isSame(moment(), 'day'); let dateStr = dayMoment.format('YYYY-MM-DD'); headersHtml += `<div class="day-header-cell ${isToday ? 'today' : ''}" data-date="${dateStr}"><span class="day-name">${dayMoment.format('dddd')}</span><div class="day-number-weekly">${dayMoment.format('jD')}</div></div>`; allDayColsHtml += `<div id="all-day-col-${dateStr}" class="day-column p-1 space-y-1" data-date="${dateStr}"></div>`; timelineColsHtml += `<div id="day-col-${dateStr}" class="day-column" data-date="${dateStr}">${Array(16).fill('<div class="hour-line"></div>').join('')}</div>` }
+                dayHeadersContainer.innerHTML = headersHtml; allDayContainer.innerHTML = allDayColsHtml; timelineGrid.innerHTML = timelineColsHtml; let timeLabelsHtml = ''; for (let i = 8; i <= 23; i++) { timeLabelsHtml += `<div class="time-label h-[60px]">${i}:00</div>` }
+                timeLabelsContainer.innerHTML = timeLabelsHtml; document.querySelectorAll('.day-column, .day-header-cell').forEach(cell => { cell.addEventListener('click', e => { if (e.target.closest('.event-block') || e.target.closest('.all-day-event-block')) return; let date = cell.dataset.date; if (date) { openAddModal(date) } }) }); await loadAndRenderAllEvents(date)
+            }
+            async function loadAndRenderAllEvents(date) {
+                let startOfWeek = date.clone().startOf('jWeek'), endOfWeek = date.clone().endOf('jWeek'); let ruleBasedEvents = []; try { let { data: rules, error } = await _supabase.from('public_event_rules').select('*'); if (error) throw error; ruleBasedEvents = calculateEventsFromRules(rules, date.jYear()) } catch (error) { console.error(error) }
+                let allPublicEventsForYear = [...ruleBasedEvents, ...officialHolidays]; let weekPublicEvents = allPublicEventsForYear.filter(e => moment(e.date, 'YYYY-MM-DD').isBetween(startOfWeek, endOfWeek, 'day', '[]')); weekPublicEvents.forEach(renderPublicEvent); let { data, error } = await _supabase.from('user_personal_events').select('*').eq('user_id', currentUser.id).gte('event_date', startOfWeek.format('YYYY-MM-DD')).lte('event_date', endOfWeek.format('YYYY-MM-DD')); if (error) return console.error("Error fetching personal events:", error); data.forEach(renderPersonalEvent)
+            }
+            function renderPublicEvent(event) { let dayColumn = document.getElementById(`all-day-col-${event.date}`); if (!dayColumn) return; let eventElement = document.createElement('div'); eventElement.className = 'all-day-event-block'; eventElement.style.backgroundColor = event.isHoliday ? '#ef4444' : 'var(--navy)'; eventElement.textContent = event.title; dayColumn.appendChild(eventElement) }
+            function renderPersonalEvent(event) {
+                let eventElement = document.createElement('div'); eventElement.dataset.eventId = event.id; eventElement.style.backgroundColor = event.color; if (event.is_all_day) { eventElement.className = 'all-day-event-block'; eventElement.textContent = event.title; let dayCol = document.getElementById(`all-day-col-${event.event_date}`); if (dayCol) dayCol.appendChild(eventElement) } else { let dayColumn = document.getElementById(`day-col-${event.event_date}`); if (!dayColumn || !event.start_time || !event.end_time) return; let startMinutes = timeToMinutes(event.start_time), endMinutes = timeToMinutes(event.end_time); if (startMinutes >= endMinutes) return; let topOffset = ((startMinutes - (8 * 60)) / 60) * 60, height = ((endMinutes - startMinutes) / 60) * 60; eventElement.className = 'event-block'; eventElement.style.cssText += `top: ${topOffset}px; height: ${height}px;`; eventElement.innerHTML = `<p class="font-bold">${event.title}</p><p class="text-xs opacity-80">${event.start_time} - ${event.end_time}</p>`; dayColumn.appendChild(eventElement) }
+                eventElement.addEventListener('click', () => openEditModal(event))
+            }
+            deleteEventBtn.addEventListener('click', async () => { const eventId = eventForm['event-id'].value; if (!eventId || !confirm('آیا از حذف رویداد مطمئن هستید؟')) return; const { error } = await _supabase.from('user_personal_events').delete().eq('id', eventId); if (error) { alert("خطا در حذف: " + error.message); } else { modal.classList.add('hidden'); setupWeekView(currentMoment); } });
         });
     </script>
 </body>

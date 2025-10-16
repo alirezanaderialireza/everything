@@ -9,6 +9,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
         rel="stylesheet">
+
+    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+
     <style>
         :root {
             --navy: #0A192F;
@@ -324,7 +329,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="event-date" class="text-sm font-medium text-slate-700">تاریخ</label>
-                        <input id="event-date" type="date" required class="mt-1 w-full p-2 border rounded-md">
+                        <input id="event-date" type="text" required class="mt-1 w-full p-2 border rounded-md">
                     </div>
                     <div class="flex items-center pt-6">
                         <input id="is-all-day" type="checkbox"
@@ -350,7 +355,7 @@
                     </div>
                     <div>
                         <label for="end-date" class="text-sm font-medium text-slate-700">تاریخ پایان تکرار</label>
-                        <input id="end-date" type="date" class="mt-1 w-full p-2 border rounded-md">
+                        <input id="end-date" type="text" class="mt-1 w-full p-2 border rounded-md">
                     </div>
                 </div>
                 <div class="border-t pt-4 flex items-center">
@@ -408,6 +413,13 @@
             let currentUser = null;
             let currentMoment = moment();
             moment.locale('fa');
+
+            // --- Initialize Persian Datepicker ---
+            $("#event-date, #end-date").pDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: false // Prevent setting default value on load
+            });
 
             const officialHolidays = [{ date: '1404-01-01', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-02', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-03', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-04', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-12', title: 'روز جمهوری اسلامی', isHoliday: true }, { date: '1404-01-13', title: 'روز طبیعت', isHoliday: true }, { date: '1404-03-14', title: 'رحلت امام خمینی', isHoliday: true }, { date: '1404-03-15', title: 'قیام ۱۵ خرداد', isHoliday: true }, { date: '1404-11-22', title: 'پیروزی انقلاب اسلامی', isHoliday: true }, { date: '1404-12-29', title: 'روز ملی شدن صنعت نفت', isHoliday: true },];
             function adjustForWeekend(gregorianDate) { if (gregorianDate.day() === 5) return gregorianDate.add(1, 'days'); return gregorianDate; }
@@ -511,8 +523,8 @@
             function openAddModal(date) {
                 modalTitle.textContent = 'ثبت رویداد جدید';
                 eventForm.reset();
-                eventDateInput.value = moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD');
-                const defaultEndDate = moment(date, 'YYYY-MM-DD').add(1, 'month').format('jYYYY/jMM/jDD');
+                eventDateInput.value = moment(date, 'YYYY-MM-DD').format('YYYY/MM/DD');
+                const defaultEndDate = moment(date, 'YYYY-MM-DD').add(1, 'month').format('YYYY/MM/DD');
                 endDateInput.value = defaultEndDate;
                 document.getElementById('show-on-dashboard').checked = true;
                 isRecurringCheckbox.checked = false; isRecurringCheckbox.disabled = false;
@@ -531,8 +543,8 @@
                 recurringOptions.classList.add('hidden');
                 eventForm['event-id'].value = event.id;
                 eventForm['event-title'].value = event.title;
-                eventDateInput.value = moment(event.event_date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD');
-                const defaultEndDate = moment(event.event_date, 'YYYY-MM-DD').add(1, 'month').format('jYYYY/jMM/jDD');
+                eventDateInput.value = moment(event.event_date, 'YYYY-MM-DD').format('YYYY/MM/DD');
+                const defaultEndDate = moment(event.event_date, 'YYYY-MM-DD').add(1, 'month').format('YYYY/MM/DD');
                 endDateInput.value = defaultEndDate;
                 document.getElementById('show-on-dashboard').checked = event.show_on_dashboard;
                 const categoryRadio = document.querySelector(`input[name="category"][value*='"color": "${event.color}"']`);
@@ -559,7 +571,6 @@
                 else { modal.classList.add('hidden'); setupWeekView(currentMoment); }
             });
 
-            // --- FINAL CORRECTED & SIMPLIFIED: Event Form Submission Logic ---
             eventForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const submitButton = e.target.querySelector('button[type="submit"]');
@@ -573,13 +584,13 @@
                     const categoryData = JSON.parse(e.target['category'].value);
                     const isRecurring = isRecurringCheckbox.checked;
 
-                    const gregorianDate = moment(e.target['event-date'].value, 'jYYYY/jMM/jDD').format('YYYY-MM-DD');
+                    const gregorianDate = moment(e.target['event-date'].value, 'YYYY/MM/DD').format('YYYY-MM-DD');
                     if (!moment(gregorianDate).isValid()) throw new Error('فرمت تاریخ شروع نامعتبر است.');
 
                     let response;
 
                     if (isRecurring && !eventId) {
-                        const gregorianEndDate = moment(e.target['end-date'].value, 'jYYYY/jMM/jDD').format('YYYY-MM-DD');
+                        const gregorianEndDate = moment(e.target['end-date'].value, 'YYYY/MM/DD').format('YYYY-MM-DD');
                         if (!moment(gregorianEndDate).isValid()) throw new Error('فرمت تاریخ پایان تکرار نامعتبر است.');
 
                         const startDate = moment(gregorianDate);
@@ -599,16 +610,13 @@
                             currentDay.add(1, 'day');
                         }
                         if (eventsToInsert.length > 0) {
-                            // FINAL FIX: Removed .select()
                             response = await _supabase.from('user_personal_events').insert(eventsToInsert);
                         }
                     } else {
                         const eventData = { title: e.target['event-title'].value, event_date: gregorianDate, is_all_day: e.target['is-all-day'].checked, category: categoryData.name, color: categoryData.color, start_time: e.target['is-all-day'].checked ? null : e.target['start-time'].value, end_time: e.target['is-all-day'].checked ? null : e.target['end-time'].value, show_on_dashboard: document.getElementById('show-on-dashboard').checked, user_id: currentUser.id, is_completed: false };
                         if (eventId) {
-                            // FINAL FIX: Removed .select()
                             response = await _supabase.from('user_personal_events').update(eventData).eq('id', eventId);
                         } else {
-                            // FINAL FIX: Removed .select()
                             response = await _supabase.from('user_personal_events').insert([eventData]);
                         }
                     }

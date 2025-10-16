@@ -413,11 +413,10 @@
             let currentMoment = moment();
             moment.locale('fa');
 
-            // --- Initialize Persian Datepicker ---
             $("#event-date, #end-date").pDatepicker({
                 format: 'YYYY/MM/DD',
                 autoClose: true,
-                initialValue: false // Prevent setting default value on load
+                initialValue: false
             });
 
             const officialHolidays = [{ date: '1404-01-01', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-02', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-03', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-04', title: 'جشن نوروز', isHoliday: true }, { date: '1404-01-12', title: 'روز جمهوری اسلامی', isHoliday: true }, { date: '1404-01-13', title: 'روز طبیعت', isHoliday: true }, { date: '1404-03-14', title: 'رحلت امام خمینی', isHoliday: true }, { date: '1404-03-15', title: 'قیام ۱۵ خرداد', isHoliday: true }, { date: '1404-11-22', title: 'پیروزی انقلاب اسلامی', isHoliday: true }, { date: '1404-12-29', title: 'روز ملی شدن صنعت نفت', isHoliday: true },];
@@ -583,13 +582,15 @@
                     const categoryData = JSON.parse(e.target['category'].value);
                     const isRecurring = isRecurringCheckbox.checked;
 
-                    const gregorianDate = moment(e.target['event-date'].value, 'YYYY/MM/DD').format('YYYY-MM-DD');
+                    // FINAL FIX: Use 'jYYYY/MM/DD' to correctly parse the Jalali date from the input
+                    const gregorianDate = moment(e.target['event-date'].value, 'jYYYY/MM/DD').format('YYYY-MM-DD');
                     if (!moment(gregorianDate).isValid()) throw new Error('فرمت تاریخ شروع نامعتبر است.');
 
                     let response;
 
                     if (isRecurring && !eventId) {
-                        const gregorianEndDate = moment(e.target['end-date'].value, 'YYYY/MM/DD').format('YYYY-MM-DD');
+                        // FINAL FIX: Also parse the end date correctly
+                        const gregorianEndDate = moment(e.target['end-date'].value, 'jYYYY/MM/DD').format('YYYY-MM-DD');
                         if (!moment(gregorianEndDate).isValid()) throw new Error('فرمت تاریخ پایان تکرار نامعتبر است.');
 
                         const startDate = moment(gregorianDate);

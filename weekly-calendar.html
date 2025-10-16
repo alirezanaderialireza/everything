@@ -1,228 +1,226 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقویم هفتگی - آیدا شیرازی</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تقویم هفتگی - آیدا شیرازی</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Vazirmatn:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
-    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css" />
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-    <script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
+<script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+<style>
+    :root {
+        --navy: #0A192F;
+        --slate-800: #1e293b;
+        --slate-600: #475569;
+        --slate-100: #f1f5f9;
+        --gold: #c49827;
+        --light-gold: #FBEFCE;
+        --font-display: 'Lalezar', cursive;
+        --font-body: 'Vazirmatn', sans-serif;
+    }
 
-    <style>
-        :root {
-            --navy: #0A192F;
-            --slate-800: #1e293b;
-            --slate-600: #475569;
-            --slate-100: #f1f5f9;
-            --gold: #c49827;
-            --light-gold: #FBEFCE;
-            --font-display: 'Lalezar', cursive;
-            --font-body: 'Vazirmatn', sans-serif;
-        }
+    body {
+        font-family: var(--font-body);
+        background-color: var(--slate-100);
+    }
 
-        body {
-            font-family: var(--font-body);
-            background-color: var(--slate-100);
-        }
+    h1,
+    h2,
+    .font-display {
+        font-family: var(--font-display);
+    }
 
-        h1,
-        h2,
-        .font-display {
-            font-family: var(--font-display);
-        }
+    .main-header {
+        background-color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid #e2e8f0;
+    }
 
-        .main-header {
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid #e2e8f0;
-        }
+    .nav-link {
+        transition: color 0.3s ease;
+        color: var(--slate-800);
+        font-weight: 500;
+    }
 
-        .nav-link {
-            transition: color 0.3s ease;
-            color: var(--slate-800);
-            font-weight: 500;
-        }
+    .nav-link:hover {
+        color: var(--navy);
+    }
 
-        .nav-link:hover {
-            color: var(--navy);
-        }
+    .btn-gold {
+        background-color: var(--gold);
+        color: var(--navy);
+        border-radius: 0.5rem;
+        font-weight: 600;
+        padding: 0.6rem 1.5rem;
+        transition: all 0.2s;
+    }
 
-        .btn-gold {
-            background-color: var(--gold);
-            color: var(--navy);
-            border-radius: 0.5rem;
-            font-weight: 600;
-            padding: 0.6rem 1.5rem;
-            transition: all 0.2s;
-        }
+    .btn-gold:hover:not(:disabled) {
+        background-color: #b98d1e;
+        transform: translateY(-2px);
+    }
 
-        .btn-gold:hover:not(:disabled) {
-            background-color: #b98d1e;
-            transform: translateY(-2px);
-        }
+    #calendar-wrapper {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
 
-        #calendar-wrapper {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background-color: var(--navy);
+        color: white;
+    }
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 1.5rem;
-            background-color: var(--navy);
-            color: white;
-        }
+    .week-title-display {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+    }
 
-        .week-title-display {
-            font-family: var(--font-display);
-            font-size: 1.75rem;
-        }
+    .calendar-nav-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
 
-        .calendar-nav-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
+    .calendar-nav-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
 
-        .calendar-nav-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
+    .today-btn {
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--navy);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+        margin: 0 0.5rem;
+    }
 
-        .today-btn {
-            background: rgba(255, 255, 255, 0.9);
-            color: var(--navy);
-            border-radius: 6px;
-            font-size: 0.8rem;
-            padding: 0.4rem 0.8rem;
-            margin: 0 0.5rem;
-        }
+    .day-header-cell {
+        text-align: center;
+        padding: 0.75rem 0.25rem;
+        font-weight: 600;
+        color: var(--slate-600);
+        background-color: var(--slate-100);
+        border-left: 1px solid #e2e8f0;
+    }
 
-        .day-header-cell {
-            text-align: center;
-            padding: 0.75rem 0.25rem;
-            font-weight: 600;
-            color: var(--slate-600);
-            background-color: var(--slate-100);
-            border-left: 1px solid #e2e8f0;
-        }
+    .day-header-cell:last-child {
+        border-left: none;
+    }
 
-        .day-header-cell:last-child {
-            border-left: none;
-        }
+    .day-header-cell.today .day-number-weekly {
+        background-color: var(--gold);
+        color: white;
+    }
 
-        .day-header-cell.today .day-number-weekly {
-            background-color: var(--gold);
-            color: white;
-        }
+    .day-number-weekly {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        border-radius: 50%;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-top: 4px;
+    }
 
-        .day-number-weekly {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
-            border-radius: 50%;
-            font-size: 1rem;
-            font-weight: 700;
-            margin-top: 4px;
-        }
+    .time-label {
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--slate-500);
+        position: relative;
+        top: -8px;
+    }
 
-        .time-label {
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--slate-500);
-            position: relative;
-            top: -8px;
-        }
+    #time-labels-container {
+        border-left: 1px solid #e2e8f0;
+    }
 
-        #time-labels-container {
-            border-left: 1px solid #e2e8f0;
-        }
+    .day-column {
+        border-left: 1px solid #e2e8f0;
+        position: relative;
+    }
 
-        .day-column {
-            border-left: 1px solid #e2e8f0;
-            position: relative;
-        }
+    .day-column:last-child {
+        border-left: none;
+    }
 
-        .day-column:last-child {
-            border-left: none;
-        }
+    #all-day-events-container .day-column {
+        border-bottom: 1px solid #e2e8f0;
+    }
 
-        #all-day-events-container .day-column {
-            border-bottom: 1px solid #e2e8f0;
-        }
+    .hour-line {
+        height: 60px;
+        border-top: 1px dotted #d1d5db;
+    }
 
-        .hour-line {
-            height: 60px;
-            border-top: 1px dotted #d1d5db;
-        }
+    .event-block,
+    .all-day-event-block {
+        color: white;
+        border-radius: 6px;
+        padding: 4px 8px;
+        overflow: hidden;
+        font-size: 0.8rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-right: 3px solid rgba(0, 0, 0, 0.2);
+        transition: all 0.2s;
+        cursor: pointer;
+    }
 
-        .event-block,
-        .all-day-event-block {
-            color: white;
-            border-radius: 6px;
-            padding: 4px 8px;
-            overflow: hidden;
-            font-size: 0.8rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            border-right: 3px solid rgba(0, 0, 0, 0.2);
-            transition: all 0.2s;
-            cursor: pointer;
-        }
+    .event-block:hover,
+    .all-day-event-block:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
 
-        .event-block:hover,
-        .all-day-event-block:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
+    .event-block {
+        position: absolute;
+        right: 4px;
+        left: 4px;
+    }
 
-        .event-block {
-            position: absolute;
-            right: 4px;
-            left: 4px;
-        }
+    .all-day-event-block {
+        margin: 2px;
+        font-weight: 500;
+    }
 
-        .all-day-event-block {
-            margin: 2px;
-            font-weight: 500;
-        }
+    #event-modal {
+        transition: opacity 0.3s ease;
+    }
 
-        #event-modal {
-            transition: opacity 0.3s ease;
-        }
+    .category-selector input[type="radio"] {
+        display: none;
+    }
 
-        .category-selector input[type="radio"] {
-            display: none;
-        }
+    .category-selector label {
+        padding: 6px 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
 
-        .category-selector label {
-            padding: 6px 14px;
-            border: 2px solid #e2e8f0;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .category-selector input[type="radio"]:checked+label {
-            background-color: var(--cat-color);
-            color: white;
-            border-color: var(--cat-color);
-        }
-    </style>
+    .category-selector input[type="radio"]:checked+label {
+        background-color: var(--cat-color);
+        color: white;
+        border-color: var(--cat-color);
+    }
+</style>
 </head>
 
 <body class="bg-slate-100">
